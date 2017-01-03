@@ -1,0 +1,9 @@
+pytest
+pytest-qt
+pytest-mock
+pytest-xvfb
+pytest-selenium
+jinja2
+cherrypy
+invoke
+six

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Graph</title>
+
+	<link rel="stylesheet" type="text/css" href="{{ own }}/css/graph.css" />
+
+	<script type="text/javascript" src="{{ own }}/namespace.js"></script>
+
+	{% if embedded %}
+	<script type="text/javascript" src="{{ own }}/error_redirect.js"></script>
+
+	<script type="text/javascript">
+		mxBasePath = '{{ mxgraph|replace("qrc:/", "") }}';
+ 	</script>
+	{% else %}
+	<script type="text/javascript">
+		mxBasePath = '{{ mxgraph }}';
+ 	</script>
+	{% endif %}
+
+	<script type="text/javascript" src="{{ mxgraph }}/js/mxClient.js"></script>
+	<script type="text/javascript" src="{{ own }}/graphs.js"></script>
+	<script type="text/javascript" src="{{ own }}/api.js"></script>
+	<script type="text/javascript" src="{{ own }}/utils.js"></script>
+	<script type="text/javascript" src="{{ own }}/standalone.js"></script>
+
+	<script type="text/javascript">
+		var loadGraph = function() {
+			var container = document.getElementById('graphContainer');
+			try {
+				// Loads the stencils into the registry
+				var stencils = JSON.parse('{{stencils}}');
+				for (var i = 0; i < stencils.length; i++) {
+					var stencil = stencils[i];
+
+					var req = mxUtils.load(stencil);
+					var root = req.getDocumentElement();
+					var shape = root.firstChild;
+					while (shape != null)
+					{
+						if (shape.nodeType == mxConstants.NODETYPE_ELEMENT)
+						{
+							mxStencilRegistry.addStencil(shape.getAttribute('name'), new mxStencil(shape));
+						}
+						shape = shape.nextSibling;
+					}
+				}
+
+				var options = JSON.parse('{{options}}');
+				var styles = JSON.parse('{{styles}}');
+				graphs.runStandAlone(container, options, styles);
+			} catch (e) {
+				container.classList.add('error-mask');
+				container.classList.add('hide-bg');
+				var error = document.createElement('p');
+				container.appendChild(error);
+				error.textContent = "Critical error: unable to create graph";
+				throw e;
+			}
+		};
+	</script>
+</head>
+
+<body onload="loadGraph()">
+	<!-- Creates a container for the graph with a grid wallpaper -->
+	<div id="graphContainer" class="graph"></div>
+</body>
+
+</html>

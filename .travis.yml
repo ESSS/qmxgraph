@@ -1,0 +1,36 @@
+language: python
+python: 3.5
+sudo: required
+dist: trusty
+
+env:
+  - TOXENV=py35
+
+virtualenv:
+  system_site_packages: true
+
+# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
+install:
+  - sudo apt-get update
+
+  # PyQt5
+  - sudo apt-get install python3-pyqt5
+
+  # Tox
+  - pip install -U tox
+
+# command to run tests, e.g. python setup.py test
+script: tox -e ${TOXENV},flake8
+
+# After you create the Github repo and add it to Travis, run the
+# travis_pypi_setup.py script to finish PyPI deployment setup
+deploy:
+  provider: pypi
+  distributions: sdist bdist_wheel
+  user: fogo
+  password:
+    secure: PLEASE_REPLACE_ME
+  on:
+    tags: true
+    repo: ESSS/qt_style_sheet_inspector
+    condition: $TOXENV == py35

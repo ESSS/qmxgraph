@@ -1,0 +1,6 @@
+[flake8]
+exclude =
+    qmxgraph/resource_mxgraph.py,
+    qmxgraph/resource_qmxgraph.py,
+    docs/,
+    build
