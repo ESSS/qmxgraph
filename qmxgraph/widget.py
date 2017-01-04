@@ -390,7 +390,7 @@ class QmxGraph(QWidget):
         data = event.mimeData().data(constants.QGRAPH_DD_MIME_TYPE)
         if not data.isNull():
             data_stream = QDataStream(data, QIODevice.ReadOnly)
-            parsed = json.loads(data_stream.readString())
+            parsed = json.loads(data_stream.readString().decode('utf8'))
 
             # Refer to `mime.py` for docs about format
             version = parsed['version']

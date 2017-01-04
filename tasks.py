@@ -4,15 +4,15 @@ import os
 
 import sys
 import invoke
+from colorama import Fore, Style
 
 
 @invoke.ctask
-def qrc_mxgraph(
+def qrc(
     ctx,
-    folder=None,
 ):
     """
-    Compiles mxGraph and qmxgraph own static web files in Qt resource files.
+    Compiles mxGraph and QmxGraph own static web files in Qt resource files.
 
     This simplifies a lot embedding these contents on Qt web views. It also
     helps freezing an executable, as dependency with static web files becomes
@@ -20,11 +20,11 @@ def qrc_mxgraph(
 
     Generates 2 resource files located in `qmxgraph` package:
 
-    * `resource_qmxgraph`: static files found in `page/` folder of qmxgraph;
+    * `resource_qmxgraph`: static files found in `page/` of QmxGraph;
     * `resource_mxgraph`: static files in mxGraph library, specifically
     all files located in `javascript/src`.
 
-    These resources are imported by qmxgraph widget and must be generated
+    These resources are imported by QmxGraph widget and must be generated
     before its use.
     """
     import qmxgraph
@@ -41,17 +41,13 @@ def qrc_mxgraph(
         '.xml',  # used by mxGraph resources
     )
 
-    # identation_level = 0
-    # ident = '    ' * identation_level
-
-    # print_message(
-    #     '{}qrc_web'.format(ident),
-    #     color=Fore.BLUE, bright=True)
+    indent = '  '
+    print_message('qrc', color=Fore.BLUE, bright=True)
 
     def create_web_resource(resource_name, src_dir):
-        # print_message(
-        #     '{}    - resource: {}'.format(ident, resource_name),
-        #     color=Fore.BLUE, bright=True)
+        print_message(
+            '{}- resource: {}'.format(indent, resource_name),
+            color=Fore.BLUE, bright=True)
 
         target_dir = os.path.dirname(qmxgraph.__file__)
         qrc_file, py_file = generate_qrc_from_folder(
@@ -61,18 +57,20 @@ def qrc_mxgraph(
             target_dir=target_dir,
             include=WEB_EXTENSIONS,
         )
-        # print_message('{}        * generated {}'.format(ident, qrc_file))
-        # print_message('{}        * generated {}'.format(ident, py_file))
+        print_message('{}* generated {}'.format(indent * 2, qrc_file))
+        print_message('{}* generated {}'.format(indent * 2, py_file))
 
-    if folder is None:
-        # TODO fogo: raise if doesn't find conda
+    mxgraph = os.environ.get('MXGRAPHPATH', None)
+    if mxgraph is None:
         env_dir = deploy.get_conda_env_path()
         if env_dir is None:
-            raise IOError("Unable to determine MxGraph folder in environment")
-        folder = '{env_dir}/mxgraph'.format(env_dir=env_dir)
+            raise IOError("Unable to determine MxGraph mxgraph in "
+                          "environment")
+        mxgraph = '{env_dir}/mxgraph'.format(env_dir=env_dir)
+
     create_web_resource(
         resource_name='mxgraph',
-        src_dir='{folder}/javascript/src'.format(folder=folder))
+        src_dir='{folder}/javascript/src'.format(folder=mxgraph))
 
     qgraph_root = os.path.dirname(qmxgraph.__file__)
     create_web_resource(
@@ -84,15 +82,9 @@ def qrc_mxgraph(
 @invoke.ctask
 def test(
     ctx,
-    xml=None,
 ):
-    # project_name = get_project_name_for_cwd()
-    # print_message(
-    #     '{0} test (custom)'.format(project_name), color=Fore.BLUE,
-    # bright=True)
-    cmd = 'py.test'
-    if xml:
-        cmd += ' --junitxml={xml}'.format(xml=xml)
+    print_message('test'.format(), color=Fore.BLUE, bright=True)
+    cmd = 'py.test -n auto --timeout=10'
 
     import subprocess
     raise invoke.Exit(subprocess.call(cmd, shell=True))
@@ -138,7 +130,13 @@ def generate_qrc(target_filename, file_map):
         pair must be formed by, respectively, alias for file in resource
         collection and path of file to be included in resource collection.
     """
-    write = generate_qrc_contents(file_map)
+    target_dir = os.path.dirname(target_filename)
+    contents = generate_qrc_contents(file_map, target_dir)
+
+    import six
+    if six.PY2:
+        contents = contents.decode('utf8')
+
     # UTF-8 is the encoding adopted by Qt (and subsequently PyQt) resource
     # collection tools. It seems to not be officially stated anywhere in docs
     # unfortunately, but if it is possible to see this encoding in use by
@@ -148,21 +146,24 @@ def generate_qrc(target_filename, file_map):
     # https://forum.qt.io/topic/42641/the-qt-resource-system-compile-error/4).
     import io
     with io.open(target_filename, 'w', encoding='utf8') as f:
-        f.write(write)
+        f.write(contents)
 
 
-def generate_qrc_contents(file_map):
+def generate_qrc_contents(file_map, target_dir):
     """
     Generates just the contents of a Qt resource collection file. See
     `generate_qrc` for more details.
 
     :param iterable[tuple[str, str]] file_map: See `generate_qrc`.
+    :param str target_dir: The tool that compiles QRC to a Python module
+        requires files in QRC to be relative to its execution.
     :rtype: str
     :return: Contents of a resource collection file.
     """
     entries = '\n'.join(
         [
-            '    ' + QRC_ENTRY_TEMPLATE.format(alias=alias, path=path)
+            '    ' + QRC_ENTRY_TEMPLATE.format(
+                alias=alias, path=os.path.relpath(path, target_dir))
             for (alias, path) in file_map
         ]
     )
@@ -288,6 +289,38 @@ def collect_files_in_folder(folder, include=None):
     return collected
 
 
+def print_message(message, color=None, bright=True, endline='\n'):
+    """
+    Print a message to the standard output.
+
+    :param unicode message: The message to print.
+    :param unicode|None color: The ANSI color used to colorize the message
+        (see `colorama.Fore`). When `None` the message is printed as is.
+        Defaults to `None`.
+    :param bool bright: Control if the output message is bright or dim. This
+        value is ignored if `color is None`. Default to `True`.
+    :param unicode endline: The character printed after `message`. Default to
+        "new line character".
+    """
+    import sys
+    if color is not None:
+        style = Style.BRIGHT if bright else Style.DIM
+        message = '{color}{style}{msg}{reset}'.format(
+            color=color,
+            style=style,
+            reset=Style.RESET_ALL,
+            msg=message,
+        )
+
+    # The subprocesses are going to write directly to stdout/stderr, so we
+    # need to flush to make sure the output does not get out of order
+    sys.stdout.flush()
+    sys.stderr.flush()
+    print(message, end=endline)
+    sys.stdout.flush()
+    sys.stderr.flush()
+
+
 QRC_ENTRY_TEMPLATE = '<file alias="{alias}">{path}</file>'
 QRC_FILE_TEMPLATE = '''\
 <!DOCTYPE RCC>
@@ -302,5 +335,5 @@ QRC_FILE_TEMPLATE = '''\
 
 # Only task registered in this global collection will be detected by invoke.
 ns = invoke.Collection()
-ns.add_task(qrc_mxgraph)
+ns.add_task(qrc)
 ns.add_task(test)

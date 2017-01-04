@@ -70,13 +70,16 @@ def gen_config(port, mxgraph_path, own_path, stencils_path=None, debug=False):
     # between different instances/processes. This is really helpful when for
     # any reason server is unable to be started, for instance.
     log_path = os.path.dirname(__file__)
+
+    server_logs_dir = '{}/.server_logs'.format(log_path)
+    if not os.path.isdir(server_logs_dir):
+        os.makedirs(server_logs_dir)
+
     config["global"].update({
         'log.access_file':
-            '{}/.server_logs/cherrypy_port{}_access.log'.format(
-                log_path, port),
+            '{}/cherrypy_port{}_access.log'.format(server_logs_dir, port),
         'log.error_file':
-            '{}/.server_logs/cherrypy_port{}_error.log'.format(
-                log_path, port),
+            '{}/cherrypy_port{}_error.log'.format(server_logs_dir, port),
     })
 
     return config
@@ -147,8 +150,15 @@ def host(port, options=None, styles=None, stencils=tuple()):
     :param iterable[str] stencils: Sequence of paths in file system
         referring to stencil files.
     """
-    mxgraph_path = os.path.join(
-        deploy.get_conda_env_path(), 'mxgraph', 'javascript', 'src')
+    mxgraph_path = os.environ.get('MXGRAPHPATH', None)
+    if mxgraph_path is None:
+        conda_env_path = deploy.get_conda_env_path()
+        if conda_env_path is None:
+            raise IOError("Unable to determine mxGraph path, unable to host "
+                          "server. Set MXGRAPHPATH environment variable or "
+                          "use a conda environment.")
+        mxgraph_path = os.path.join(conda_env_path, 'mxgraph')
+    mxgraph_path = os.path.join(mxgraph_path, 'javascript', 'src')
     own_path = os.path.join(os.path.dirname(__file__), 'page')
 
     stencils_path = None

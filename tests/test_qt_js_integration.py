@@ -23,12 +23,17 @@ def test_error_redirection(loaded_graph):
 
     def store_error(msg, url, lineNo, columnNo):
         errors.append((msg, url, lineNo, columnNo))
+
     error_redirection.on_error.connect(store_error)
     loaded_graph.set_error_bridge(error_redirection)
 
     eval_js(loaded_graph, """throw Error("test")""")
-    assert errors == \
-        [('Error: message: test\nstack:\nglobal code', 'undefined', 2, 0)]
+    assert len(errors) == 1
+    msg, url, line, column = errors[0]
+    assert msg == 'Error: message: test\nstack:\nglobal code'
+    assert url == 'undefined'
+    assert line == 2
+    assert column in (0, -1)  # older WebKit may not provide column
 
 
 def test_events_bridge(graph, qtbot):
@@ -46,19 +51,30 @@ def test_events_bridge(graph, qtbot):
 
     added = []
     removed = []
+    labels = []
 
     def on_cells_added(cell_ids):
         added.extend(cell_ids)
+
     events.on_cells_added.connect(on_cells_added)
 
     def on_cells_removed(cell_ids):
         removed.extend(cell_ids)
+
     events.on_cells_removed.connect(on_cells_removed)
+
+    def on_label_changed(a, b, c):
+        labels.extend([a, b, c])
+
+    events.on_label_changed.connect(on_label_changed)
 
     wait_until_loaded(graph, qtbot)
 
     vertex_id = graph.api.insert_vertex(10, 10, 20, 20, 'test')
     assert added == [vertex_id]
+
+    graph.api.set_label(vertex_id, 'TOTALLY NEW LABEL')
+    assert labels == [vertex_id, 'TOTALLY NEW LABEL', 'test']
 
     graph.api.remove_cells([vertex_id])
     assert removed == [vertex_id]
@@ -269,7 +285,9 @@ def test_drag_drop_invalid_mime_type(loaded_graph, drag_drop_events):
     item_data = QByteArray()
     data_stream = QDataStream(item_data, QIODevice.WriteOnly)
     data_stream.writeString(
-        json.dumps('<?xml version="1.0"?><message>Hello World!</message>'))
+        json.dumps(
+            '<?xml version="1.0"?><message>Hello World!</message>'
+        ).encode('utf8'))
 
     mime_data = QMimeData()
     mime_data.setData('application/xml', item_data)
@@ -313,7 +331,7 @@ def test_drag_drop_invalid_version(loaded_graph, drag_drop_events):
 
     assert drop_event.acceptProposedAction.call_count == 0
     assert len(exceptions) == 1
-    assert exceptions[0][1].message == \
+    assert str(exceptions[0][1]) == \
         "Unsupported version of QmxGraph MIME data: -1"
 
 
@@ -332,7 +350,7 @@ def test_invalid_api_call(loaded_graph, debug):
             with pytest.raises(qmxgraph.js.InvalidJavaScriptError) as e:
                 loaded_graph.api.call_api('BOOM')
 
-            assert e.value.message == \
+            assert str(e.value) == \
                 'Unable to find function "BOOM" in QmxGraph JavaScript API'
         else:
             # When debug feature is disabled, code will raise on JavaScript

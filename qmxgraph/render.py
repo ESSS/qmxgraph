@@ -26,7 +26,8 @@ def render_embedded_html(options, styles, stencils, mxgraph_path, own_path):
 
     try:
         from jinja2 import Template
-        template = Template(html_file.readAll().data())
+        html_data = html_file.readAll().data()
+        template = Template(html_data.decode('utf8'))
     finally:
         html_file.close()
 

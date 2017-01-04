@@ -90,7 +90,9 @@ class Port(object):
         import time
 
         lock_file = _get_port_lock_filename(self.rootdir)
-        while True:
+        attempts = 10
+        port_ = None
+        while attempts > 0:
             try:
                 f = os.open(lock_file, os.O_CREAT | os.O_EXCL)
                 os.close(f)
@@ -119,13 +121,19 @@ class Port(object):
                 if unique:
                     self.cache.set('qmxgraph/ports', ports_ + [port_])
                     break
+                else:
+                    attempts -= 1
             finally:
                 os.remove(lock_file)
+
+        if attempts == 0:
+            raise IOError("Unable to obtain unique port after "
+                          "{} attempts".format(attempts))
 
         return port_
 
 
-@pytest.yield_fixture(scope='session')
+@pytest.yield_fixture
 def host(port):
     """
     Hosts a graph page, with a series of simple default options and styles.

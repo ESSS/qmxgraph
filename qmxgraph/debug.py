@@ -17,4 +17,5 @@ def is_qmxgraph_debug_enabled():
     """
     return _QGRAPH_DEBUG
 
+
 _QGRAPH_DEBUG = False

@@ -183,12 +183,12 @@ def test_group(graph_cases):
     assert not group
 
 
-def test_toggle_outline(selenium, host):
+def test_toggle_outline(selenium, host, wait_graph_page_ready):
     """
     :type selenium: selenium.webdriver.remote.webdriver.WebDriver
     :type host: qmxgraph.server.Host
     """
-    selenium.get(host.address)
+    wait_graph_page_ready(host=host)
 
     # By default, outline starts hidden. Basically this means mxGraph's window
     # component used to shown outline doesn't exist yet.
@@ -207,12 +207,12 @@ def test_toggle_outline(selenium, host):
 
 
 @pytest.mark.parametrize('grid', [True, False])
-def test_toggle_grid(selenium, host, grid):
+def test_toggle_grid(selenium, host, grid, wait_graph_page_ready):
     """
     :type selenium: selenium.webdriver.remote.webdriver.WebDriver
     :type host: qmxgraph.server.Host
     """
-    selenium.get(host.address)
+    wait_graph_page_ready(host=host)
 
     # By default, grid starts visible. To hide grid, a class is
     # added to graph container div.

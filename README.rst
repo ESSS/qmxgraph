@@ -2,6 +2,9 @@
 QmxGraph
 ========
 
+.. image:: https://img.shields.io/travis/ESSS/qmxgraph.svg
+        :target: https://travis-ci.org/ESSS/qmxgraph
+
 This a Qt widget that embeds a rich and powerful graph drawing tool 
 using JavaScript's mxGraph library. 
 
