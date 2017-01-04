@@ -81,7 +81,8 @@ class CherryPyServer(object):
                 # If already dead for any reason, just let it go
                 if e.winerror != 5:
                     exc_type, exc_value, tb = sys.exc_info()
-                    raise exc_type, exc_value, tb
+                    import six
+                    six.reraise(exc_type, exc_value, tb)
             if not sys.platform.startswith('win'):
                 os.waitpid(self.server_pid, 0)
 

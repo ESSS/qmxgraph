@@ -350,10 +350,10 @@ class BaseGraphCase(object):
         try:
             if get(source, 'x') < get(target, 'x'):
                 h_right = get(source, 'x') + get(source, 'width')
-                v_center = get(source, 'y') + get(source, 'height') / 2
+                v_center = get(source, 'y') + get(source, 'height') // 2
             else:
                 h_right = get(target, 'x') + get(target, 'width')
-                v_center = get(target, 'y') + get(target, 'height') / 2
+                v_center = get(target, 'y') + get(target, 'height') // 2
         except StaleElementReferenceException:
             # If any of vertices is not longer in page, edge is also removed
             return None
@@ -775,8 +775,8 @@ class Graph2Vertices1Edge1Decoration(Graph2Vertices1EdgeByCode):
         self.eval_js_function('api.insertDecoration', x, y, w, h, label, style)
 
         decoration = self.get_decoration()
-        assert int(decoration.get_attribute("x")) == x - (w / 2)
-        assert int(decoration.get_attribute("y")) == y - (h / 2)
+        assert int(decoration.get_attribute("x")) == x - (w // 2)
+        assert int(decoration.get_attribute("y")) == y - (h // 2)
         assert int(decoration.get_attribute("width")) == w
         assert int(decoration.get_attribute("height")) == h
 

@@ -2,6 +2,7 @@ import math
 import sys
 
 import pytest
+import six
 from selenium.common.exceptions import NoSuchElementException, \
     WebDriverException
 from selenium.webdriver import ActionChains
@@ -591,7 +592,10 @@ def test_get_label(graph_cases):
 
     table_html_data = []
 
-    from HTMLParser import HTMLParser
+    if six.PY2:
+        from HTMLParser import HTMLParser
+    else:
+        from html.parser import HTMLParser
 
     class TableHTMLParser(HTMLParser):
         def handle_starttag(self, tag, attrs):

@@ -199,6 +199,8 @@ class GraphStyles(object):
         self.validate()
 
     def validate(self):
+        import six
+
         known_keys = {
             'shape',
             'fill_color',
@@ -212,8 +214,8 @@ class GraphStyles(object):
         }
 
         invalid = {}
-        for name, config in self._styles.iteritems():
-            for key, value in config.iteritems():
+        for name, config in six.iteritems(self._styles):
+            for key, value in six.iteritems(config):
                 if key not in known_keys:
                     invalid.setdefault(name, []).append(key)
 
@@ -221,7 +223,7 @@ class GraphStyles(object):
             raise ValueError("Invalid keys in styles {}".format(
                 ",".join(
                     "{} ({})".format(name, ", ".join(keys))
-                    for name, keys in invalid.iteritems())))
+                    for name, keys in six.iteritems(invalid))))
 
     def as_dict(self):
         return self._styles
