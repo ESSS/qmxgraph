@@ -90,6 +90,21 @@ def test(
     raise invoke.Exit(subprocess.call(cmd, shell=True))
 
 
+@invoke.ctask(help={
+    'svg_path': 'A SVG file',
+})
+def svgtostencil(ctx, svg_path):
+    """
+    Converts a SVG file to a stencil file compatible with mxGraph, output is printed in standard
+    output.
+    """
+    qmxgraph_scripts = os.path.join(os.getcwd(), 'scripts')
+
+    import subprocess
+    svg_to_stencil_script = os.path.join(qmxgraph_scripts, 'svg_to_stencil.py')
+    raise invoke.Exit(subprocess.call(['python', svg_to_stencil_script, svg_path]))
+
+
 def generate_qrc(target_filename, file_map):
     """
     Generates a Qt resource collection file. It is an XML file used to specify
@@ -337,3 +352,4 @@ QRC_FILE_TEMPLATE = '''\
 ns = invoke.Collection()
 ns.add_task(qrc)
 ns.add_task(test)
+ns.add_task(svgtostencil)
