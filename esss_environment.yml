@@ -1,8 +1,12 @@
 {% set CONDA_PY = os.environ.get('CONDA_PY', '27') %}
+{% set PY2 = CONDA_PY < '35' %}
 
 name: qmxgraph-py{{ CONDA_PY }}
 
 environment:
+  - PYTHONPATH:
+    - {{ os.path.join(root) }}
+
 # PhantomJS
 # pros:
 # * doesn't open a browser (i.e. known as headless)
@@ -29,7 +33,7 @@ environment:
 dependencies:
     - python=={{ '2.7.12' if PY2 else '3.5.2' }}
     - mxgraph==3.5.1.4  # private/licensed package
-    - jinja2==2.8
+    - jinja2==2.7.3
     - pyqt5==5.5.1+3
     - cherrypy==3.8.0
     - pytest-qt=2.1.0
@@ -40,5 +44,5 @@ dependencies:
     - phantomjs==2.1.1
     - invoke==0.12.2
     - six==1.10.0
-    - colorama=0.3.7
+    - colorama=0.3.3
     - fix-and-check-env==1.0.0
