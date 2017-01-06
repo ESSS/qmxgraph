@@ -175,10 +175,19 @@ def generate_qrc_contents(file_map, target_dir):
     :rtype: str
     :return: Contents of a resource collection file.
     """
+    # Relative paths on Windows can be a pain in the ass if virtual drives
+    # (through `subst` command) are used. This make sure all files are
+    # using their *actual* absolute path.
+    target_dir = follow_subst(target_dir)
+
+    def create_entry(alias_, path_):
+        path_ = follow_subst(path_)
+        rel_path = os.path.relpath(path_, target_dir)
+        return '    ' + QRC_ENTRY_TEMPLATE.format(alias=alias_, path=rel_path)
+
     entries = '\n'.join(
         [
-            '    ' + QRC_ENTRY_TEMPLATE.format(
-                alias=alias, path=os.path.relpath(path, target_dir))
+            create_entry(alias, path)
             for (alias, path) in file_map
         ]
     )
@@ -201,6 +210,10 @@ def generate_qrc_py(qrc_filename, target_filename):
     import subprocess
 
     cwd, local_filename = os.path.split(qrc_filename)
+
+    # Needs to be executed on same *actual* absolute path as generated
+    # contents, so it also needs to deal with subst.
+    cwd = follow_subst(cwd)
     subprocess.check_call(
         ['pyrcc5', local_filename, '-o', target_filename], cwd=cwd)
 
@@ -334,6 +347,71 @@ def print_message(message, color=None, bright=True, endline='\n'):
     print(message, end=endline)
     sys.stdout.flush()
     sys.stderr.flush()
+
+
+if sys.platform.startswith('win'):
+    def follow_subst(path, deep=True):
+        """
+        Windows has support for virtual drives through `subst` command (
+        https://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/subst.mspx?mfr=true)
+
+        Unfortunately Python doesn't acknowledge that and functions like
+        `os.path.relpath` may fail if files in valid relative paths are
+        mounted in different virtual drives.
+
+        This function detects all virtual drives on system and replaces one or
+        all virtual drives in path (depending on `deep` argument), returning
+        actual absolute path.
+
+        :param str path: A path.
+        :param bool deep: If should follow all virtual drives on just the
+            first one.
+        :rtype: str
+        :return: Absolute path with virtual drives replaced by actual driver.
+        """
+        import os
+
+        path = os.path.abspath(path)
+        while True:
+            drive = path[0] + ':'
+            universal_drive = drive.lower()
+            subst = parse_subst()
+            if universal_drive in subst:
+                path = path.replace(drive, subst[universal_drive], 1)
+            else:
+                break
+
+            if not deep:
+                break
+
+        return path
+
+
+    def parse_subst():
+        import re
+        import subprocess
+
+        output = subprocess.check_output('subst')
+
+        def parse_subst_line(line):
+            match = re.match(r'^(\w:)\\: => (.+)$', line)
+            drive = match.group(1)
+            replace = match.group(2)
+            return drive.lower(), replace
+
+        return dict([parse_subst_line(line) for line in output.splitlines()])
+else:
+    def follow_subst(path, deep=True):
+        """
+        Noop, only Windows has virtual drives.
+
+        :param str path: A path.
+        :param bool deep: If should follow all virtual drives on just the
+            first one.
+        :rtype: str
+        :return: Path as it is.
+        """
+        return path
 
 
 QRC_ENTRY_TEMPLATE = '<file alias="{alias}">{path}</file>'
