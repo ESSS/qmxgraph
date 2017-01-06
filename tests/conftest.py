@@ -862,12 +862,20 @@ def _wait_graph_page_ready(host, selenium):
     :type host: qmxgraph.host_graph.Host
     :type selenium: selenium.webdriver.remote.webdriver.WebDriver
     """
-    selenium.get(host.address)
+    from selenium.common.exceptions import TimeoutException
+
+    attempts = 3
+    selenium.set_page_load_timeout(1)
+    try:
+        selenium.get(host.address)
+    except TimeoutException:
+        attempts -= 1
+        if attempts == 0:
+            raise
 
     from selenium.webdriver.support.wait import WebDriverWait
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support import expected_conditions as EC
-    from selenium.common.exceptions import TimeoutException
     timeout = 5
     try:
         WebDriverWait(selenium, timeout=timeout).until(
