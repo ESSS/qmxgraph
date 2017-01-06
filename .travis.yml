@@ -35,6 +35,14 @@ install:
   - source activate qmxgraph
   - conda list  # for debug reasons
 
+  # Coverage purposes
+  - pip install coveralls --use-wheel
+  - pip install pytest-cov
+
 script:
   - scripts/run_travis_tests.sh
   - scripts/run_travis_lint.sh
+  - scripts/run_travis_coverage.sh
+
+after_success:
+  - coveralls

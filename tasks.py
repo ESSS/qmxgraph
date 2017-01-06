@@ -90,6 +90,17 @@ def test(
     raise invoke.Exit(subprocess.call(cmd, shell=True))
 
 
+@invoke.ctask
+def coverage(
+    ctx,
+):
+    print_message('coverage'.format(), color=Fore.BLUE, bright=True)
+    cmd = 'py.test --cov=qmxgraph -n auto --timeout=10'
+
+    import subprocess
+    raise invoke.Exit(subprocess.call(cmd, shell=True))
+
+
 @invoke.ctask(help={
     'svg_path': 'A SVG file',
 })
@@ -430,4 +441,5 @@ QRC_FILE_TEMPLATE = '''\
 ns = invoke.Collection()
 ns.add_task(qrc)
 ns.add_task(test)
+ns.add_task(coverage)
 ns.add_task(svgtostencil)
