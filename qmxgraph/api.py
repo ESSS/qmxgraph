@@ -369,6 +369,24 @@ class QmxGraphApi(object):
         """
         return self.call_api('getEdgeTerminals', edge_id)
 
+    def dump(self):
+        """
+        Obtain a representation of the current state of the graph as an XML
+        string. The state can be restored calling `restore`.
+
+        :rtype: str
+        :return: A xml string.
+        """
+        return self.call_api('dump')
+
+    def restore(self, state):
+        """
+        Restore the graph's state to one saved with `dump`.
+
+        :param str state: A xml string previously obtained with `bump`.
+        """
+        return self.call_api('restore', state)
+
     def call_api(self, fn, *args):
         """
         Call a function in underlying API provided by JavaScript graph.

@@ -716,6 +716,29 @@ graphs.Api.prototype.setPopupMenuHandler = function setPopupMenuHandler (handler
 };
 
 /**
+ * Obtain a representation of the current state of the graph as an XML string.
+ * The state can be restored calling `restore`.
+ *
+ * @returns {string} A xml string.
+ */
+graphs.Api.prototype.dump = function dump() {
+    "use strict";
+    return this._graphEditor.writeGraphModel()
+};
+
+/**
+ * Restore the graph's state to one saved with `dump`.
+ *
+ * @param {string} state A xml string previously obtained with `bump`.
+ */
+graphs.Api.prototype.restore = function restore(state) {
+    "use strict";
+    var doc = mxUtils.parseXml(state);
+    var node = doc.documentElement;
+    this._graphEditor.readGraphModel(node);
+};
+
+/**
  * Gets the ids of endpoint vertices of an edge.
  *
  * @param {number} edgeId Id of an edge in graph.
