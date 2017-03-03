@@ -405,6 +405,11 @@ if sys.platform.startswith('win'):
         output = subprocess.check_output('subst')
 
         def parse_subst_line(line):
+            import locale
+            import six
+            if not isinstance(line, six.text_type):
+                line = line.decode(locale.getpreferredencoding(False))
+
             match = re.match(r'^(\w:)\\: => (.+)$', line)
             drive = match.group(1)
             replace = match.group(2)
