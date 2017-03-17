@@ -38,6 +38,23 @@ def test_insert_vertex(graph_cases):
     assert graph.get_vertex() is not None
 
 
+@pytest.mark.parametrize('dumped,restored', [('1v', '2v'), ('2v', '1v')])
+def test_dump_restore(dumped, restored, graph_cases):
+    """
+    :type dumped: str
+    :type restored: str
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    """
+    graph = graph_cases(dumped)
+    dumped_vertices_count = len(graph.get_vertices())
+    dump = graph.eval_js_function('api.dump')
+    del graph
+    graph = graph_cases(restored)
+    assert dumped_vertices_count != len(graph.get_vertices())
+    graph.eval_js_function('api.restore', dump)
+    assert dumped_vertices_count == len(graph.get_vertices())
+
+
 def test_insert_vertex_with_style(graph_cases):
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
