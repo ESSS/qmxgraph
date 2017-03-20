@@ -64,3 +64,5 @@ target/
 # Generate Qt resource files
 qmxgraph/resource_*.qrc
 qmxgraph/resource_*.py
+*environment.yml
+*compile_environment.*yml

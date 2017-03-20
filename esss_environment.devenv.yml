@@ -4,7 +4,7 @@
 name: qmxgraph-py{{ CONDA_PY }}
 
 environment:
-  - PYTHONPATH:
+  PYTHONPATH:
     - {{ os.path.join(root) }}
 
 # PhantomJS
@@ -28,7 +28,7 @@ environment:
 # * it is not the same web browser engine as used by Qt
 #
 # Tip: Use `--driver <driver_name>` to change driver for a single run
-  - PYTEST_ADDOPTS: --driver PhantomJS
+  PYTEST_ADDOPTS: --driver PhantomJS
 
 dependencies:
     - python=={{ '2.7.12' if PY2 else '3.5.2' }}
