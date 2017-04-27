@@ -182,6 +182,8 @@ class QmxGraph(QWidget):
             self.api.on_cells_added('bridge_events_handler.on_cells_added')
             self.api.on_cells_removed('bridge_events_handler.on_cells_removed')
             self.api.on_label_changed('bridge_events_handler.on_label_changed')
+            self.api.on_selection_changed(
+                'bridge_events_handler.on_selection_changed')
 
     def set_double_click_handler(self, handler):
         """
@@ -511,6 +513,12 @@ class EventsBridge(QObject):
     # old_label: str
     on_label_changed = pyqtSignal(
         str, str, str, name='on_label_changed')
+    # JavaScript client code emits this signal when the current selection
+    # change.
+    # Arguments:
+    # cell_ids: str
+    on_selection_changed = pyqtSignal(
+        'QVariantList', name='on_selection_changed')
 
 
 class _DoubleClickBridge(QObject):

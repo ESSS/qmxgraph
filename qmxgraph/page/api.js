@@ -369,6 +369,41 @@ graphs.Api.prototype.setVisible = function setVisible (cellId, visible) {
 };
 
 /**
+ * Select the cells with the given ids.
+ *
+ * @param {number[]} cellIds An array with the ids of the cells to select.
+ */
+graphs.Api.prototype.setSelectedCells = function setSelectedCells (cellIds) {
+    "use strict";
+
+    var cellsToSelect = [];
+    var model = api._graphEditor.graph.getModel();
+    var cell = null;
+    for (var i = cellIds.length; i--;) {
+        cell = model.getCell(cellIds[i]);
+        cellsToSelect.push(cell)
+    }
+
+    var selectionModel = this._graphEditor.graph.getSelectionModel();
+    selectionModel.setCells(cellsToSelect);
+};
+
+/**
+ * Get the ids of the selected cells.
+ */
+graphs.Api.prototype.getSelectedCells = function getSelectedCells () {
+    "use strict";
+
+    var selectionModel = this._graphEditor.graph.getSelectionModel();
+    var cells = selectionModel.cells;
+    var cellIds = [];
+    for (var i = cells.length; i--;) {
+        cellIds.push(cells[i].getId())
+    }
+    return cellIds;
+};
+
+/**
  * Groups the currently selected cells in graph.
  */
 graphs.Api.prototype.group = function group () {
@@ -513,6 +548,28 @@ graphs.Api.prototype.onCellsAdded = function onCellsAdded (handler) {
     };
 
     graph.addListener(mxEvent.ADD_CELLS, addHandler);
+};
+
+/**
+ * Add function to handle selection change events in the graph.
+ *
+ * @param {function} handler Callback that handles event. Receives an array with the id of cells
+ * that are selected as only argument.
+ */
+graphs.Api.prototype.onSelectionChanged = function onSelectionChanged (handler) {
+    "use strict";
+
+    var selectionHandler = function(source, event) {
+        var selectedCells = source.cells;
+        var selectedCellsIds = [];
+        for (var i = selectedCells.length; i--;) {
+            selectedCellsIds.push(selectedCells[i].getId());
+        }
+        handler(selectedCellsIds);
+    };
+
+    var selectionModel = this._graphEditor.graph.getSelectionModel();
+    selectionModel.addListener(mxEvent.CHANGE, selectionHandler);
 };
 
 

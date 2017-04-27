@@ -52,6 +52,7 @@ def test_events_bridge(graph, qtbot):
     added = []
     removed = []
     labels = []
+    selections = []
 
     def on_cells_added(cell_ids):
         added.extend(cell_ids)
@@ -68,10 +69,19 @@ def test_events_bridge(graph, qtbot):
 
     events.on_label_changed.connect(on_label_changed)
 
+    def on_selection_changed(cells_ids):
+        selections.extend(cells_ids)
+
+    events.on_selection_changed.connect(on_selection_changed)
+
     wait_until_loaded(graph, qtbot)
 
     vertex_id = graph.api.insert_vertex(10, 10, 20, 20, 'test')
     assert added == [vertex_id]
+
+    assert selections == []
+    eval_js(graph, "graphEditor.execute('selectVertices')")
+    assert selections == [vertex_id]
 
     graph.api.set_label(vertex_id, 'TOTALLY NEW LABEL')
     assert labels == [vertex_id, 'TOTALLY NEW LABEL', 'test']
