@@ -1032,6 +1032,60 @@ def test_set_double_click_handler(graph_cases):
         [vertex_id]
 
 
+def test_add_selection_change_handler(graph_cases):
+    """
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    """
+
+    graph = graph_cases('2v_1e')
+    source, target = graph.get_vertices()
+    edge = graph.get_edge(source, target)
+
+    graph.selenium.execute_script(
+        'callback = function(cellIds) {'
+        '    if (!window.__selectionChange__) {'
+        '        window.__selectionChange__ = [];'
+        '    }'
+        '    window.__selectionChange__.push(cellIds);'
+        '}')
+    graph.eval_js_function(
+        'api.onSelectionChanged', qmxgraph.js.Variable('callback'))
+
+    # Select all cells.
+    actions = ActionChains(graph.selenium)
+    actions.key_down(Keys.CONTROL)
+    actions.click(source)
+    actions.click(target)
+    actions.click(edge)
+    actions.key_up(Keys.CONTROL)
+    actions.perform()
+
+    fired_selection_events = graph.selenium.execute_script(
+        'return window.__selectionChange__')
+    assert fired_selection_events == [
+        ['2'],
+        ['3', '2'],
+        ['4', '3', '2'],
+    ]
+
+    assert graph.eval_js_function('api.getSelectedCells') == ['4', '3', '2']
+
+    # Programmatically select one cell.
+    graph.eval_js_function('api.setSelectedCells', ['3'])
+    # Clear selection.
+    graph.eval_js_function('api.setSelectedCells', [])
+
+    fired_selection_events = graph.selenium.execute_script(
+        'return window.__selectionChange__')
+    assert fired_selection_events == [
+        ['2'],
+        ['3', '2'],
+        ['4', '3', '2'],
+        ['3'],
+        [],
+    ]
+
+
 def test_set_popup_menu_handler(graph_cases):
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory

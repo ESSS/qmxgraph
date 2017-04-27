@@ -209,6 +209,22 @@ class QmxGraphApi(object):
         """
         return self.call_api('setVisible', cell_id, visible)
 
+    def set_selected_cells(self, cell_ids):
+        """
+        Select the cells with the given ids.
+
+        :param list[str] cell_ids:
+        """
+        return self.call_api('setSelectedCells', cell_ids)
+
+    def get_selected_cells(self):
+        """
+        Get the selected cells ids.
+
+        :rtype: list[str]
+        """
+        return self.call_api('getSelectedCells')
+
     def remove_cells(self, cell_ids):
         """
         Remove cells from graph.
@@ -292,6 +308,17 @@ class QmxGraphApi(object):
             `QVariantList` of removed cell ids as only argument.
         """
         return self.call_api('onCellsRemoved', qmxgraph.js.Variable(handler))
+
+    def on_selection_changed(self, handler):
+        """
+        Add function to handle selection change events in the graph.
+
+        :param handler: Name of signal bound to JavaScript by a bridge object
+            that is going to be used as callback to event. Receives an list of
+            str with selected cells ids as only argument.
+        """
+        return self.call_api(
+            'onSelectionChanged', qmxgraph.js.Variable(handler))
 
     def resize_container(self, width, height):
         """
