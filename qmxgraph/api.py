@@ -353,6 +353,25 @@ class QmxGraphApi(object):
         """
         return self.call_api('setLabel', cell_id, label)
 
+    def set_style(self, cell_id, style):
+        """
+        Sets a cell's style.
+
+        :param str cell_id: Id of a cell in graph.
+        :param str style: Name of a style or an inline style.
+        """
+        return self.call_api('setStyle', cell_id, style)
+
+    def get_style(self, cell_id):
+        """
+        Gets a cell's style.
+
+        :param str cell_id: Id of a cell in graph.
+        :rtype: str
+        :return: Name of a style or an inline style.
+        """
+        return self.call_api('getStyle', cell_id)
+
     def set_tag(self, cell_id, tag_name, tag_value):
         """
         Sets a tag in cell.

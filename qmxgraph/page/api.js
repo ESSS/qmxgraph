@@ -635,6 +635,37 @@ graphs.Api.prototype.setLabel = function setLabel (cellId, label) {
 };
 
 /**
+ * Sets the style of a cell.
+ *
+ * @param {number} cellId Id of a cell in graph.
+ * @param {string} [style] Name of a style or an inline style.
+ * @throws {Error} Unable to find cell.
+ */
+graphs.Api.prototype.setStyle = function setStyle(cellId, style) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var cell = this._findCell(model, cellId);
+    model.setStyle(cell, style);  // Use the model to trigger mxStyleChange as needed.
+};
+
+/**
+ *
+ * @param cellId
+ * @returns {string} Name of a style or an inline style.
+ * @throws {Error} Unable to find cell.
+ */
+graphs.Api.prototype.getStyle = function getStyle(cellId) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var cell = this._findCell(model, cellId);
+    return cell.getStyle();
+};
+
+/**
  * Sets a tag in cell.
  *
  * Note that tag values are always coerced to string.
@@ -884,3 +915,24 @@ graphs.Api.prototype._checkTagValue = function _checkTagValue(tag, value) {
         throw Error("Tag '" + tag + "' is not a string");
     }
 };
+
+/**
+ *
+ * @param {mxGraphModel} model The graph's model.
+ * @param {number} cellId Id of a cell in graph.
+ * @param {boolean} [ignore_cell_not_found=false] When falsy and the cell is not found an error is
+ *      raised.
+ * @returns {mxCell} The mxGraph's cell object.
+ * @private
+ * @throws {Error} Unable to find cell.
+ */
+graphs.Api.prototype._findCell = function _findCell(model, cellId, ignore_cell_not_found) {
+    "use strict";
+
+    var cell = model.getCell(cellId);
+    if (!(cell || ignore_cell_not_found)) {
+        throw Error("Unable to find cell with id " + cellId);
+    }
+    return cell
+};
+
