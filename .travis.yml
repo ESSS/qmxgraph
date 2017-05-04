@@ -2,10 +2,6 @@ language: python
 sudo: required
 dist: trusty
 
-branches:
-  only:
-  - master
-
 python:
 #  - "2.7"  # Weird crashes involving xdist, needs to be reviewed
   - "3.5"
