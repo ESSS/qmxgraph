@@ -1129,6 +1129,27 @@ def test_get_edge_terminals(graph_cases):
     assert target_id == graph.get_id(target)
 
 
+def test_set_get_style(graph_cases):
+    """
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    """
+    graph = graph_cases('1v')
+    vertices = graph.get_vertices()
+    assert len(vertices) == 1
+    vertex_id = graph.get_id(vertices[0])
+
+    style = graph.eval_js_function('api.getStyle', vertex_id)
+    assert style is None
+
+    graph.eval_js_function('api.setStyle', vertex_id, 'foo')
+    style = graph.eval_js_function('api.getStyle', vertex_id)
+    assert style == 'foo'
+
+    with pytest.raises(WebDriverException) as excinfo:
+        graph.eval_js_function('api.getStyle', 'nonexistent')
+    assert 'Unable to find cell with id nonexistent' in str(excinfo.value)
+
+
 def test_get_edge_terminals_error_edge_not_found(graph_cases, selenium_extras):
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
