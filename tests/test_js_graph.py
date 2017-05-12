@@ -117,17 +117,17 @@ def test_insert_edge_error_endpoint_not_found(graph_cases, selenium_extras):
 
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function(
-            "api.insertEdge", invalid_source_id, invalid_target_id)
+            "api.insertEdge", invalid_source_id, graph.get_id(vertex))
 
     assert selenium_extras.get_exception_message(e) == \
-        "Unable to find source vertex with id {}".format(invalid_source_id)
+        "Unable to find the cell with id {}".format(invalid_source_id)
 
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function(
             "api.insertEdge", graph.get_id(vertex), invalid_target_id)
 
     assert selenium_extras.get_exception_message(e) == \
-        "Unable to find target vertex with id {}".format(invalid_target_id)
+        "Unable to find the cell with id {}".format(invalid_target_id)
 
 
 def test_insert_decoration(graph_cases):
@@ -1147,7 +1147,7 @@ def test_set_get_style(graph_cases):
 
     with pytest.raises(WebDriverException) as excinfo:
         graph.eval_js_function('api.getStyle', 'nonexistent')
-    assert 'Unable to find cell with id nonexistent' in str(excinfo.value)
+    assert 'Unable to find the cell with id nonexistent' in str(excinfo.value)
 
 
 def test_get_edge_terminals_error_edge_not_found(graph_cases, selenium_extras):
@@ -1197,6 +1197,40 @@ def test_custom_font_family(graph_cases_factory, port):
         match = graph.selenium.find_elements_by_css_selector(
             'div[style*="font-family:Helvetica"]')
         assert len(match) == 1
+
+
+def test_ports(graph_cases):
+    graph = graph_cases('2v')
+    vertex_a, vertex_b = graph.get_vertices()
+    port_x_name, port_y_name = 'X', 'Y'
+    vertex_a_id = graph.get_id(vertex_a)
+    vertex_b_id = graph.get_id(vertex_b)
+
+    # Test insert port.
+    graph.eval_js_function('api.insertPort', vertex_a_id, port_x_name, 0, 0, 9, 9)
+    with pytest.raises(WebDriverException) as e:
+        graph.eval_js_function('api.insertPort', vertex_a_id, port_x_name, 1, 1, 9, 9)
+    expected = 'The cell {} already have a port named {}'.format(vertex_a_id, port_x_name)
+    assert expected in str(e.value)
+
+    # Test remove port.
+    graph.eval_js_function('api.removePort', vertex_a_id, port_x_name)
+    with pytest.raises(WebDriverException) as e:
+        graph.eval_js_function('api.removePort', vertex_a_id, port_x_name)
+    expected = 'The cell {} does not have a port named {}'.format(vertex_a_id, port_x_name)
+    assert expected in str(e.value)
+
+    # Test insert edge.
+    graph.eval_js_function('api.insertPort', vertex_a_id, port_x_name, 0, 0, 9, 9)
+    graph.eval_js_function('api.insertPort', vertex_b_id, port_y_name, 0, 0, 9, 9)
+    edge_id = graph.eval_js_function(
+        'api.insertEdge', vertex_a_id, vertex_b_id, None, None, None, port_x_name, port_y_name)
+
+    # When removing a port remove edges connected through it.
+    assert graph.eval_js_function('api.hasCell', edge_id)
+    graph.eval_js_function('api.removePort', vertex_b_id, port_y_name)
+    assert not graph.eval_js_function('api.hasCell', edge_id)
+
 
 
 def fix_table_size(width, height):

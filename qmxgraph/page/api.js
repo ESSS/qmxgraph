@@ -1,6 +1,11 @@
-/*global mxEvent */
-/*global mxPoint */
+/**
+ * The actual javascript implementation
+ */
+
 /*global mxConstants */
+/*global mxEvent */
+/*global mxGraph */
+/*global mxPoint */
 /*global mxUtils */
 
 /*global graphs */
@@ -61,6 +66,59 @@ graphs.Api.prototype.insertVertex = function insertVertex (
     return vertex.getId();
 };
 
+graphs.Api.prototype._getPortId = function _getPortId (vertexId, name) {
+    return mxCell._PORT_ID_PREFIX + vertexId + '-' + name;
+};
+
+/**
+ * Inserts a new port in vertex.
+ *
+ * @param {number} vertexId The id of the vertex to witch add this port.
+ * @param {string} portName The name used to refer to the new port.
+ * @param {number} x The normalized (0-1) X coordinate for the port (relative to vertex bounds).
+ * @param {number} y The normalized (0-1) Y coordinate for the port (relative to vertex bounds).
+ * @param {number} width Width of port.
+ * @param {number} height Height of port.
+ * @param {string} [label] Label of port.
+ * @param {string} [style] Name of a style or an inline style.
+ * @param {Object} [tags] A dict-like object, with string keys and values. Tags are basically custom
+ * attributes that may be added to a cell that may be later queried (or even modified), with the
+ * objective of allowing better inspection and interaction with cells in a graph.
+ * @throws {Error} If vertex isn't found in graph.
+ * @throws {Error} If a port with the same name is already present for the given vertex.
+ */
+graphs.Api.prototype.insertPort = function insertPort (
+    vertexId, portName, x, y, width, height, label, style, tags) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var parent = this._findCell(model, vertexId);
+    this._findPort(model, vertexId, portName, false);
+    var portId = this._getPortId(vertexId, portName);
+
+    var value = this._prepareCellValue(label, tags);
+    model.beginUpdate();
+    try {
+        var port = graph.insertVertex(
+            parent,
+            portId,
+            value,
+            x,
+            y,
+            width,
+            height,
+            style,
+            true
+        );
+        // Center port on given (x,y) coordinates.
+        port.geometry.offset = new mxPoint(-width / 2, -height / 2);
+    } finally {
+        model.endUpdate();
+    }
+    graphs.utils.resizeContainerOnDemand(graph, port);
+};
+
 /**
  * Inserts a new edge between two vertices in graph.
  *
@@ -71,26 +129,33 @@ graphs.Api.prototype.insertVertex = function insertVertex (
  * @param {Object} [tags] A dict-like object, with string keys and values. Tags are basically custom
  * attributes that may be added to a cell that may be later queried (or even modified), with the
  * objective of allowing better inspection and interaction with cells in a graph.
+ * @param {string} [sourcePortName] The name of the port used to connect on the source vertex. If a
+ * falsy value is used no port is used.
+ * @param {string} [targetPortName] The name of the port used to connect on the target vertex. If a
+ * falsy value is used no port is used.
  * @returns {number} Id of new edge.
  * @throws {Error} If source or target aren't found in graph.
+ * @throws {Error} If the source or target ports aren't found in the respective vertices.
  */
 graphs.Api.prototype.insertEdge = function insertEdge (
-    sourceId, targetId, label, style, tags) {
+    sourceId, targetId, label, style, tags, sourcePortName, targetPortName) {
     "use strict";
 
     var graph = this._graphEditor.graph;
+    var model = graph.getModel();
 
     var parent = graph.getDefaultParent();
     var value = this._prepareCellValue(label, tags);
 
-    var source = graph.model.getCell(sourceId);
-    if (!source) {
-        throw Error("Unable to find source vertex with id " + sourceId);
+    var source = this._findCell(model, sourceId);
+    if (sourcePortName) {
+        source = this._findPort(model, sourceId, sourcePortName, true);
     }
-    var target = graph.model.getCell(targetId);
-    if (!target) {
-        throw Error("Unable to find target vertex with id " + targetId);
+    var target = this._findCell(model, targetId);
+    if (targetPortName) {
+        source = this._findPort(model, targetId, targetPortName, true);
     }
+
     var edge = graph.insertEdge(parent, null, value, source, target, style);
 
     return edge.getId();
@@ -157,16 +222,17 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
 
     var value = this._prepareCellValue(label, tags);
 
-    var decoration = graph.insertVertex(
-        edge, null, value, position, 0, width, height, decorationStyle);
-    decoration.geometry.offset = new mxPoint(-width / 2, -height / 2);
-    decoration.geometry.relative = true;
-    decoration.connectable = false;
-    decoration.__decoration__ = true;
-
-    // Unfortunately necessary because marker vertex is not placed
-    // in correct position unless graph is refreshed for some reason.
-    graph.refresh();
+    var model = graph.getModel();
+    model.beginUpdate();
+    try {
+        var decoration = graph.insertVertex(
+            edge, null, value, position, 0, width, height, decorationStyle, true);
+        decoration.geometry.offset = new mxPoint(-width / 2, -height / 2);
+        decoration.connectable = false;
+        decoration.__decoration__ = true;
+    } finally {
+        model.endUpdate();
+    }
 
     return decoration.getId();
 };
@@ -303,7 +369,10 @@ graphs.Api.prototype.getCellIdAt = function getCellIdAt (x, y) {
 
     var graph = this._graphEditor.graph;
     var parent = graph.getDefaultParent();
-    var cell = graph.getCellAt(x, y, parent);
+    var ignoreFn = function(state) {
+        return state.cell.isPort();
+    };
+    var cell = graph.getCellAt(x, y, parent, true, true, ignoreFn);
     return !!cell? cell.getId() : null;
 };
 
@@ -495,6 +564,37 @@ graphs.Api.prototype.removeCells = function removeCells (cellIds) {
 };
 
 /**
+ *
+ * @param {number} vertexId The id of the vertex containing the port to remove.
+ * @param {string} portName The name of the port to remove.
+ * @throws {Error} If vertex isn't found in graph.
+ * @throws {Error} If a port with the given name is not present in the vertex.
+ */
+graphs.Api.prototype.removePort = function removePort (vertexId, portName) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var parent = this._findCell(model, vertexId);
+
+    var port = this._findPort(model, vertexId, portName, true);
+
+    // This array will contain the port and edges connected on the parent vertex using the port.
+    var cellsToRemove = [port];
+    var edges = graph.getEdges(parent);
+    for (var i = edges.length; i--;) {
+        var terminals = this._getMxEdgeTerminalsWithPorts(edges[i]);
+        if (
+            (terminals[0] == vertexId && terminals[1] == portName)
+            || (terminals[2] == vertexId && terminals[3] == portName)
+        ){
+            cellsToRemove.push(edges[i]);
+        }
+    }
+    graph.removeCells(cellsToRemove);
+};
+
+/**
  * Register a handler to event when cells are removed from graph.
  *
  * @param {function} handler Callback that handles event. Receives an
@@ -507,12 +607,17 @@ graphs.Api.prototype.onCellsRemoved = function onCellRemoved (handler) {
 
     var removeHandler = function(sender, evt) {
         var cells = evt.getProperty('cells');
-
         var cellIds = [];
 
         var findCellIds = function(cells) {
             for (var i = 0; i < cells.length; i++) {
                 var cell = cells[i];
+                if (cell.isPort()) {
+                    // On qmxgraph ports are not considered cells.
+                    // Cells are how they are modeled by the underling mxgraph library.
+                    continue;
+                }
+
                 cellIds.push(cell.getId());
 
                 // Decorations for instance are children of other cells
@@ -523,8 +628,11 @@ graphs.Api.prototype.onCellsRemoved = function onCellRemoved (handler) {
             }
         };
         findCellIds(cells);
-        handler(cellIds);
+        if (cellIds.length) {
+            handler(cellIds);
+        }
     };
+
     graph.addListener(mxEvent.REMOVE_CELLS, removeHandler);
 };
 
@@ -541,10 +649,18 @@ graphs.Api.prototype.onCellsAdded = function onCellsAdded (handler) {
 
     var addHandler = function(sender, evt) {
         var cells = evt.getProperty('cells');
-        var cellIds = cells.map(function(cell) {
-            return cell.getId();
-        });
-        handler(cellIds);
+        var cellIds = [];
+        for (var i = 0; i < cells.length; i++) {
+            var cell = cells[i];
+            if (cell.isPort()) {
+                // See comment about ports on `graphs.Api#onCellsRemoved`.
+                continue;
+            }
+            cellIds.push(cell.getId());
+        }
+        if (cellIds.length) {
+            handler(cellIds);
+        }
     };
 
     graph.addListener(mxEvent.ADD_CELLS, addHandler);
@@ -855,6 +971,67 @@ graphs.Api.prototype.getEdgeTerminals = function getEdgeTerminals (edgeId) {
 };
 
 /**
+ * This is the core implementation of {@link graphs.Api#getEdgeTerminalsWithPorts} (see for a deeper
+ * description of return value).
+ *
+ * @param {mxCell} edge The edge object (the type of cell is not checked).
+ * @returns {[number, string, number, string]}
+ * @private
+ */
+graphs.Api.prototype._getMxEdgeTerminalsWithPorts = function _getMxEdgeTerminalsWithPorts (edge) {
+    "use strict";
+
+    var sourceId = edge.getTerminal(true).getId();
+    var targetId = edge.getTerminal(false).getId();
+
+    var style = edge.getStyle() || '';
+
+    if (!this._qmxgraphSourcePortNameExtractionRegex){
+        this._qmxgraphTargetPortNameExtractionRegex = new RegExp(
+            '(?:^|;)targetPort=' + mxCell._PORT_ID_PREFIX + '\\d+-([^;$]+)(?:;|$)');
+        this._qmxgraphSourcePortNameExtractionRegex = new RegExp(
+            '(?:^|;)sourcePort=' + mxCell._PORT_ID_PREFIX + '\\d+-([^;$]+)(?:;|$)');
+    }
+
+    var sourcePortName = this._qmxgraphSourcePortNameExtractionRegex.exec(style);
+    if (sourcePortName !== null) {
+        sourcePortName = sourcePortName[1];
+    }
+    var targetPortName = this._qmxgraphTargetPortNameExtractionRegex.exec(style);
+    if (targetPortName !== null) {
+        targetPortName = targetPortName[1];
+    }
+
+    return [sourceId, sourcePortName, targetId, targetPortName];
+};
+
+/**
+ * Gets the ids of endpoint vertices of an edge and the ports used.
+ *
+ * @param {number} edgeId Id of an edge in graph.
+ * @returns {[number, string, number, string]} An array with four values: source vertex id, port id
+ * on source, target vertex id, and port id on target. The port ids can be null if not used for the
+ * connection.
+ * @throws {Error} Unable to find edge.
+ * @throws {Error} Given cell isn't an edge.
+ */
+graphs.Api.prototype.getEdgeTerminalsWithPorts = function getEdgeTerminals (edgeId) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var edge = graph.getModel().getCell(edgeId);
+    if (!edge) {
+        throw Error("Unable to find edge with id " + edgeId);
+    }
+
+    if (!edge.isEdge()) {
+        throw Error("Cell with id " + edgeId + " is not an edge");
+    }
+
+    return this._getMxEdgeTerminalsWithPorts(edge);
+};
+
+/**
  * Helper method to customize value of nodes. Values are formated according to suggestion in
  * https://jgraph.github.io/mxgraph/docs/js-api/files/model/mxCell-js.html, to be able to associate
  * custom attributes (known as "tags" in QmxGraph context) to a cell.
@@ -917,22 +1094,43 @@ graphs.Api.prototype._checkTagValue = function _checkTagValue(tag, value) {
 };
 
 /**
- *
  * @param {mxGraphModel} model The graph's model.
  * @param {number} cellId Id of a cell in graph.
- * @param {boolean} [ignore_cell_not_found=false] When falsy and the cell is not found an error is
- *      raised.
  * @returns {mxCell} The mxGraph's cell object.
  * @private
  * @throws {Error} Unable to find cell.
  */
-graphs.Api.prototype._findCell = function _findCell(model, cellId, ignore_cell_not_found) {
+graphs.Api.prototype._findCell = function _findCell(model, cellId) {
     "use strict";
 
     var cell = model.getCell(cellId);
-    if (!(cell || ignore_cell_not_found)) {
-        throw Error("Unable to find cell with id " + cellId);
+    if (!cell) {
+        throw Error("Unable to find the cell with id " + cellId);
     }
     return cell
+};
+
+/**
+ * @param {mxGraphModel} model The graph's model.
+ * @param {number} cellId Id of a cell in graph.
+ * @param {string} portName The name of the port.
+ * @param {boolean] alreadyExits Indicates if the port is expected to already exist in the cell.
+ * @returns {mxCell} The mxGraph's port object.
+ * @private
+ * @throws {Error} If the port exist when it is not expected or is missing when expected.
+ */
+graphs.Api.prototype._findPort = function _findPort (model, cellId, portName, alreadyExits) {
+    "use strict";
+
+    var portId = this._getPortId(cellId, portName);
+    var port = model.getCell(portId);
+    var portFound = !!port;
+
+    if (portFound && !alreadyExits) {
+        throw Error("The cell " + cellId + " already have a port named " + portName);
+    } else if (!portFound && alreadyExits) {
+        throw Error("The cell " + cellId + " does not have a port named " + portName);
+    }
+    return port
 };
 
