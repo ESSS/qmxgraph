@@ -84,7 +84,7 @@ def test(
     ctx,
 ):
     print_message('test'.format(), color=Fore.BLUE, bright=True)
-    cmd = 'py.test -n auto --timeout=10'
+    cmd = 'py.test --timeout=10'
 
     import subprocess
     raise invoke.Exit(subprocess.call(cmd, shell=True))
