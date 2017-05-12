@@ -63,6 +63,14 @@ graphs.createGraph = function createGraph (container, options, styles) {
         return !!this.__decoration__;
     };
 
+    mxCell._PORT_ID_PREFIX = 'qmxgraph-port-';
+
+    mxCell.prototype.isPort = function() {
+        var cellId = this.getId();
+        return cellId.indexOf(mxCell._PORT_ID_PREFIX) == 0;
+
+    };
+
     var superIsCellFoldable = graph.isCellFoldable;
     graph.isCellFoldable = function(cell, collapse)
     {
@@ -131,6 +139,15 @@ graphs.createGraph = function createGraph (container, options, styles) {
         } else {
             superCellLabelChanged.apply(this, arguments);
         }
+    };
+
+    graph.isPort = function(cell) {
+        return cell.isPort();
+    };
+
+    var superIsCellSelectable = mxGraph.prototype.isCellSelectable;
+    mxGraph.prototype.isCellSelectable = function(cell) {
+        return superIsCellSelectable.apply(this, arguments) && !cell.isPort();
     };
 
     mxGraph.prototype.labelChanged = function(cell, value, evt)

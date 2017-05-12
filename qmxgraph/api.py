@@ -38,7 +38,34 @@ class QmxGraphApi(object):
         return self.call_api(
             'insertVertex', x, y, width, height, label, style, tags)
 
-    def insert_edge(self, source_id, target_id, label, style=None, tags=None):
+    def insert_port(self, vertex_id, port_name, x, y, width, height,
+                    label=None, style=None, tags=None):
+        """
+        Inserts a new port in vertex.
+
+        :param str vertex_id: The id of the vertex to witch add this port.
+        :param str port_name: The name used to refer to the new port.
+        :param float x: The normalized (0-1) X coordinate for the port
+            (relative to vertex bounds).
+        :param float y: The normalized (0-1) Y coordinate for the port
+            (relative to vertex bounds).
+        :param int width: Width of port.
+        :param int height: Height of port.
+        :param str|None label: Label of port.
+        :param str|None style: Name of style to be used. Styles
+            available are all default ones provided by mxGraph plus additional
+            ones configured in initialization of this class.
+        :param dict[str, str]|None tags: Tags are basically custom
+            attributes that may be added to a cell that may be later queried
+            (or even modified), with the objective of allowing better
+             inspection and interaction with cells in a graph.
+        """
+        return self.call_api(
+            'insertPort', vertex_id, port_name, x, y, width, height, label,
+            style, tags)
+
+    def insert_edge(self, source_id, target_id, label, style=None, tags=None,
+                    source_port_name=None, target_port_name=None):
         """
         Inserts a new edge between two vertices in graph.
 
@@ -52,11 +79,16 @@ class QmxGraphApi(object):
             attributes that may be added to a cell that may be later queried
             (or even modified), with the objective of allowing better
             inspection and interaction with cells in a graph.
+        :param str|None source_port_name: The name of the port used to connect
+            to source vertex.
+        :param str|None target_port_name: The name of the port used to connect
+            to target vertex.
         :rtype: str
         :return: Id of new edge.
         """
         return self.call_api(
-            'insertEdge', source_id, target_id, label, style, tags)
+            'insertEdge', source_id, target_id, label, style, tags,
+            source_port_name, target_port_name)
 
     def insert_decoration(
             self, x, y, width, height, label, style=None, tags=None):
@@ -232,6 +264,16 @@ class QmxGraphApi(object):
         :param list cell_ids: Ids of cells that must be removed.
         """
         return self.call_api('removeCells', cell_ids)
+
+    def remove_port(self, vertex_id, port_name):
+        """
+        Remove an existing port from a vertex. Any edge connected to the
+        vertex through the port is also removed.
+
+        :param str vertex_id: The id of the parent vertex.
+        :param str port_name: The port's name to remove.
+        """
+        return self.call_api('removePort', vertex_id, port_name)
 
     def set_double_click_handler(self, handler):
         """
@@ -414,6 +456,20 @@ class QmxGraphApi(object):
             the target vertex id.
         """
         return self.call_api('getEdgeTerminals', edge_id)
+
+    def get_edge_terminals_with_ports(self, edge_id):
+        """
+        Gets the ids of endpoint vertices of an edge and the ports used in the connection.
+
+        :param str edge_id: Id of an edge in graph.
+        :rtype: list[str|None]
+        :return: A list with 4 items:
+            - the source vertex id;
+            - the port's name used on the source (can be `None`);
+            - the target vertex id;
+            - the port's name used on the target (can be `None`);
+        """
+        return self.call_api('getEdgeTerminalsWithPorts', edge_id)
 
     def dump(self):
         """
