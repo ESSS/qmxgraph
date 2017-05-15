@@ -136,7 +136,7 @@ class Port(object):
         return port_
 
 
-@pytest.yield_fixture
+@pytest.fixture(scope='session')
 def host(port):
     """
     Hosts a graph page, with a series of simple default options and styles.
