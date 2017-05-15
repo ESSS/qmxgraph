@@ -13,6 +13,9 @@ def pytest_configure(config):
     if os.path.isfile(lock_file):
         os.remove(lock_file)
 
+    import socket
+    socket.setdefaulttimeout(15.0)
+
 
 # Fixtures --------------------------------------------------------------------
 
@@ -133,7 +136,7 @@ class Port(object):
         return port_
 
 
-@pytest.yield_fixture
+@pytest.fixture(scope='session')
 def host(port):
     """
     Hosts a graph page, with a series of simple default options and styles.
@@ -862,13 +865,15 @@ def _wait_graph_page_ready(host, selenium):
     :type host: qmxgraph.host_graph.Host
     :type selenium: selenium.webdriver.remote.webdriver.WebDriver
     """
+    import socket
     from selenium.common.exceptions import TimeoutException
 
+    timeout_exceptions = (TimeoutException, TimeoutError, socket.timeout)
     attempts = 3
     selenium.set_page_load_timeout(1)
     try:
         selenium.get(host.address)
-    except TimeoutException:
+    except timeout_exceptions:
         attempts -= 1
         if attempts == 0:
             raise
@@ -876,16 +881,19 @@ def _wait_graph_page_ready(host, selenium):
     from selenium.webdriver.support.wait import WebDriverWait
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support import expected_conditions as EC
-    timeout = 5
+    timeout = 15
+    attempts = 3
     try:
         WebDriverWait(selenium, timeout=timeout).until(
             EC.presence_of_element_located((By.ID, "graphContainer"))
         )
-    except TimeoutException:
-        raise RuntimeError(
-            "Graph page wasn't ready in address {} after a "
-            "timeout of {} seconds".format(
-                host.address, timeout))
+    except timeout_exceptions as e:
+        attempts -= 1
+        if attempts == 0:
+            raise TimeoutException(
+                "Graph page wasn't ready in address {} after a "
+                "timeout of {} seconds".format(
+                    host.address, timeout)) from e
 
 
 def _get_port_lock_filename(rootdir):
