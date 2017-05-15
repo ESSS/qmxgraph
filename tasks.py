@@ -88,6 +88,15 @@ def test(ctx):
     raise invoke.Exit(subprocess.call(cmd, shell=True))
 
 
+@invoke.ctask
+def lint(ctx):
+    print_message('lint'.format(), color=Fore.BLUE, bright=True)
+    cmd = 'flake8 -v qmxgraph'
+
+    import subprocess
+    raise invoke.Exit(subprocess.call(cmd, shell=True))
+
+
 @invoke.ctask(help={
     'svg_path': 'A SVG file',
 })
@@ -433,4 +442,5 @@ QRC_FILE_TEMPLATE = '''\
 ns = invoke.Collection()
 ns.add_task(qrc)
 ns.add_task(test)
+ns.add_task(lint)
 ns.add_task(svgtostencil)
