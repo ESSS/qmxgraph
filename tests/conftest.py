@@ -496,7 +496,7 @@ class BaseGraphCase(object):
         :rtype: str
         :return: Table title.
         """
-        title = table.find_element_by_css_selector('table[class="title"]')
+        title = table.find_element_by_css_selector('table.table-cell-title')
         return title.find_element_by_tag_name('tr').text
 
     def get_table_contents(self, table):
@@ -507,7 +507,7 @@ class BaseGraphCase(object):
         :return: Table contents.
         """
         contents = table.find_element_by_css_selector(
-            'table[class="contents"]')
+            'table.table-cell-contents')
         return [i.text for i in contents.find_elements_by_tag_name('td')]
 
     def select_vertex(self, vertex):
@@ -826,20 +826,16 @@ class Graph2Vertices1Edge1Decoration1Table(Graph2Vertices1Edge1Decoration):
             ['ford', 'prefect'],
         ]
         title = 'Hitchhikers'
-        self.eval_js_function('api.insertTable', x, y, w, contents, title)
+        self.table_id = self.eval_js_function('api.insertTable', x, y, w, contents, title)
 
-        assert self.get_table_title(self.get_table()) == 'Hitchhikers'
-        assert self.get_table_contents(self.get_table()) == [
+        assert self.get_table_title(self.get_tables()[0]) == 'Hitchhikers'
+        assert self.get_table_contents(self.get_tables()[0]) == [
             'arthur', 'dent', 'ford', 'prefect']
 
-    def get_table(self):
-        title = self.selenium.find_elements_by_css_selector(
-            'div>table[class="title"]')
-        assert len(title) <= 1
-        table = None
-        if title:
-            table = title[0].find_element_by_xpath('../..')
-        return table
+    def get_tables(self):
+        titles = self.selenium.find_elements_by_css_selector(
+            'div>table.table-cell-title')
+        return [web_el.find_element_by_xpath('../..') for web_el in titles]
 
 
 class Graph1Table(BaseGraphCase):
@@ -857,18 +853,14 @@ class Graph1Table(BaseGraphCase):
         title = 'Hitchhikers'
         self.eval_js_function('api.insertTable', x, y, w, contents, title)
 
-        assert self.get_table_title(self.get_table()) == 'Hitchhikers'
-        assert self.get_table_contents(self.get_table()) == [
+        assert self.get_table_title(self.get_tables()[0]) == 'Hitchhikers'
+        assert self.get_table_contents(self.get_tables()[0]) == [
             'arthur', 'dent', 'ford', 'prefect']
 
-    def get_table(self):
-        title = self.selenium.find_elements_by_css_selector(
-            'div>table[class="title"]')
-        assert len(title) <= 1
-        table = None
-        if title:
-            table = title[0].find_element_by_xpath('../..')
-        return table
+    def get_tables(self):
+        titles = self.selenium.find_elements_by_css_selector(
+            'div>table.table-cell-title')
+        return [web_el.find_element_by_xpath('../..') for web_el in titles]
 
 
 def _wait_graph_page_ready(host, selenium):

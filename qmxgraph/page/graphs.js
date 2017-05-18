@@ -92,7 +92,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
             if (this.isCellCollapsed(cell))
             {
                 // When collapsed, just show just title part of table vertices
-                var value = cell.getValue();
+                var value = cell.getAttribute('label');
                 return value.substring(0, value.indexOf("</table>") + "</table>".length);
             }
             else

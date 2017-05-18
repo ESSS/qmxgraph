@@ -253,24 +253,38 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
  * @param {Object} [tags] A dict-like object, with string keys and values. Tags are basically custom
  * attributes that may be added to a cell that may be later queried (or even modified), with the
  * objective of allowing better inspection and interaction with cells in a graph.
+ * @param {string} [style] An style name or inline style. The `'table'` style is always used but
+ * options defined with this value will overwrite the option defined on the `'table'` style.
+ * @param {number} [parentId] If supplied this makes the table position relative to this cell
  * @returns {number} Id of new table.
+ * @throws {Error} If parentId  is supplied but isn't found in graph.
  */
 graphs.Api.prototype.insertTable = function insertTable (
-    x, y, width, contents, title, tags) {
+    x, y, width, contents, title, tags, style, parentId) {
     "use strict";
 
     var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var isRelative = parentId != null;
+    var parent = null;
+    if (isRelative) {
+        parent = this._findCell(model, parentId);
+    } else {
+        parent = graph.getDefaultParent();
+    }
     var coords = graphs.utils.adjustCoordinates(graph, x, y);
 
-    var style = 'table';
-    style = graphs.utils.setStyleKey(style, mxConstants.STYLE_OVERFLOW, 'fill');
-    style = graphs.utils.setStyleKey(style, mxConstants.STYLE_CLONEABLE, false);
+    var tableStyle = 'table';
+    if (style != null) {
+        tableStyle += ';' + style;
+    }
+    tableStyle = graphs.utils.setStyleKey(tableStyle, mxConstants.STYLE_OVERFLOW, 'fill');
+    tableStyle = graphs.utils.setStyleKey(tableStyle, mxConstants.STYLE_CLONEABLE, false);
 
     var label = graphs.utils.createTableElement(contents, title);
     var value = this._prepareCellValue(label, tags);
 
-    var parent = graph.getDefaultParent();
-    graph.getModel().beginUpdate();
+    model.beginUpdate();
     var table = null;
     try {
         table = graph.insertVertex(
@@ -281,7 +295,8 @@ graphs.Api.prototype.insertTable = function insertTable (
             coords.y,
             0,
             0,
-            style
+            tableStyle,
+            isRelative
         );
         table.__table__ = true;
         table.connectable = false;
@@ -290,7 +305,7 @@ graphs.Api.prototype.insertTable = function insertTable (
         // for table width is set to 100%)
         graph.updateCellSize(table);
     } finally {
-        graph.getModel().endUpdate();
+        model.endUpdate();
     }
 
     graphs.utils.resizeContainerOnDemand(graph, table);
@@ -309,10 +324,8 @@ graphs.Api.prototype.updateTable = function updateTable (tableId, contents, titl
     "use strict";
 
     var graph = this._graphEditor.graph;
-    var table = graph.getModel().getCell(tableId);
-    if (!table) {
-        throw Error("Unable to find table with id " + tableId);
-    }
+    var model = graph.getModel();
+    var table = this._findCell(model, tableId);
     if (!table.isTable()) {
         throw Error("Cell is not a table");
     }
@@ -320,9 +333,28 @@ graphs.Api.prototype.updateTable = function updateTable (tableId, contents, titl
     var label = graphs.utils.createTableElement(contents, title);
     var value = table.cloneValue();
     value.setAttribute('label', label);
-    graph.getModel().setValue(table, value);
+    model.beginUpdate();
+    try {
+        model.setValue(table, value);
+        graph.updateCellSize(table);
+    } finally {
+        model.endUpdate();
+    }
+};
 
-    graph.updateCellSize(table);
+graphs.Api.prototype.setCollapsed = function setCollapsed (cellId, collapsed) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var cell = this._findCell(model, cellId);
+    model.beginUpdate();
+    try {
+        model.setCollapsed(cell, collapsed);
+        graph.updateCellSize(cell);
+    } finally {
+        model.endUpdate();
+    }
 };
 
 /**
@@ -553,13 +585,10 @@ graphs.Api.prototype.removeCells = function removeCells (cellIds) {
     "use strict";
 
     var graph = this._graphEditor.graph;
+    var model = graph.getModel();
     var cells = cellIds.map(function(cellId) {
-        var cell = graph.getModel().getCell(cellId);
-        if (!cell) {
-            throw Error("Unable to find cell with id " + cellId);
-        }
-        return cell;
-    });
+        return this._findCell(model, cellId);
+    }, this);
     graph.removeCells(cells);
 };
 
