@@ -13,6 +13,7 @@ dependencies:
       - pytest-qt
       - pytest-selenium
       - pytest-mock
+      - pytest-rerunfailures
       - pytest-xdist
       - pytest-xvfb
 
