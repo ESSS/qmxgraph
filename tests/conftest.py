@@ -245,6 +245,19 @@ def graph_cases_factory(selenium):
     return lambda host: GraphCaseFactory(selenium=selenium, host=host)
 
 
+def pytest_collection_modifyitems(items):
+    """
+    Marks all tests which use the graph_cases fixture as "flaky".
+
+    Unfortunately we've been unable to properly fix some flaky failures with tests using this fixture (#4)*.
+
+    See pytest-rerunfailures plugin for more information.
+    """
+    for item in items:
+        if 'graph_cases' in getattr(item, 'fixturenames', []):
+            item.add_marker(pytest.mark.flaky(reruns=3))
+
+
 class GraphCaseFactory(object):
     """
     Creates cases with graphs already preconfigured and with helper methods
