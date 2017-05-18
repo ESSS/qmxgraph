@@ -11,21 +11,26 @@ html, body {
     background:none;
 }
 
-table.title {
+table.table-cell-title {
     border-color: black;
     border-collapse: collapse;
     cursor: move;
     height: 26px;
     border-bottom-style: none;
     color: black;
+    overflow: hidden;
 }
-table.title th {
+table.table-cell-title th {
     font-size: 8pt;
     white-space: nowrap;
     background: lightgray;
     font-weight: bold;
 }
-table.contents {
+div.table-cell-contents-container {
+    overflow: auto;
+    cursor: default;
+}
+table.table-cell-contents {
     font-size: 8pt;
     border-color: black;
     border-collapse: collapse;
@@ -33,7 +38,7 @@ table.contents {
     cursor: move;
     white-space: nowrap;
 }
-table.contents td {
+table.table-cell-contents td {
     border-color: black;
     text-align: left;
     color: black;

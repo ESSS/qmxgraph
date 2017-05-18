@@ -292,7 +292,7 @@ def test_get_cell_id_at(graph_cases):
     assert graph.get_id(graph.get_vertices()[1]) == '3'
     assert graph.get_id(graph.get_edge(*graph.get_vertices())) == '4'
     assert graph.get_id(graph.get_decoration()) == '5'
-    assert graph.get_id(graph.get_table()) == '6'
+    assert graph.get_id(graph.get_tables()[0]) == '6'
 
     class Invalid:
         def __init__(self):
@@ -329,11 +329,11 @@ def test_set_visible(graph_cases):
     assert graph.get_decoration() is not None
 
     # Hide then show table again
-    cell_id = graph.get_id(graph.get_table())
+    cell_id = graph.get_id(graph.get_tables()[0])
     graph.set_visible(cell_id, False)
-    assert graph.get_table() is None
+    assert len(graph.get_tables()) == 0
     graph.set_visible(cell_id, True)
-    assert graph.get_table() is not None
+    assert len(graph.get_tables()) == 1
 
 
 def test_set_visible_error_not_found(graph_cases, selenium_extras):
@@ -362,7 +362,7 @@ def test_get_geometry(graph_cases):
         [40, 25, 50, 1]
     assert graph.get_geometry(graph.get_decoration()) == [55, 20, 10, 10]
     table_w, table_h = fix_table_size(110, 80)
-    assert graph.get_geometry(graph.get_table()) == [20, 60, table_w, table_h]
+    assert graph.get_geometry(graph.get_tables()[0]) == [20, 60, table_w, table_h]
 
 
 def test_get_geometry_error_not_found(graph_cases, selenium_extras):
@@ -385,7 +385,52 @@ def test_insert_table(graph_cases):
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
     graph = graph_cases('1t')
-    assert graph.get_table() is not None
+    assert len(graph.get_tables()) == 1
+
+
+def test_insert_child_table(graph_cases):
+    """
+    When supplying `parent_id` the origin (the x and y coordinates) are
+    normalized and relative to the parent bounds. Here is used another table
+    as parent but any cell is eligible.
+
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    """
+    graph = graph_cases('1t')
+
+    tables = graph.get_tables()
+    assert len(tables) == 1
+    parent_id = graph.get_id(tables[0])
+    child_id = graph.eval_js_function('api.insertTable', 0.5, 1.5, 300, [],
+                                      'foobar', None, None, parent_id)
+    tables = graph.get_tables()
+    assert len(tables) == 2
+
+    def get_bounds(cell_id):
+        return graph.eval_js_function('api.getGeometry', cell_id)
+    parent_bounds = get_bounds(parent_id)
+    child_bounds = get_bounds(child_id)
+    assert parent_bounds[0] < child_bounds[0] < parent_bounds[2]
+    assert parent_bounds[3] < child_bounds[1]
+
+
+def test_table_with_image(graph_cases):
+    """
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    """
+    graph = graph_cases('1t')
+
+    tables = graph.get_tables()
+    assert len(tables) == 1
+    table_id = graph.get_id(tables[0])
+    contents = [['foo <img width="16" height="16" src="some-image-path">']]
+    graph.eval_js_function('api.updateTable', table_id, contents, '')
+
+    image_elements = graph.selenium.find_elements_by_css_selector(
+        '.table-cell-contents img')
+    assert len(image_elements) == 1
+    image = image_elements[0]
+    assert image.get_attribute('src').endswith('some-image-path')
 
 
 def test_insert_table_close_to_boundaries(graph_cases):
@@ -414,7 +459,7 @@ def test_update_table(graph_cases):
     """
     graph = graph_cases('1t')
 
-    table_id = graph.get_id(graph.get_table())
+    table_id = graph.get_id(graph.get_tables()[0])
     contents = [
         ['a', 1],
         ['b', 2],
@@ -423,7 +468,7 @@ def test_update_table(graph_cases):
     graph.selenium.execute_script(
         js.prepare_js_call('api.updateTable', table_id, contents, title))
 
-    table = graph.get_table()
+    table = graph.get_tables()[0]
     assert graph.get_table_title(table) == 'updated'
     assert graph.get_table_contents(table) == ['a', '1', 'b', '2']
 
@@ -444,7 +489,7 @@ def test_update_table_error_not_found(graph_cases, selenium_extras):
             js.prepare_js_call('api.updateTable', table_id, contents, title))
 
     assert selenium_extras.get_exception_message(e) == \
-        "Unable to find table with id {}".format(table_id)
+        "Unable to find the cell with id {}".format(table_id)
 
 
 def test_update_table_error_not_table(graph_cases, selenium_extras):
@@ -494,7 +539,7 @@ def test_remove_cells_error_not_found(graph_cases, selenium_extras):
         graph.eval_js_function('api.removeCells', [cell_id])
 
     assert selenium_extras.get_exception_message(e) == \
-        "Unable to find cell with id {}".format(cell_id)
+        "Unable to find the cell with id {}".format(cell_id)
 
 
 def test_on_cells_removed(graph_cases):
@@ -605,7 +650,7 @@ def test_get_label(graph_cases):
     assert graph.get_label(graph.get_decoration()) == 'decoration'
 
     # Tables use a complex label in HTML
-    table_label = graph.get_label(graph.get_table())
+    table_label = graph.get_label(graph.get_tables()[0])
 
     table_html_data = []
 
@@ -667,24 +712,21 @@ def test_get_cell_type(graph_cases):
     """
     graph = graph_cases('2v_1e_1d_1t')
 
-    assert graph.eval_js_function(
-        'api.getCellType',
-        graph.get_id(graph.get_vertices()[0])) == constants.CELL_TYPE_VERTEX
+    def get_cell_type(web_element):
+        cell_id = graph.get_id(web_element)
+        return graph.eval_js_function('api.getCellType', cell_id)
 
-    assert graph.eval_js_function(
-        'api.getCellType',
-        graph.get_id(graph.get_edge(*graph.get_vertices()))) == \
-        constants.CELL_TYPE_EDGE
+    assert get_cell_type(graph.get_vertices()[0]) == \
+           constants.CELL_TYPE_VERTEX
 
-    assert graph.eval_js_function(
-        'api.getCellType',
-        graph.get_id(graph.get_decoration())) == \
-        constants.CELL_TYPE_DECORATION
+    assert get_cell_type(graph.get_edge(*graph.get_vertices())) == \
+           constants.CELL_TYPE_EDGE
 
-    assert graph.eval_js_function(
-        'api.getCellType',
-        graph.get_id(graph.get_table())) == \
-        constants.CELL_TYPE_TABLE
+    assert get_cell_type(graph.get_decoration()) == \
+           constants.CELL_TYPE_DECORATION
+
+    assert get_cell_type(graph.get_tables()[0]) == \
+           constants.CELL_TYPE_TABLE
 
 
 def test_get_cell_type_error_not_found(graph_cases, selenium_extras):
@@ -933,7 +975,7 @@ def test_on_cells_added(graph_cases):
         graph.get_id(graph.get_vertices()[1]),
         graph.get_id(graph.get_edge(*graph.get_vertices())),
         graph.get_id(graph.get_decoration()),
-        graph.get_id(graph.get_table()),
+        graph.get_id(graph.get_tables()[0]),
     ]
 
     assert graph.get_added_cell_ids() == added

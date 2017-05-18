@@ -146,11 +146,11 @@ graphs.utils.adjustCoordinates = function adjustCoordinates (graph, x, y) {
 graphs.utils.createTableElement = function createTableElement (contents, title) {
     "use strict";
 
-    var table = '<table style="overflow:hidden;" width="100%" border="1" cellpadding="4" class="title">';
+    var table = '<table width="100%" border="1" cellpadding="4" class="table-cell-title">';
     table += '<tr><th colspan="2">' + title + '</th></tr>';
     table += '</table>';
-    table += '<div style="overflow:auto;cursor:default;">' +
-        '<table width="100%" border="1" cellpadding="4" class="contents">';
+    table += '<div class="table-cell-contents-container">' +
+        '<table width="100%" border="1" cellpadding="4" class="table-cell-contents">';
     for (var row = 0; row < contents.length; row++) {
         table += '<tr>';
         for (var col = 0; col < contents[row].length; col++) {

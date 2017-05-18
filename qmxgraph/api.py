@@ -117,7 +117,9 @@ class QmxGraphApi(object):
         return self.call_api(
             'insertDecoration', x, y, width, height, label, style, tags)
 
-    def insert_table(self, x, y, width, contents, title, tags=None):
+    def insert_table(
+            self, x, y, width, contents, title, tags=None, style=None,
+            parent_id=None):
         """
         Inserts a new table in graph. A table is an object that can be used
         in graph to display tabular information about other cells, for
@@ -135,10 +137,19 @@ class QmxGraphApi(object):
             attributes that may be added to a cell that may be later queried
             (or even modified), with the objective of allowing better
             inspection and interaction with cells in a graph.
+        :param str|None style: Name of style to be used (Note that the
+            `'table'` style is always used, options configured with this style
+            have greater precedence). Styles available are all default ones
+            provided by mxGraph plus additional ones configured in
+            initialization of this class.
+        :param str|None parent_id: If not `None` the created table is placed
+            in a relative position to the cell with id `parent_id`.
         :rtype: str
         :return: Id of new table.
         """
-        return self.call_api('insertTable', x, y, width, contents, title, tags)
+        return self.call_api(
+            'insertTable', x, y, width, contents, title, tags, style,
+            parent_id)
 
     def update_table(self, table_id, contents, title):
         """
@@ -459,7 +470,8 @@ class QmxGraphApi(object):
 
     def get_edge_terminals_with_ports(self, edge_id):
         """
-        Gets the ids of endpoint vertices of an edge and the ports used in the connection.
+        Gets the ids of endpoint vertices of an edge and the ports used in the
+        connection.
 
         :param str edge_id: Id of an edge in graph.
         :rtype: list[str|None]
@@ -493,9 +505,11 @@ class QmxGraphApi(object):
         """
         Call a function in underlying API provided by JavaScript graph.
 
-        :param str|Variable fn: A function call available in API.
-        :param list args: Positional arguments passed to graph's JavaScript API
-            call (unfortunately can't use named arguments with JavaScript).
+        :param str fn: A function call available in API.
+        :param list[Any] args: Positional arguments passed to graph's
+            JavaScript API call (unfortunately can't use named arguments
+            with JavaScript). All object passed must be JSON encodable or
+            Variable instances.
         :rtype: object
         :return: Return of API call.
         """
