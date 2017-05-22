@@ -662,7 +662,7 @@ graphs.Api.prototype.onCellsRemoved = function onCellRemoved (handler) {
         }
     };
 
-    graph.addListener(mxEvent.REMOVE_CELLS, removeHandler);
+    graph.addListener(mxEvent.CELLS_REMOVED, removeHandler);
 };
 
 /**
@@ -692,7 +692,7 @@ graphs.Api.prototype.onCellsAdded = function onCellsAdded (handler) {
         }
     };
 
-    graph.addListener(mxEvent.ADD_CELLS, addHandler);
+    graph.addListener(mxEvent.CELLS_ADDED, addHandler);
 };
 
 /**
