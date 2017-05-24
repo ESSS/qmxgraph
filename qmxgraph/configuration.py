@@ -8,6 +8,7 @@ class GraphOptions(object):
         self,
         cells_movable=True,
         cells_connectable=True,
+        cells_cloneable=True,
         cells_resizable=True,
         allow_create_target=False,
         allow_dangling_edges=False,
@@ -26,6 +27,8 @@ class GraphOptions(object):
             of cells.
         :param bool cells_connectable: Enables new edges between vertices of
             graph.
+        :param bool cells_cloneable: Enables the cells to be cloned pressing
+            ctrl and dragging them.
         :param bool cells_resizable: Specifies if vertices in graph can be
             resized.
         :param bool allow_create_target: Defines if clones the source if new
@@ -53,6 +56,7 @@ class GraphOptions(object):
         """
         self._cells_movable = cells_movable
         self._cells_connectable = cells_connectable
+        self._cells_cloneable = cells_cloneable
         self._cells_resizable = cells_resizable
         self._allow_create_target = allow_create_target
         self._allow_dangling_edges = allow_dangling_edges
@@ -73,6 +77,10 @@ class GraphOptions(object):
     @property
     def cells_connectable(self):
         return self._cells_connectable
+
+    @property
+    def cells_cloneable(self):
+        return self._cells_cloneable
 
     @property
     def cells_resizable(self):
@@ -126,6 +134,7 @@ class GraphOptions(object):
         return {
             'cells_movable': self._cells_movable,
             'cells_connectable': self._cells_connectable,
+            'cells_cloneable': self._cells_cloneable,
             'cells_resizable': self._cells_resizable,
             'allow_create_target': self._allow_create_target,
             'allow_dangling_edges': self._allow_dangling_edges,

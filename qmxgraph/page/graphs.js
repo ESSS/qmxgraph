@@ -230,6 +230,8 @@ graphs.createGraph = function createGraph (container, options, styles) {
 
     graph.setConnectable(options['cells_connectable']);
 
+    graph.setCellsCloneable(options['cells_cloneable']);
+
     graph.setCellsResizable(options['cells_resizable']);
 
     graph.connectionHandler.setCreateTarget(options['allow_create_target']);
