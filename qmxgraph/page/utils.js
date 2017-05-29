@@ -138,6 +138,39 @@ graphs.utils.adjustCoordinates = function adjustCoordinates (graph, x, y) {
 };
 
 /**
+ * Determines it some value is an object not some build-in. Relies on {@link Object#toString}
+ * having the default value
+ *
+ * @param {*} value The value tested.
+ * @returns {boolean}
+ */
+graphs.utils.isObject = function isObject (value) {
+    return Object.prototype.toString.call(value) === '[object Object]'
+};
+
+/**
+ * Returns the chosen attribute from the given object.
+ *
+ * @param {Object} object The object containing the selected property.
+ * @param {string} attrName The name of the property.
+ * @param {*} [defaultValue=undefined] If the chosen property in not present in the given object
+ * this value is returned.
+ * @returns {*} The property value or `defaultValue`.
+ */
+graphs.utils.getValue = function getValue (object, attrName, defaultValue) {
+    return (attrName in object) ? object[attrName] : defaultValue;
+};
+
+/**
+ * The description of a table cell that should span over multiple columns or rows.
+ * @typedef {Object} SpannedCellDesc
+ * @property {string} value The actual content of the cell.
+ * @property {number} [colspan=1] The number of columns this cell span over.
+ * @property {number} [rowspan=1] The number of rows this cell span over (value of 0 means over
+ * all remaining table rows).
+ */
+
+/**
  * @param {Array} contents An array of arrays. The 1st level arrays correspond
  * to rows. The 2nd level arrays correspond to columns of each row.
  * @param {string} title Title of table.
@@ -145,6 +178,9 @@ graphs.utils.adjustCoordinates = function adjustCoordinates (graph, x, y) {
  */
 graphs.utils.createTableElement = function createTableElement (contents, title) {
     "use strict";
+
+    var isObject = graphs.utils.isObject;
+    var getValue = graphs.utils.getValue;
 
     var table = '<table width="100%" border="1" cellpadding="4" class="table-cell-title">';
     table += '<tr><th colspan="2">' + title + '</th></tr>';
@@ -154,7 +190,16 @@ graphs.utils.createTableElement = function createTableElement (contents, title) 
     for (var row = 0; row < contents.length; row++) {
         table += '<tr>';
         for (var col = 0; col < contents[row].length; col++) {
-            table += '<td>' + contents[row][col] + '</td>';
+            var data = contents[row][col];
+            if (isObject(data)) {
+                var spanAttrs = (
+                    'colspan="' + getValue(data, 'colspan', 1) + '" '
+                    + 'rowspan="' + getValue(data, 'rowspan', 1) + '"'
+                );
+                table += '<td ' + spanAttrs + '>' + data.value + '</td>';
+            } else {
+                table += '<td>' + data + '</td>';
+            }
         }
         table += '</tr>';
     }

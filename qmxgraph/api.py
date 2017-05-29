@@ -129,9 +129,18 @@ class QmxGraphApi(object):
         :param int x: X coordinate in screen coordinates.
         :param int y: Y coordinate in screen coordinates.
         :param int width: Width in pixels.
-        :param list[list[str]] contents: A list of lists. The 1st level lists
-            correspond to rows. The 2nd level lists correspond to columns of
-            each row.
+        :param list[list[str|SpannedCellDesc]] contents: A list of lists. The
+            1st level lists correspond to rows. The 2nd level lists correspond
+            to columns of each row.
+            SpannedCellDesc is a dict:
+            - "value": the contents the the table cell (**required**);
+            - "colspan": used when the cell should span over more than one
+                column (optional, default to 1);
+            - "rowspan": used when the cell should span over more than one
+                row (optional, default to 1, if 0 the cell will span over all
+                remaining rows).
+            Using `{"value": "foo", "colspan": 1, "rowspan": 1}` is visually
+            equivalent of using just the string `"foo"`.
         :param str title: Title of table.
         :param dict[str, str]|None tags: Tags are basically custom
             attributes that may be added to a cell that may be later queried
@@ -156,8 +165,9 @@ class QmxGraphApi(object):
         Update contents and title of a table in graph.
 
         :param str table_id: Id of a table in graph.
-        :param list contents: A list of lists. The 1st level lists correspond
-            to rows. The 2nd level lists correspond to columns of each row.
+        :param list contents: A list of lists. Refer to the argument with the
+            same name in `qmxgraph.api.QmxGraphApi#insert_table` for a more in
+            deep description.
         :param str title: Title of table.
         """
         return self.call_api('updateTable', table_id, contents, title)

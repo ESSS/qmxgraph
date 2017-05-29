@@ -247,7 +247,7 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
  * @param {number} x X coordinate in screen coordinates
  * @param {number} y Y coordinate in screen coordinates
  * @param {number} width Width of table, may still be expanded because of contents though.
- * @param {string[][]} contents An array of arrays. The 1st level arrays
+ * @param {(string|SpannedCellDesc)[][]} contents An array of arrays. The 1st level arrays
  * correspond to rows. The 2nd level arrays correspond to columns of each row.
  * @param {string} title Title of table.
  * @param {Object} [tags] A dict-like object, with string keys and values. Tags are basically custom
