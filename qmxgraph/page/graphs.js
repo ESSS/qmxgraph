@@ -173,6 +173,34 @@ graphs.createGraph = function createGraph (container, options, styles) {
         return cell;
     };
 
+    /**
+     * Simitar to the original {@link mxGraph#isCellLocked} but allow to move relative positioned
+     * tables.
+     *
+     * @param {mxCell} cell The cell of interest.
+     * @returns {boolean}
+     */
+    mxGraph.prototype.isCellLocked = function(cell)
+    {
+        if (this.isCellsLocked()) {
+            return true;
+        }
+        if (cell.isTable()) {
+            return false;
+        }
+        var geometry = this.model.getGeometry(cell);
+        return (
+            geometry != null
+            && this.model.isVertex(cell)
+            && geometry.relative
+        );
+    };
+
+    /**
+     * Does not automatically reparent cells when moving.
+     */
+    graph.graphHandler.setRemoveCellsFromParent(false);
+
     // Key bindings ------------------------------------------------------------
     var keyHandler = editor.keyHandler;
     keyHandler.bindAction(46, 'delete');
@@ -359,6 +387,9 @@ graphs.createGraph = function createGraph (container, options, styles) {
                 var markers = edge_markers[1];
                 for (var i = 0; i < markers.length; i++) {
                     var marker = markers[i];
+                    if (marker.isTable()) {  // Tables are not actual markers.
+                        continue;
+                    }
                     var markerStyle = graphs.utils.obtainDecorationStyle(
                         graph, edge, marker.getStyle());
                     graph.model.setStyle(marker, markerStyle);
