@@ -470,6 +470,21 @@ graphs.Api.prototype.setVisible = function setVisible (cellId, visible) {
 };
 
 /**
+ * Indicates a cell's visibility.
+ *
+ * @param {number} cellId Id of a cell in graph.
+ * @throws {Error} Unable to find cell.
+ */
+graphs.Api.prototype.isVisible = function isVisible (cellId) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var cell = this._findCell(model, cellId);
+    return model.isVisible(cell);
+};
+
+/**
  * Select the cells with the given ids.
  *
  * @param {number[]} cellIds An array with the ids of the cells to select.
@@ -1134,7 +1149,7 @@ graphs.Api.prototype._findCell = function _findCell(model, cellId) {
 
     var cell = model.getCell(cellId);
     if (!cell) {
-        throw Error("Unable to find the cell with id " + cellId);
+        throw Error("Unable to find cell with id " + cellId);
     }
     return cell
 };
@@ -1162,4 +1177,3 @@ graphs.Api.prototype._findPort = function _findPort (model, cellId, portName, al
     }
     return port
 };
-

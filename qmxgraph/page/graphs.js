@@ -438,6 +438,7 @@ graphs.parseStyles = function parseStyles (rawStyles) {
     styleMap['shape'] = mxConstants.STYLE_SHAPE;
     styleMap['fill_color'] = mxConstants.STYLE_FILLCOLOR;
     styleMap['fill_opacity'] = mxConstants.STYLE_FILL_OPACITY;
+    styleMap['foldable'] = mxConstants.STYLE_FOLDABLE;
     styleMap['stroke_opacity'] = mxConstants.STYLE_STROKE_OPACITY;
     styleMap['stroke_color'] = mxConstants.STYLE_STROKECOLOR;
     styleMap['dashed'] = mxConstants.STYLE_DASHED;

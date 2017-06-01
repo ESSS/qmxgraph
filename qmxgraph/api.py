@@ -262,6 +262,14 @@ class QmxGraphApi(object):
         """
         return self.call_api('setVisible', cell_id, visible)
 
+    def is_visible(self, cell_id):
+        """
+        Indicates the cell's visibility.
+
+        :param str cell_id: Id of a cell in graph.
+        """
+        return self.call_api('isVisible', cell_id)
+
     def set_selected_cells(self, cell_ids):
         """
         Select the cells with the given ids.
