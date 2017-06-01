@@ -489,6 +489,13 @@ class BaseGraphCase(object):
         self.eval_js_function(
             'api.setVisible', self._as_cell_id(cell), visible)
 
+    def is_visible(self, cell):
+        """
+        :param selenium.webdriver.remote.webelement.WebElement|str cell:
+            Graphical element of a cell or its id.
+        """
+        return self.eval_js_function('api.isVisible', self._as_cell_id(cell))
+
     def get_table_title(self, table):
         """
         :param selenium.webdriver.remote.webelement.WebElement table: Graphical

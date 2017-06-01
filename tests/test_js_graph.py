@@ -120,14 +120,14 @@ def test_insert_edge_error_endpoint_not_found(graph_cases, selenium_extras):
             "api.insertEdge", invalid_source_id, graph.get_id(vertex))
 
     assert selenium_extras.get_exception_message(e) == \
-        "Unable to find the cell with id {}".format(invalid_source_id)
+        "Unable to find cell with id {}".format(invalid_source_id)
 
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function(
             "api.insertEdge", graph.get_id(vertex), invalid_target_id)
 
     assert selenium_extras.get_exception_message(e) == \
-        "Unable to find the cell with id {}".format(invalid_target_id)
+        "Unable to find cell with id {}".format(invalid_target_id)
 
 
 def test_insert_decoration(graph_cases):
@@ -310,8 +310,10 @@ def test_set_visible(graph_cases):
     vertices = graph.get_vertices()
     cell_id = graph.get_id(vertices[0])
     graph.set_visible(cell_id, False)
+    assert not graph.is_visible(cell_id)
     assert len(graph.get_vertices()) == len(vertices) - 1
     graph.set_visible(cell_id, True)
+    assert graph.is_visible(cell_id)
     assert len(graph.get_vertices()) == len(vertices)
 
     # hide then show edge again
@@ -342,10 +344,16 @@ def test_set_visible_error_not_found(graph_cases, selenium_extras):
     :type selenium_extras: qmxgraph.tests.conftest.SeleniumExtras
     """
     graph = graph_cases('2v_1e_1d_1t')
-
     cell_id = '999'
+
     with pytest.raises(WebDriverException) as e:
         graph.set_visible(cell_id, False)
+
+    assert selenium_extras.get_exception_message(e) == \
+        "Unable to find cell with id {}".format(cell_id)
+
+    with pytest.raises(WebDriverException) as e:
+        graph.is_visible(cell_id)
 
     assert selenium_extras.get_exception_message(e) == \
         "Unable to find cell with id {}".format(cell_id)
@@ -489,7 +497,7 @@ def test_update_table_error_not_found(graph_cases, selenium_extras):
             js.prepare_js_call('api.updateTable', table_id, contents, title))
 
     assert selenium_extras.get_exception_message(e) == \
-        "Unable to find the cell with id {}".format(table_id)
+        "Unable to find cell with id {}".format(table_id)
 
 
 def test_update_table_error_not_table(graph_cases, selenium_extras):
@@ -539,7 +547,7 @@ def test_remove_cells_error_not_found(graph_cases, selenium_extras):
         graph.eval_js_function('api.removeCells', [cell_id])
 
     assert selenium_extras.get_exception_message(e) == \
-        "Unable to find the cell with id {}".format(cell_id)
+        "Unable to find cell with id {}".format(cell_id)
 
 
 def test_on_cells_removed(graph_cases):
@@ -1189,7 +1197,7 @@ def test_set_get_style(graph_cases):
 
     with pytest.raises(WebDriverException) as excinfo:
         graph.eval_js_function('api.getStyle', 'nonexistent')
-    assert 'Unable to find the cell with id nonexistent' in str(excinfo.value)
+    assert 'Unable to find cell with id nonexistent' in str(excinfo.value)
 
 
 def test_get_edge_terminals_error_edge_not_found(graph_cases, selenium_extras):
