@@ -25,8 +25,9 @@ graphs.utils.calculateEdgeAngle = function calculateEdgeAngle (graph, edge) {
     var view = graph.view;
     var sourceState = view.getState(edge).getVisibleTerminalState(true);
     var targetState = view.getState(edge).getVisibleTerminalState(false);
-    var atan = Math.atan(
-        (targetState.y - sourceState.y) / (targetState.x - sourceState.x));
+    var dy = targetState.y - sourceState.y;
+    var dx = targetState.x - sourceState.x;
+    var atan = Math.atan2(dy, dx);
     return mxUtils.toDegree(atan) % 360;
 };
 

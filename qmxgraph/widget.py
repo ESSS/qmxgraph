@@ -396,10 +396,15 @@ class QmxGraph(QWidget):
 
             # Refer to `mime.py` for docs about format
             version = parsed['version']
-            if version == 1:
-                x = event.pos().x()
-                y = event.pos().y()
+            if version not in (1, 2):
+                raise ValueError(
+                    "Unsupported version of QmxGraph MIME data: {}".format(
+                        version))
 
+            x = event.pos().x()
+            y = event.pos().y()
+
+            if version in (1, 2):
                 vertices = parsed.get('vertices', [])
                 for v in vertices:
                     self.api.insert_vertex(
@@ -411,10 +416,19 @@ class QmxGraph(QWidget):
                         style=v.get('style', None),
                         tags=v.get('tags', {}),
                     )
-            else:
-                raise ValueError(
-                    "Unsupported version of QmxGraph MIME data: {}".format(
-                        version))
+
+            if version in (2,):
+                decorations = parsed.get('decorations', [])
+                for v in decorations:
+                    self.api.insert_decoration(
+                        x=x,
+                        y=y,
+                        width=v['width'],
+                        height=v['height'],
+                        label=v['label'],
+                        style=v.get('style', None),
+                        tags=v.get('tags', {}),
+                    )
 
             event.acceptProposedAction()
         else:

@@ -61,7 +61,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
     };
 
     mxCell.prototype.isDecoration = function() {
-        return !!this.__decoration__;
+        return this.getAttribute('__decoration__', '0') === '1'
     };
 
     mxCell._PORT_ID_PREFIX = 'qmxgraph-port-';
@@ -81,7 +81,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
     // Table-like vertices inspired by this example:
     // https://jgraph.github.io/mxgraph/javascript/examples/scrollbars.html
     mxCell.prototype.isTable = function() {
-        return !!this.__table__;
+        return this.getAttribute('__table__', '0') === '1';
     };
 
     // Overrides getLabel to be able to fold table cells reliably
@@ -440,6 +440,8 @@ graphs.parseStyles = function parseStyles (rawStyles) {
     styleMap['fill_color'] = mxConstants.STYLE_FILLCOLOR;
     styleMap['fill_opacity'] = mxConstants.STYLE_FILL_OPACITY;
     styleMap['foldable'] = mxConstants.STYLE_FOLDABLE;
+    styleMap['image'] = mxConstants.STYLE_IMAGE;
+    styleMap['rotatable'] = mxConstants.STYLE_ROTATABLE;
     styleMap['stroke_opacity'] = mxConstants.STYLE_STROKE_OPACITY;
     styleMap['stroke_color'] = mxConstants.STYLE_STROKECOLOR;
     styleMap['dashed'] = mxConstants.STYLE_DASHED;
