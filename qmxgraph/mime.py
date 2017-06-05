@@ -19,7 +19,19 @@ QGraph drag & drop is a JSON object. Format spec is found below:
                 label: <str>,  # label of new vertex
                 style: <str>,  # optional, style of new vertex
                 tags: <dict[str, str]>,  # optional, tags associated
-                                                 # with vertex
+                                         # with vertex
+            },
+            ...
+        ]
+    decorations:  # optional, decorations are going to be added to graph
+        [
+            {
+                width: <int>,  # width of new decoration
+                height: <int>,  # height of new decoration
+                label: <str>,  # label of new decoration
+                style: <str>,  # optional, style of new decoration
+                tags: <dict[str, str]>,  # optional, tags associated
+                                         # with decoration
             },
             ...
         ]

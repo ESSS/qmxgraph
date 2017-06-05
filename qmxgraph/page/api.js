@@ -223,6 +223,7 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
     var decorationStyle = graphs.utils.obtainDecorationStyle(graph, edge, style);
 
     var value = this._prepareCellValue(label, tags);
+    value.setAttribute('__decoration__', '1');
 
     var model = graph.getModel();
     model.beginUpdate();
@@ -232,7 +233,6 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
             edge, null, value, position, 0, width, height, decorationStyle, true);
         decoration.geometry.offset = new mxPoint(-width / 2, -height / 2);
         decoration.connectable = false;
-        decoration.__decoration__ = true;
     } finally {
         model.endUpdate();
     }
@@ -285,6 +285,7 @@ graphs.Api.prototype.insertTable = function insertTable (
 
     var label = graphs.utils.createTableElement(contents, title);
     var value = this._prepareCellValue(label, tags);
+    value.setAttribute('__table__', '1');
 
     model.beginUpdate();
     var table = null;
@@ -300,7 +301,6 @@ graphs.Api.prototype.insertTable = function insertTable (
             tableStyle,
             isRelative
         );
-        table.__table__ = true;
         table.connectable = false;
 
         // Updates the height of the cell (override width
@@ -410,6 +410,22 @@ graphs.Api.prototype.getCellIdAt = function getCellIdAt (x, y) {
     return !!cell? cell.getId() : null;
 };
 
+/**
+ * Return the id of the edge containing the given decoration.
+ *
+ * @param cellId
+ * @returns {number} Id of the decoration's parent.
+ * @throws {Error} If the given cell is not found or it is a decoration.
+ */
+graphs.Api.prototype.getDecorationParentCellId = function getParentCellId (cellId) {
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var cell = this._findCell(model, cellId);
+    if (!cell.isDecoration()) {
+        throw Error("The cell " + cellId + " is not a decoration");
+    }
+    return cell.getParent().getId();
+};
 
 /**
  * Indicates if cell exists.

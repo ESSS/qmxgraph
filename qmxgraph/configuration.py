@@ -215,6 +215,8 @@ class GraphStyles(object):
             'fill_color',
             'fill_opacity',
             'foldable',
+            'image',
+            'rotatable',
             'stroke_color',
             'stroke_opacity',
             'dashed',

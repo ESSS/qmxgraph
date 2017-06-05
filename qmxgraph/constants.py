@@ -5,4 +5,4 @@ CELL_TYPE_DECORATION = "decoration"
 
 # MIME type used by QmxGraph drag&drop
 QGRAPH_DD_MIME_TYPE = "application/x-qmxgraph-dd"
-QGRAPH_DD_MIME_VERSION = 1
+QGRAPH_DD_MIME_VERSION = 2

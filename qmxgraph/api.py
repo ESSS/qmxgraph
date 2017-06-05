@@ -210,6 +210,17 @@ class QmxGraphApi(object):
         """
         return self.call_api('getCellIdAt', x, y)
 
+    def get_decoration_parent_cell_id(self, cell_id):
+        """
+        Get the id of the edge that contains the decoration with the given
+        cell id.
+
+        :param str cell_id: THe decoration's id.
+        :rtype: str
+        :return: Id of the edge containg the given decoration.
+        """
+        return self.call_api('getDecorationParentCellId', cell_id)
+
     def has_cell(self, cell_id):
         """
         Indicates if cell exists.

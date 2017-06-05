@@ -137,6 +137,16 @@ def test_insert_decoration(graph_cases):
     assert graph.get_decoration() is not None
 
 
+def test_get_decoration_parent_cell_id(graph_cases):
+    """
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    """
+    graph = graph_cases('2v_1e_1d')
+    cell_id = graph.get_id(graph.get_decoration())
+    parent_id = graph.eval_js_function('api.getDecorationParentCellId', cell_id)
+    assert parent_id == '4'
+
+
 def test_delete_vertex(graph_cases):
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
