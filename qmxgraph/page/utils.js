@@ -145,7 +145,8 @@ graphs.utils.adjustCoordinates = function adjustCoordinates (graph, x, y) {
  * @returns {boolean}
  */
 graphs.utils.isObject = function isObject (value) {
-    return Object.prototype.toString.call(value) === '[object Object]'
+    "use strict";
+    return Object.prototype.toString.call(value) === '[object Object]';
 };
 
 /**
@@ -158,6 +159,7 @@ graphs.utils.isObject = function isObject (value) {
  * @returns {*} The property value or `defaultValue`.
  */
 graphs.utils.getValue = function getValue (object, attrName, defaultValue) {
+    "use strict";
     return (attrName in object) ? object[attrName] : defaultValue;
 };
 
@@ -223,13 +225,13 @@ graphs.utils.createTableElement = function createTableElement (contents, title) 
         }
 
         var spanAttrs = (
-            'colspan="' + getValue(data, 'colspan', 1) + '" '
-            + 'rowspan="' + getValue(data, 'rowspan', 1) + '"'
+            'colspan="' + getValue(data, 'colspan', 1) + '" ' +
+            'rowspan="' + getValue(data, 'rowspan', 1) + '"'
         );
         var result = '<td ' + spanAttrs + '>';
-        var data_contents = data.contents;
-        for (var index = 0; index < data_contents.length; ++index) {
-            var element = data_contents[index];
+        var dataContents = data.contents;
+        for (var index = 0; index < dataContents.length; ++index) {
+            var element = dataContents[index];
             if (isObject(element)) {
                 result += '<img src="' + element.src;
                 result += '" width="' + element.width + '" height="' + element.height + '">';
@@ -247,12 +249,12 @@ graphs.utils.createTableElement = function createTableElement (contents, title) 
     table += '<div class="table-cell-contents-container">' +
         '<table width="100%" border="1" cellpadding="4" class="table-cell-contents">';
 
-    var table_contents = contents.contents;
-    for (var row_index = 0; row_index < table_contents.length; ++row_index ) {
-        var row_contents = table_contents[row_index].contents;
+    var tableContents = contents.contents;
+    for (var rowIndex = 0; rowIndex < tableContents.length; ++rowIndex) {
+        var rowContents = tableContents[rowIndex].contents;
         table += '<tr>';
-        for (var col_index = 0; col_index < row_contents.length; col_index++) {
-            table += createTableData(row_contents[col_index]);
+        for (var colIndex = 0; colIndex < rowContents.length; ++colIndex) {
+            table += createTableData(rowContents[colIndex]);
         }
         table += '</tr>';
     }
@@ -287,13 +289,13 @@ graphs.utils.resizeContainerOnDemand = function resizeContainerOnDemand (graph, 
  * @returns {string}
  */
 graphs.utils.escapeHtml = function escapeHtml (text) {
-  var map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;'
-  };
-
-  return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    "use strict";
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
 };

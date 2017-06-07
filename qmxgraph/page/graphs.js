@@ -1,3 +1,4 @@
+/*global mxConstraintHandler */
 /*global mxEditor */
 /*global mxGraph */
 /*global mxCell */
@@ -67,7 +68,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
 
     mxCell.prototype.isPort = function() {
         var cellId = this.getId();
-        return cellId.indexOf(mxCell._PORT_ID_PREFIX) == 0;
+        return cellId.indexOf(mxCell._PORT_ID_PREFIX) === 0;
 
     };
 
@@ -190,9 +191,9 @@ graphs.createGraph = function createGraph (container, options, styles) {
         }
         var geometry = this.model.getGeometry(cell);
         return (
-            geometry != null
-            && this.model.isVertex(cell)
-            && geometry.relative
+            geometry != null &&  // jshint ignore:line
+            this.model.isVertex(cell) &&
+            geometry.relative
         );
     };
 
@@ -271,7 +272,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
     graph.graphHandler.setCloneEnabled(options['enable_cloning']);
 
     if (options['show_highlight']) {
-        new mxCellTracker(graph, '#00FF00');
+        new mxCellTracker(graph, '#00FF00');  // jshint ignore:line
     }
 
     if (options['show_outline']) {

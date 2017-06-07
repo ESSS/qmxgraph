@@ -1,3 +1,7 @@
+/*global graphs*/
+/*global namespace */
+/*global mxClient */
+
 namespace('graphs');
 
 /**
