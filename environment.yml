@@ -1,19 +1,20 @@
 name: qmxgraph
 
 dependencies:
-    - jinja2
-    - pyqt==5.6
+    - attrs>=17
     - cherrypy
-    - six
-    - pytest-timeout
     - colorama
     - flake8
+    - jinja2
+    - pyqt>=5.6
+    - pytest-timeout
+    - six
     - pip:
       - invoke==0.12.2
-      - pytest-qt
-      - pytest-selenium
       - pytest-mock
+      - pytest-qt
       - pytest-rerunfailures
+      - pytest-selenium
       - pytest-xdist
       - pytest-xvfb
 

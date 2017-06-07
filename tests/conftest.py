@@ -581,14 +581,20 @@ class BaseGraphCase(object):
         """
         Inserts a table with sensible, empirical defaults.
 
-        ..see:: Refer to `insertTable` in API for argument details.
+        ..see:: Refer to `insertTable` in API.JS for argument details.
         :rtype: str
         :return: New table id.
         """
-        contents = [
-            ['arthur', 'dent'],
-            ['ford', 'prefect'],
-        ] if contents is None else contents
+
+        if contents is None:
+            contents = {  # graphs.utils.TableRowDescription
+                'contents': [
+                    # graphs.utils.TableDataDescription
+                    {'contents': ['arthur', 'dent']},
+                    # graphs.utils.TableDataDescription
+                    {'contents': ['ford', 'prefect']},
+                ]
+            }
         return self.eval_js_function(
             'api.insertTable', x, y, width, contents, title, tags)
 
@@ -828,10 +834,14 @@ class Graph2Vertices1Edge1Decoration1Table(Graph2Vertices1Edge1Decoration):
         x = 20
         y = 60
         w = 100
-        contents = [
-            ['arthur', 'dent'],
-            ['ford', 'prefect'],
-        ]
+        contents = {  # graphs.utils.TableDescription
+            'contents': [
+                # graphs.utils.TableDataDescription
+                {'contents': ['arthur', 'dent']},
+                # graphs.utils.TableDataDescription
+                {'contents': ['ford', 'prefect']},
+            ]
+        }
         title = 'Hitchhikers'
         self.table_id = self.eval_js_function('api.insertTable', x, y, w, contents, title)
 
@@ -853,10 +863,14 @@ class Graph1Table(BaseGraphCase):
         x = 20
         y = 60
         w = 100
-        contents = [
-            ['arthur', 'dent'],
-            ['ford', 'prefect'],
-        ]
+        contents = {  # graphs.utils.TableDescription
+            'contents': [
+                # graphs.utils.TableDataDescription
+                {'contents': ['arthur', 'dent']},
+                # graphs.utils.TableDataDescription
+                {'contents': ['ford', 'prefect']},
+            ]
+        }
         title = 'Hitchhikers'
         self.eval_js_function('api.insertTable', x, y, w, contents, title)
 
