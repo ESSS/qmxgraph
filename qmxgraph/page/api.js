@@ -1,7 +1,7 @@
 /**
  * The actual javascript implementation
  */
-
+/*global mxCell */
 /*global mxConstants */
 /*global mxEvent */
 /*global mxGraph */
@@ -67,6 +67,7 @@ graphs.Api.prototype.insertVertex = function insertVertex (
 };
 
 graphs.Api.prototype._getPortId = function _getPortId (vertexId, name) {
+    "use strict";
     return mxCell._PORT_ID_PREFIX + vertexId + '-' + name;
 };
 
@@ -99,8 +100,9 @@ graphs.Api.prototype.insertPort = function insertPort (
 
     var value = this._prepareCellValue(label, tags);
     model.beginUpdate();
+    var port;
     try {
-        var port = graph.insertVertex(
+        port = graph.insertVertex(
             parent,
             portId,
             value,
@@ -224,8 +226,9 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
 
     var model = graph.getModel();
     model.beginUpdate();
+    var decoration;
     try {
-        var decoration = graph.insertVertex(
+        decoration = graph.insertVertex(
             edge, null, value, position, 0, width, height, decorationStyle, true);
         decoration.geometry.offset = new mxPoint(-width / 2, -height / 2);
         decoration.connectable = false;
@@ -264,7 +267,7 @@ graphs.Api.prototype.insertTable = function insertTable (
 
     var graph = this._graphEditor.graph;
     var model = graph.getModel();
-    var isRelative = parentId != null;
+    var isRelative = parentId != null;  // jshint ignore:line
     var parent = null;
     if (isRelative) {
         parent = this._findCell(model, parentId);
@@ -274,7 +277,7 @@ graphs.Api.prototype.insertTable = function insertTable (
     var coords = graphs.utils.adjustCoordinates(graph, x, y);
 
     var tableStyle = 'table';
-    if (style != null) {
+    if (style != null) {  // jshint ignore:line
         tableStyle += ';' + style;
     }
     tableStyle = graphs.utils.setStyleKey(tableStyle, mxConstants.STYLE_OVERFLOW, 'fill');
@@ -492,11 +495,11 @@ graphs.Api.prototype.setSelectedCells = function setSelectedCells (cellIds) {
     "use strict";
 
     var cellsToSelect = [];
-    var model = api._graphEditor.graph.getModel();
+    var model = this._graphEditor.graph.getModel();
     var cell = null;
     for (var i = cellIds.length; i--;) {
         cell = model.getCell(cellIds[i]);
-        cellsToSelect.push(cell)
+        cellsToSelect.push(cell);
     }
 
     var selectionModel = this._graphEditor.graph.getSelectionModel();
@@ -513,7 +516,7 @@ graphs.Api.prototype.getSelectedCells = function getSelectedCells () {
     var cells = selectionModel.cells;
     var cellIds = [];
     for (var i = cells.length; i--;) {
-        cellIds.push(cells[i].getId())
+        cellIds.push(cells[i].getId());
     }
     return cellIds;
 };
@@ -628,8 +631,8 @@ graphs.Api.prototype.removePort = function removePort (vertexId, portName) {
     for (var i = edges.length; i--;) {
         var terminals = this._getMxEdgeTerminalsWithPorts(edges[i]);
         if (
-            (terminals[0] == vertexId && terminals[1] == portName)
-            || (terminals[2] == vertexId && terminals[3] == portName)
+            (terminals[0] == vertexId && terminals[1] == portName) ||  // jshint ignore:line
+            (terminals[2] == vertexId && terminals[3] == portName)  // jshint ignore:line
         ){
             cellsToRemove.push(edges[i]);
         }
@@ -970,7 +973,7 @@ graphs.Api.prototype.setPopupMenuHandler = function setPopupMenuHandler (handler
  */
 graphs.Api.prototype.dump = function dump() {
     "use strict";
-    return this._graphEditor.writeGraphModel()
+    return this._graphEditor.writeGraphModel();
 };
 
 /**
@@ -1150,7 +1153,7 @@ graphs.Api.prototype._findCell = function _findCell(model, cellId) {
     if (!cell) {
         throw Error("Unable to find cell with id " + cellId);
     }
-    return cell
+    return cell;
 };
 
 /**
@@ -1174,5 +1177,5 @@ graphs.Api.prototype._findPort = function _findPort (model, cellId, portName, al
     } else if (!portFound && alreadyExits) {
         throw Error("The cell " + cellId + " does not have a port named " + portName);
     }
-    return port
+    return port;
 };
