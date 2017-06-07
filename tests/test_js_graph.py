@@ -2,7 +2,6 @@ import math
 import sys
 
 import pytest
-import six
 from selenium.common.exceptions import NoSuchElementException, \
     WebDriverException
 from selenium.webdriver import ActionChains
@@ -409,8 +408,9 @@ def test_insert_child_table(graph_cases):
     tables = graph.get_tables()
     assert len(tables) == 1
     parent_id = graph.get_id(tables[0])
-    child_id = graph.eval_js_function('api.insertTable', 0.5, 1.5, 300, [],
-                                      'foobar', None, None, parent_id)
+    child_id = graph.eval_js_function(
+        'api.insertTable', 0.5, 1.5, 300, {'contents': []}, 'foobar', None,
+        None, parent_id)
     tables = graph.get_tables()
     assert len(tables) == 2
 
@@ -431,7 +431,23 @@ def test_table_with_image(graph_cases):
     tables = graph.get_tables()
     assert len(tables) == 1
     table_id = graph.get_id(tables[0])
-    contents = [['foo <img width="16" height="16" src="some-image-path">']]
+    contents = {  # graphs.utils.TableRowDescription
+        'contents': [
+            {  # graphs.utils.TableDataDescription
+                'contents': [
+                    {  # graphs.utils.TableDataDescription
+                        'contents': [
+                            'foo ',
+                            {
+                                'tag': 'img', 'src': 'some-image-path',
+                                'width': 16, 'height': 16,
+                            },
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
     graph.eval_js_function('api.updateTable', table_id, contents, '')
 
     image_elements = graph.selenium.find_elements_by_css_selector(
@@ -449,16 +465,19 @@ def test_insert_table_close_to_boundaries(graph_cases):
 
     width, height = graph.get_container_size()
 
-    contents = [
-        ['alpha', '100'],
-        ['beta', '200'],
-        ['gamma', '300'],
-    ]
+    contents = {  # graphs.utils.TableDescription
+        'contents': [
+            # graphs.utils.TableRowDescription's
+            {'contents': ['alpha', '100']},
+            {'contents': ['beta', '200']},
+            {'contents': ['gamma', '300']},
+        ]
+    }
     assert graph.eval_js_function(
-        "api.insertTable", width - 10, height - 10, contents, 'title')
+        "api.insertTable", width - 10, height - 10, 0, contents, 'title')
 
     assert graph.get_container_size() == \
-        fix_table_size(width + 81, height + 131)
+        fix_table_size(width + 81, height + 91)
 
 
 def test_update_table(graph_cases):
@@ -468,10 +487,13 @@ def test_update_table(graph_cases):
     graph = graph_cases('1t')
 
     table_id = graph.get_id(graph.get_tables()[0])
-    contents = [
-        ['a', 1],
-        ['b', 2],
-    ]
+    contents = {  # graphs.utils.TableDescription
+        'contents': [
+            # graphs.utils.TableRowDescription's
+            {'contents': ['a', 1]},
+            {'contents': ['b', 2]},
+        ]
+    }
     title = 'updated'
     graph.selenium.execute_script(
         js.prepare_js_call('api.updateTable', table_id, contents, title))
@@ -662,10 +684,7 @@ def test_get_label(graph_cases):
 
     table_html_data = []
 
-    if six.PY2:
-        from HTMLParser import HTMLParser
-    else:
-        from html.parser import HTMLParser
+    from html.parser import HTMLParser
 
     class TableHTMLParser(HTMLParser):
         def handle_starttag(self, tag, attrs):

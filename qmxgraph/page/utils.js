@@ -162,17 +162,48 @@ graphs.utils.getValue = function getValue (object, attrName, defaultValue) {
 };
 
 /**
- * The description of a table cell that should span over multiple columns or rows.
- * @typedef {Object} SpannedCellDesc
- * @property {string} value The actual content of the cell.
+ * The description of a table contents.
+ *
+ * @typedef {Object} graphs.utils.TableDescription
+ * @property {string} [tag='table'] The html tag used to create the table.
+ * @property {graphs.utils.TableRowDescription[]} contents The row that compose the table.
+ */
+
+/**
+ * The description of a table row contents.
+ *
+ * @typedef {Object} graphs.utils.TableRowDescription
+ * @property {string} [tag='tr'] The html tag used to create the table row. Normal {@link string}
+ * elements will be interpreted as {@link graphs.utils.TableDataDescription) elements with all the
+ * default values and it's contents equal to a tuple of one element (the {@link string} used).
+ * @property {(string|graphs.utils.TableDataDescription)[]} contents The cells that compose the row.
+ */
+
+/**
+ * The description of a table cell that could span over multiple columns or rows.
+ *
+ * @typedef {Object} graphs.utils.TableDataDescription
+ * @property {string} [tag='td'] The html tag used to create the table cell.
+ * @property {(string|graphs.utils.ImageDescription)[]} contents The elements that compose the cells. Plain
+ * strings are escaped to properly render in the generated HTML and all the content is concatenated.
  * @property {number} [colspan=1] The number of columns this cell span over.
  * @property {number} [rowspan=1] The number of rows this cell span over (value of 0 means over
  * all remaining table rows).
  */
 
 /**
- * @param {Array} contents An array of arrays. The 1st level arrays correspond
- * to rows. The 2nd level arrays correspond to columns of each row.
+ * The description of a image.
+ *
+ * @typedef {Object} graphs.utils.ImageDescription
+ * @property {string} tag The html tag used to create the image element. This value must be "img".
+ * @property {string} src  The URI of the resource. Special characters can be used an will be
+ * properly escaped.
+ * @property {number} width The desired width for the image.
+ * @property {number} height The desired height for the image.
+ */
+
+/**
+ * @param {graphs.utils.TableDescription} contents A description of the table contents.
  * @param {string} title Title of table.
  * @returns {string} A HTML table that contains given contents and title.
  */
@@ -181,25 +212,47 @@ graphs.utils.createTableElement = function createTableElement (contents, title) 
 
     var isObject = graphs.utils.isObject;
     var getValue = graphs.utils.getValue;
+    var escapeHtml = graphs.utils.escapeHtml;
+
+    /**
+     * @param {string|graphs.utils.TableDataDescription} data
+     */
+    var createTableData = function createTableDataContents (data) {
+        if (!isObject(data)) {
+            return '<td>' + escapeHtml(data) + '</td>';
+        }
+
+        var spanAttrs = (
+            'colspan="' + getValue(data, 'colspan', 1) + '" '
+            + 'rowspan="' + getValue(data, 'rowspan', 1) + '"'
+        );
+        var result = '<td ' + spanAttrs + '>';
+        var data_contents = data.contents;
+        for (var index = 0; index < data_contents.length; ++index) {
+            var element = data_contents[index];
+            if (isObject(element)) {
+                result += '<img src="' + element.src;
+                result += '" width="' + element.width + '" height="' + element.height + '">';
+            } else {
+                result += escapeHtml(element);
+            }
+        }
+        result += '</td>';
+        return result;
+    };
 
     var table = '<table width="100%" border="1" cellpadding="4" class="table-cell-title">';
     table += '<tr><th colspan="2">' + title + '</th></tr>';
     table += '</table>';
     table += '<div class="table-cell-contents-container">' +
         '<table width="100%" border="1" cellpadding="4" class="table-cell-contents">';
-    for (var row = 0; row < contents.length; row++) {
+
+    var table_contents = contents.contents;
+    for (var row_index = 0; row_index < table_contents.length; ++row_index ) {
+        var row_contents = table_contents[row_index].contents;
         table += '<tr>';
-        for (var col = 0; col < contents[row].length; col++) {
-            var data = contents[row][col];
-            if (isObject(data)) {
-                var spanAttrs = (
-                    'colspan="' + getValue(data, 'colspan', 1) + '" '
-                    + 'rowspan="' + getValue(data, 'rowspan', 1) + '"'
-                );
-                table += '<td ' + spanAttrs + '>' + data.value + '</td>';
-            } else {
-                table += '<td>' + data + '</td>';
-            }
+        for (var col_index = 0; col_index < row_contents.length; col_index++) {
+            table += createTableData(row_contents[col_index]);
         }
         table += '</tr>';
     }
@@ -224,4 +277,23 @@ graphs.utils.resizeContainerOnDemand = function resizeContainerOnDemand (graph, 
     var containerHeight = Math.max(
         graph.container.offsetHeight, bbox.y + bbox.height);
     graph.doResizeContainer(containerWidth, containerHeight);
+};
+
+/**
+ * Replace html "unsafe" characters on a given string.
+ * From https://stackoverflow.com/a/4835406/783219
+ *
+ * @param {string} text The string to be escaped.
+ * @returns {string}
+ */
+graphs.utils.escapeHtml = function escapeHtml (text) {
+  var map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+
+  return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 };

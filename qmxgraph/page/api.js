@@ -247,8 +247,7 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
  * @param {number} x X coordinate in screen coordinates
  * @param {number} y Y coordinate in screen coordinates
  * @param {number} width Width of table, may still be expanded because of contents though.
- * @param {(string|SpannedCellDesc)[][]} contents An array of arrays. The 1st level arrays
- * correspond to rows. The 2nd level arrays correspond to columns of each row.
+ * @param {graphs.utils.TableDescription} contents A description of the table contents.
  * @param {string} title Title of table.
  * @param {Object} [tags] A dict-like object, with string keys and values. Tags are basically custom
  * attributes that may be added to a cell that may be later queried (or even modified), with the
@@ -316,7 +315,7 @@ graphs.Api.prototype.insertTable = function insertTable (
  * Updates the contents and title of a table.
  *
  * @param {number} tableId Id of a table.
- * @param {Array} contents See {@linkcode graphs.Api.prototype.insertTable}.
+ * @param {graphs.utils.TableDescription} contents A description of the table contents.
  * @param {string} title See {@linkcode graphs.Api.prototype.insertTable}.
  * @throws {Error} Unable to find table or cell is not a table.
  */
