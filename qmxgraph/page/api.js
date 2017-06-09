@@ -215,7 +215,8 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
     var current = distance(sourcePoint, {x: x, y: y});
 
     // Relative position in edge
-    var position = -1 + 2 * (current / total);
+    var position = current / total;
+    position = (position * 2) - 1;  // mxGraph normalizes between [-1, 1].
 
     style = graphs.utils.setStyleKey(style, 'labelPosition', 'left');
     style = graphs.utils.setStyleKey(style, 'align', 'right');
@@ -418,6 +419,8 @@ graphs.Api.prototype.getCellIdAt = function getCellIdAt (x, y) {
  * @throws {Error} If the given cell is not found or it is a decoration.
  */
 graphs.Api.prototype.getDecorationParentCellId = function getParentCellId (cellId) {
+    "use strict";
+
     var graph = this._graphEditor.graph;
     var model = graph.getModel();
     var cell = this._findCell(model, cellId);
@@ -439,7 +442,6 @@ graphs.Api.prototype.hasCell = function hasCell (cellId) {
     var graph = this._graphEditor.graph;
     return !!graph.getModel().getCell(cellId);
 };
-
 
 /**
  * Gets the geometry of a cell.
@@ -466,6 +468,54 @@ graphs.Api.prototype.getGeometry = function getGeometry (cellId) {
     }
 
     return bb;
+};
+
+/**
+ * Gets the decoration's relative position.
+ *
+ * @param {number} cellId Id of a decoration in graph.
+ * @returns {number} Returns an a normalized number between [0, 1] representing the position of the
+ * decoration along the parent edge.
+ * @throws {Error} Unable to find the cell or it is not an decoration.
+ */
+graphs.Api.prototype.getDecorationPosition = function getDecorationPosition (cellId) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var cell = this._findCell(graph.getModel(), cellId);
+    if (!cell.isDecoration()) {
+        throw new Error("The cell " + cellId + " is not a decoration");
+    }
+    var position = cell.getGeometry().x;  // Normalized between [-1, 1].
+    return (position + 1) / 2;
+};
+
+/**
+ * Sets the decoration's relative position.
+ *
+ * @param {number} cellId Id of a decoration in graph.
+ * @param {number} position A normalized number between [0, 1] representing the position of the decoration
+ * along the parent edge.
+ * @throws {Error} Unable to find the cell or it is not an decoration.
+ */
+graphs.Api.prototype.setDecorationPosition = function setDecorationPosition (cellId, position) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var cell = this._findCell(model, cellId);
+    if (!cell.isDecoration()) {
+        throw new Error("The cell " + cellId + " is not a decoration");
+    }
+    if (position < 0) {
+        position = 0;
+    } else if (position > 1) {
+        position = 1;
+    }
+
+    var newGeom = cell.getGeometry().clone();
+    newGeom.x = (position * 2) - 1;  // mxGraph normalizes between [-1, 1].
+    model.setGeometry(cell, newGeom);
 };
 
 /**

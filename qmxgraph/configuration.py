@@ -211,18 +211,20 @@ class GraphStyles(object):
         import six
 
         known_keys = {
-            'shape',
+            'dashed',
+            'end_arrow',
             'fill_color',
             'fill_opacity',
             'foldable',
             'image',
+            'label_position',
+            'label_rotatable',
             'rotatable',
+            'shape',
             'stroke_color',
             'stroke_opacity',
-            'dashed',
-            'vertical_label_position',
             'vertical_align',
-            'end_arrow',
+            'vertical_label_position',
         }
 
         invalid = {}

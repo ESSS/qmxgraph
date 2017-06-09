@@ -137,6 +137,21 @@ def test_insert_decoration(graph_cases):
     assert graph.get_decoration() is not None
 
 
+def test_decoration_position(graph_cases):
+    """
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    """
+    graph = graph_cases('2v_1e_1d')
+    cell_id = graph.get_id(graph.get_decoration())
+
+    position = graph.eval_js_function('api.getDecorationPosition', cell_id)
+    assert position == 0.4
+
+    graph.eval_js_function('api.setDecorationPosition', cell_id, 0.8)
+    position = graph.eval_js_function('api.getDecorationPosition', cell_id)
+    assert position == 0.8
+
+
 def test_get_decoration_parent_cell_id(graph_cases):
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
