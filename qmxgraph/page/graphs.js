@@ -1,12 +1,16 @@
-/*global mxConstraintHandler */
-/*global mxEditor */
-/*global mxGraph */
+/**
+ * Graph creation and initialization.
+ */
+
 /*global mxCell */
 /*global mxCellTracker */
-/*global mxImage */
 /*global mxConstants */
-/*global mxEvent */
+/*global mxConstraintHandler */
+/*global mxEditor */
 /*global mxEventObject */
+/*global mxEvent */
+/*global mxGraph */
+/*global mxImage */
 /*global mxUtils */
 
 /*global graphs */
@@ -61,7 +65,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
     };
 
     mxCell.prototype.isDecoration = function() {
-        return this.getAttribute('__decoration__', '0') === '1'
+        return this.getAttribute('__decoration__', '0') === '1';
     };
 
     mxCell._PORT_ID_PREFIX = 'qmxgraph-port-';
@@ -383,9 +387,9 @@ graphs.createGraph = function createGraph (container, options, styles) {
         graph.model.beginUpdate();
         try {
             while (sender.__moved.length > 0) {
-                var edge_markers = sender.__moved.pop();
-                var edge = edge_markers[0];
-                var markers = edge_markers[1];
+                var edgeMarkers = sender.__moved.pop();
+                var edge = edgeMarkers[0];
+                var markers = edgeMarkers[1];
                 for (var i = 0; i < markers.length; i++) {
                     var marker = markers[i];
                     if (marker.isTable()) {  // Tables are not actual markers.
@@ -436,18 +440,20 @@ graphs.parseStyles = function parseStyles (rawStyles) {
 
     var styleMap = {};
     /* jshint -W069 */
-    styleMap['shape'] = mxConstants.STYLE_SHAPE;
+    styleMap['dashed'] = mxConstants.STYLE_DASHED;
+    styleMap['end_arrow'] = mxConstants.STYLE_ENDARROW;
     styleMap['fill_color'] = mxConstants.STYLE_FILLCOLOR;
     styleMap['fill_opacity'] = mxConstants.STYLE_FILL_OPACITY;
     styleMap['foldable'] = mxConstants.STYLE_FOLDABLE;
     styleMap['image'] = mxConstants.STYLE_IMAGE;
+    styleMap['label_position'] = mxConstants.STYLE_LABEL_POSITION;
+    styleMap['label_rotatable'] = mxConstants.STYLE_LABEL_ROTATABLE;
     styleMap['rotatable'] = mxConstants.STYLE_ROTATABLE;
-    styleMap['stroke_opacity'] = mxConstants.STYLE_STROKE_OPACITY;
+    styleMap['shape'] = mxConstants.STYLE_SHAPE;
     styleMap['stroke_color'] = mxConstants.STYLE_STROKECOLOR;
-    styleMap['dashed'] = mxConstants.STYLE_DASHED;
-    styleMap['vertical_label_position'] = mxConstants.STYLE_VERTICAL_LABEL_POSITION;
+    styleMap['stroke_opacity'] = mxConstants.STYLE_STROKE_OPACITY;
     styleMap['vertical_align'] = mxConstants.STYLE_VERTICAL_ALIGN;
-    styleMap['end_arrow'] = mxConstants.STYLE_ENDARROW;
+    styleMap['vertical_label_position'] = mxConstants.STYLE_VERTICAL_LABEL_POSITION;
     /* jshint +W069 */
 
     var hop = Object.prototype.hasOwnProperty;

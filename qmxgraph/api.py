@@ -255,6 +255,27 @@ class QmxGraphApi(object):
         """
         return self.call_api('getGeometry', cell_id)
 
+    def get_decoration_position(self, cell_id):
+        """
+        Gets the decoration's relative position.
+
+        :param str cell_id: Id of a decoration in graph.
+        :rtype: float
+        :return: Returns an a normalized number between [0, 1] representing
+            the position of the decoration along the parent edge.
+        """
+        return self.call_api('getDecorationPosition', cell_id)
+
+    def set_decoration_position(self, cell_id, position):
+        """
+        Gets the decoration's relative position.
+
+        :param str cell_id: Id of a decoration in graph.
+        :param float position: A normalized number between [0, 1] representing
+            the position of the decoration along the parent edge.
+        """
+        return self.call_api('setDecorationPosition', cell_id, position)
+
     def set_visible(self, cell_id, visible):
         """
         Change visibility state of cell.

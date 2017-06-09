@@ -228,7 +228,7 @@ class QmxGraph(QWidget):
     @property
     def api(self):
         """
-        :rtype: qmxgraph.widget.QGraphAPi
+        :rtype: qmxgraph.widget.QmxGraphApi
         :return: Proxy to API to manipulate graph.
         """
         return self._api
