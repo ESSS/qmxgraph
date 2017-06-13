@@ -43,6 +43,7 @@ from __future__ import print_function
 
 import abc
 import itertools
+import os
 import re
 import sys
 import xml.etree.ElementTree
@@ -64,8 +65,11 @@ class SvgParser:
             'inkscape': "http://www.inkscape.org/namespaces/inkscape",
         }
 
-        name = root.attrib['{{{}}}docname'.format(ns['sodipodi'])].replace(
-            '.svg', '')
+        sodipodi_docname = '{{{}}}docname'.format(ns['sodipodi'])
+        if sodipodi_docname in root.attrib:
+            name = root.attrib[sodipodi_docname].replace('.svg', '')
+        else:
+            name = os.path.basename(self.svg_path).replace('.svg', '')
         width = root.attrib['width'].replace('px', '')
         height = root.attrib['height'].replace('px', '')
 
@@ -80,10 +84,16 @@ class SvgParser:
                 parser = PathParser(ident)
             elif tag == 'polygon':
                 parser = PolygonParser(ident)
+            elif tag == 'rect':
+                parser = RectParser(ident)
 
             if parser is not None:
                 path = parser.parse(svg_element)
                 drawing_cmds.append(path)
+            else:
+                no_parser_msg = '<!-- not known parser for tag "{}" -->'
+                drawing_cmds.append([no_parser_msg.format(tag)])
+
 
         return _SHAPE_TEMPLATE.format(
             name=name,
@@ -177,19 +187,19 @@ class PolygonParser(DrawingParser):
         pos = 0
 
         self.cmds.append('<path>')
-        m = re.match(r'(\d+(\.\d+)?),(\d+(\.\d+)?) +', points[pos:])
+        m = re.match(r'(\d+(?:\.\d+)?),(\d+(?:\.\d+)?) +', points[pos:])
         x0 = m.group(1)
-        y0 = m.group(3)
+        y0 = m.group(2)
         self.cmds.append('{}<move x="{}" y="{}"/>'.format(self.ident, x0, y0))
         pos += len(m.group(0))
 
         while True:
-            m = re.match(r'(\d+(\.\d+)?),(\d+(\.\d+)?) +', points[pos:])
+            m = re.match(r'(\d+(?:\.\d+)?),(\d+(?:\.\d+)?) +', points[pos:])
             if m is None:
                 break
 
             self.cmds.append('{}<line x="{}" y="{}"/>'.format(
-                self.ident, m.group(1), m.group(3)))
+                self.ident, m.group(1), m.group(2)))
             pos += len(m.group(0))
 
         # Close polygon
@@ -260,6 +270,23 @@ class PathParser(DrawingParser):
         assert index == 1, "should have had 3 coordinates for each curve"
 
         return self.wait_command_state, pos
+
+
+class RectParser(DrawingParser):
+
+    def _add_drawing_commands(self, value):
+        svg_to_stencil_attr_map = {
+            'x': 'x',
+            'y': 'y',
+            'width': 'w',
+            'height': 'h',
+        }
+        rect_stencil_tag = '<rect'
+        for svg, stencil in svg_to_stencil_attr_map.items():
+            rect_stencil_tag += ' {}="{}"'.format(stencil, value.attrib[svg])
+
+        rect_stencil_tag += '/>'
+        self.cmds.append(rect_stencil_tag)
 
 
 _SHAPE_TEMPLATE = '''\
