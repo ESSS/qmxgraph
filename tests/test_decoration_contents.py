@@ -1,5 +1,5 @@
 def test_tuple_of_validator():
-    from qmxgraph import html
+    from qmxgraph import decoration_contents
     import attr
     import pytest
 
@@ -14,7 +14,7 @@ def test_tuple_of_validator():
 
     @attr.s
     class Household:
-        silverware = attr.ib(validator=html.tuple_of(Cutlery))
+        silverware = attr.ib(validator=decoration_contents.tuple_of(Cutlery))
 
     Household(silverware=(Cutlery(name='fork'),))
 

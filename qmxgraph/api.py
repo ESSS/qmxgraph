@@ -129,7 +129,8 @@ class QmxGraphApi(object):
         :param int x: X coordinate in screen coordinates.
         :param int y: Y coordinate in screen coordinates.
         :param int width: Width in pixels.
-        :param qmxgraph.html.Table contents: The table contents.
+        :param qmxgraph.decoration_contents.Table contents:
+            The table contents.
         :param str title: Title of table.
         :param dict[str, str]|None tags: Tags are basically custom
             attributes that may be added to a cell that may be later queried
@@ -145,8 +146,8 @@ class QmxGraphApi(object):
         :rtype: str
         :return: Id of new table.
         """
-        from . import html
-        contents = html.asdict(contents)
+        from . import decoration_contents
+        contents = decoration_contents.asdict(contents)
         return self.call_api(
             'insertTable', x, y, width, contents, title, tags, style,
             parent_id)
@@ -156,11 +157,12 @@ class QmxGraphApi(object):
         Update contents and title of a table in graph.
 
         :param str table_id: Id of a table in graph.
-        :param qmxgraph.html.Table contents: The table contents.
+        :param qmxgraph.decoration_contents.Table contents:
+            The table contents.
         :param str title: Title of table.
         """
-        from . import html
-        contents = html.asdict(contents)
+        from . import decoration_contents
+        contents = decoration_contents.asdict(contents)
         return self.call_api('updateTable', table_id, contents, title)
 
     def group(self):
