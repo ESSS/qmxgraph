@@ -46,6 +46,9 @@ def tuple_of(*child_types):
     return functools.partial(_tuple_of_impl, child_types=child_types)
 
 
+_is_int = attr.validators.instance_of(int)
+_is_str = attr.validators.instance_of(str)
+
 @attr.s(frozen=True, slots=True)
 class Image:
     """
@@ -64,9 +67,9 @@ class Image:
     :ivar int height: The desired height for the image.
     """
     tag = attr.ib(default='img', init=False)
-    src = attr.ib(validator=attr.validators.instance_of(str))
-    width = attr.ib(validator=attr.validators.instance_of(int))
-    height = attr.ib(validator=attr.validators.instance_of(int))
+    src = attr.ib(validator=_is_str)
+    width = attr.ib(validator=_is_int)
+    height = attr.ib(validator=_is_int)
 
 
 @attr.s(frozen=True, slots=True)
@@ -79,12 +82,14 @@ class TableData:
     :ivar tuple[union[str,Image]] contents: The table cell's contents.
     :ivar int colspan: The number of columns the cell should span into.
     :ivar int rowspan: The number of rows the cell should span into.
+    :ivar optional[str] style: A inline style for the element.
     """
     tag = attr.ib(default='td', init=False)
     contents = attr.ib(validator=tuple_of(str, Image),
                        convert=tuple)
-    colspan = attr.ib(default=1, validator=attr.validators.instance_of(int))
-    rowspan = attr.ib(default=1, validator=attr.validators.instance_of(int))
+    colspan = attr.ib(default=1, validator=_is_int)
+    rowspan = attr.ib(default=1, validator=_is_int)
+    style = attr.ib(default=None, validator=attr.validators.optional(_is_str))
 
 
 @attr.s(frozen=True, slots=True)

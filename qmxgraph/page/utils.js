@@ -214,7 +214,6 @@ graphs.utils.createTableElement = function createTableElement (contents, title) 
     "use strict";
 
     var isObject = graphs.utils.isObject;
-    var getValue = graphs.utils.getValue;
     var escapeHtml = graphs.utils.escapeHtml;
 
     /**
@@ -225,11 +224,19 @@ graphs.utils.createTableElement = function createTableElement (contents, title) 
             return '<td>' + escapeHtml(data) + '</td>';
         }
 
-        var spanAttrs = (
-            'colspan="' + getValue(data, 'colspan', 1) + '" ' +
-            'rowspan="' + getValue(data, 'rowspan', 1) + '"'
-        );
-        var result = '<td ' + spanAttrs + '>';
+        var td_defaults = [
+            ['colspan', 1],
+            ['rowspan', 1],
+            ['style', null]
+        ];
+        var result = '<td';
+        for (var i = 0; i < td_defaults.length; ++i) {
+            var attr_name = td_defaults[i][0];
+            if (data[attr_name] !== td_defaults[i][1]) {
+                result += ' ' + attr_name + '="' + data[attr_name] + '"';
+            }
+        }
+        result += '>';
         var dataContents = data.contents;
         for (var index = 0; index < dataContents.length; ++index) {
             var element = dataContents[index];
