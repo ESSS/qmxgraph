@@ -6,6 +6,7 @@ class GraphOptions(object):
 
     def __init__(
         self,
+        *,
         cells_movable=True,
         cells_connectable=True,
         cells_cloneable=True,
@@ -22,6 +23,7 @@ class GraphOptions(object):
         port_image=None,
         font_family=None,
         stroke_width=1,
+        resizable=True
     ):
         """
         :param bool cells_movable: Specifies if the graph should allow moving
@@ -55,6 +57,7 @@ class GraphOptions(object):
             all fonts in graph. It configures a priority list, trying always to
             use the left-most family first.
         :param int|float stroke_width: Defines the stroke width in pixels.
+        :param bool resizable: This specifies if a cell can be resized.
         """
         self._cells_movable = cells_movable
         self._cells_connectable = cells_connectable
@@ -72,6 +75,7 @@ class GraphOptions(object):
         self._port_image = port_image
         self._font_family = font_family
         self._stroke_width = stroke_width
+        self._resizable = resizable
 
     @property
     def cells_movable(self):
@@ -137,6 +141,10 @@ class GraphOptions(object):
     def stroke_width(self):
         return self._stroke_width
 
+    @property
+    def resizable(self):
+        return self._resizable
+
     def as_dict(self):
         return {
             'cells_movable': self._cells_movable,
@@ -154,7 +162,8 @@ class GraphOptions(object):
             'connection_image': self._connection_image,
             'port_image': self._port_image,
             'font_family': self._font_family,
-            'stroke_width': self._stroke_width
+            'stroke_width': self._stroke_width,
+            'resizable': self._resizable,
         }
 
 
@@ -227,6 +236,7 @@ class GraphStyles(object):
             'image',
             'label_position',
             'label_rotatable',
+            'resizable',
             'rotatable',
             'shape',
             'stroke_color',
