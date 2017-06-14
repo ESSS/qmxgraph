@@ -418,15 +418,10 @@ graphs.Api.prototype.getCellIdAt = function getCellIdAt (x, y) {
  * @returns {number} Id of the decoration's parent.
  * @throws {Error} If the given cell is not found or it is a decoration.
  */
-graphs.Api.prototype.getDecorationParentCellId = function getParentCellId (cellId) {
+graphs.Api.prototype.getDecorationParentCellId = function getDecorationParentCellId (cellId) {
     "use strict";
 
-    var graph = this._graphEditor.graph;
-    var model = graph.getModel();
-    var cell = this._findCell(model, cellId);
-    if (!cell.isDecoration()) {
-        throw Error("The cell " + cellId + " is not a decoration");
-    }
+    var cell = this._findDecoration(cellId);
     return cell.getParent().getId();
 };
 
@@ -481,11 +476,7 @@ graphs.Api.prototype.getGeometry = function getGeometry (cellId) {
 graphs.Api.prototype.getDecorationPosition = function getDecorationPosition (cellId) {
     "use strict";
 
-    var graph = this._graphEditor.graph;
-    var cell = this._findCell(graph.getModel(), cellId);
-    if (!cell.isDecoration()) {
-        throw new Error("The cell " + cellId + " is not a decoration");
-    }
+    var cell = this._findDecoration(cellId);
     var position = cell.getGeometry().x;  // Normalized between [-1, 1].
     return (position + 1) / 2;
 };
@@ -501,12 +492,7 @@ graphs.Api.prototype.getDecorationPosition = function getDecorationPosition (cel
 graphs.Api.prototype.setDecorationPosition = function setDecorationPosition (cellId, position) {
     "use strict";
 
-    var graph = this._graphEditor.graph;
-    var model = graph.getModel();
-    var cell = this._findCell(model, cellId);
-    if (!cell.isDecoration()) {
-        throw new Error("The cell " + cellId + " is not a decoration");
-    }
+    var cell = this._findDecoration(cellId);
     if (position < 0) {
         position = 0;
     } else if (position > 1) {
@@ -515,6 +501,9 @@ graphs.Api.prototype.setDecorationPosition = function setDecorationPosition (cel
 
     var newGeom = cell.getGeometry().clone();
     newGeom.x = (position * 2) - 1;  // mxGraph normalizes between [-1, 1].
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
     model.setGeometry(cell, newGeom);
 };
 
@@ -1244,4 +1233,23 @@ graphs.Api.prototype._findPort = function _findPort (model, cellId, portName, al
         throw Error("The cell " + cellId + " does not have a port named " + portName);
     }
     return port;
+};
+
+/**
+ *
+ * @param {number} cellId
+ * @returns {mxCell} The mxGraph's cell object used to display the de3coration.
+ * @private
+ * @throws {Error} Unable to find cell or the cell is not a decoration.
+ */
+graphs.Api.prototype._findDecoration = function _findDecoration (cellId) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var cell = this._findCell(model, cellId);
+    if (!cell.isDecoration()) {
+        throw new Error("The cell " + cellId + " is not a decoration");
+    }
+    return cell;
 };

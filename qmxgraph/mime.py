@@ -6,7 +6,9 @@ QGraph drag & drop is a JSON object. Format spec is found below:
 
 ```
 {
-    version: <int>,  # version of format used by data
+    version: <int>,  # version of format used by data, version value is added
+                     # since cross application D&D is supported and it is
+                     # necessary to know the source version
     vertices:  # optional, vertices are going to be added to graph
         [
             {

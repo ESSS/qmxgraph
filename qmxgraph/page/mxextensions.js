@@ -22,7 +22,7 @@
      *
      * @param {mxCellState} state
      */
-    mxText.prototype.apply = function(state) {
+    mxText.prototype.apply = function apply (state) {
         superMxTextApply.call(this, state);
 
         var effectiveLabelRotatable = mxUtils.getValue(
@@ -36,7 +36,7 @@
     /**
      * Override to process the {@link mxConstants.STYLE_LABEL_ROTATABLE} style option.
      */
-    mxText.prototype.getTextRotation = function() {
+    mxText.prototype.getTextRotation = function getTextRotation () {
         var effectiveLabelRotatable = mxUtils.getValue(
             this.style, mxConstants.STYLE_LABEL_ROTATABLE, 1);
         if (effectiveLabelRotatable == 0) {  // jshint ignore:line
