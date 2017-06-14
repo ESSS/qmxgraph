@@ -21,6 +21,7 @@ class GraphOptions(object):
         connection_image=None,
         port_image=None,
         font_family=None,
+        stroke_width=1,
     ):
         """
         :param bool cells_movable: Specifies if the graph should allow moving
@@ -53,6 +54,7 @@ class GraphOptions(object):
         :param tuple[str]|None font_family: Defines the default family for
             all fonts in graph. It configures a priority list, trying always to
             use the left-most family first.
+        :param int|float stroke_width: Defines the stroke width in pixels.
         """
         self._cells_movable = cells_movable
         self._cells_connectable = cells_connectable
@@ -69,6 +71,7 @@ class GraphOptions(object):
         self._connection_image = connection_image
         self._port_image = port_image
         self._font_family = font_family
+        self._stroke_width = stroke_width
 
     @property
     def cells_movable(self):
@@ -130,6 +133,10 @@ class GraphOptions(object):
     def font_family(self):
         return self._font_family
 
+    @property
+    def stroke_width(self):
+        return self._stroke_width
+
     def as_dict(self):
         return {
             'cells_movable': self._cells_movable,
@@ -147,6 +154,7 @@ class GraphOptions(object):
             'connection_image': self._connection_image,
             'port_image': self._port_image,
             'font_family': self._font_family,
+            'stroke_width': self._stroke_width
         }
 
 
@@ -222,6 +230,7 @@ class GraphStyles(object):
             'rotatable',
             'shape',
             'stroke_color',
+            'stroke_width',
             'stroke_opacity',
             'vertical_align',
             'vertical_label_position',
