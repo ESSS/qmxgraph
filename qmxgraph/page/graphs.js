@@ -451,6 +451,7 @@ graphs.parseStyles = function parseStyles (rawStyles) {
     styleMap['rotatable'] = mxConstants.STYLE_ROTATABLE;
     styleMap['shape'] = mxConstants.STYLE_SHAPE;
     styleMap['stroke_color'] = mxConstants.STYLE_STROKECOLOR;
+    styleMap['stroke_width'] = mxConstants.STYLE_STROKEWIDTH;
     styleMap['stroke_opacity'] = mxConstants.STYLE_STROKE_OPACITY;
     styleMap['vertical_align'] = mxConstants.STYLE_VERTICAL_ALIGN;
     styleMap['vertical_label_position'] = mxConstants.STYLE_VERTICAL_LABEL_POSITION;
