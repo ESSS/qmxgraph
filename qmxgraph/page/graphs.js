@@ -448,6 +448,7 @@ graphs.parseStyles = function parseStyles (rawStyles) {
     styleMap['image'] = mxConstants.STYLE_IMAGE;
     styleMap['label_position'] = mxConstants.STYLE_LABEL_POSITION;
     styleMap['label_rotatable'] = mxConstants.STYLE_LABEL_ROTATABLE;
+    styleMap['resizable'] = mxConstants.STYLE_RESIZABLE;
     styleMap['rotatable'] = mxConstants.STYLE_ROTATABLE;
     styleMap['shape'] = mxConstants.STYLE_SHAPE;
     styleMap['stroke_color'] = mxConstants.STYLE_STROKECOLOR;
