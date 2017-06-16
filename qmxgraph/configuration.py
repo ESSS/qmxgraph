@@ -1,170 +1,89 @@
+import attr
 
+from qmxgraph.extra_attr_validators import tuple_of
+
+
+_is_bool = attr.validators.instance_of(bool)
+
+
+def _is_image_configuration(inst, attr, value):
+    """
+    The description of `inst`, `attrs`, and `value` comes from:
+    http://www.attrs.org/en/stable/examples.html#decorator
+
+    :param inst: The *instance* that’s being validated.
+    :param attr: the *attribute* that it’s validating.
+    :param value: The value that is passed for it.
+    :raise TypeError: If the validation fails.
+    """
+    if not ((len(value) == 3) and isinstance(value[0], str)
+            and isinstance(value[1], int) and isinstance(value[2], int)):
+        msg = '{} must be a tuple of `(str, int, int)` but got {}'
+        raise TypeError(msg.format(attr.name, repr(value)))
+
+
+@attr.s(frozen=True, slots=True)
 class GraphOptions(object):
     """
     Object that configures features available in graph drawing widget.
+
+    :ivar bool allow_create_target: Defines if clones the source if new
+        connection has no target.
+    :ivar bool allow_dangling_edges: Defines if it can create edges when
+        they don't connect two vertices.
+    :ivar bool cells_cloneable: Enables the cells to be cloned pressing
+        ctrl and dragging them.
+    :ivar bool cells_connectable: Enables new edges between vertices of
+        graph.
+    :ivar bool cells_movable: Specifies if the graph should allow moving
+        of cells.
+    :ivar bool cells_resizable: Specifies if vertices in graph can be
+        resized.
+    :ivar tuple[str, int, int]|None connection_image: If configured,
+        this image is shown to user when he hovers a vertex. It can be
+        clicked and dragged to create edges. Respectively, formed by
+        image path, its width and height.
+    :ivar bool enable_cloning: Enables cloning by control-drag.
+    :ivar tuple[str]|None font_family: Defines the default family for
+        all fonts in graph. It configures a priority list, trying always to
+        use the left-most family first.
+    :ivar bool multigraph: Allow multiple edges between nodes
+    :ivar tuple[str, int, int]|None port_image: Replaces image in
+        connection ports. Respectively, formed by image path, its width and
+        height.
+    :ivar bool show_grid: Show a grid in background to aid users.
+    :ivar bool show_highlight: Show highlight when it hovers over a cell
+        in graph.
+    :ivar bool show_outline: Show outline of graph in a floating window.
+    :ivar bool snap_to_grid: Snap to background grid when moving vertices
+        in graph.
     """
 
-    def __init__(
-        self,
-        *,
-        cells_movable=True,
-        cells_connectable=True,
-        cells_cloneable=True,
-        cells_resizable=True,
-        allow_create_target=False,
-        allow_dangling_edges=False,
-        multigraph=False,
-        enable_cloning=True,
-        show_grid=True,
-        snap_to_grid=True,
-        show_highlight=True,
-        show_outline=False,
-        connection_image=None,
-        port_image=None,
-        font_family=None,
-        stroke_width=1,
-        resizable=True
-    ):
-        """
-        :param bool cells_movable: Specifies if the graph should allow moving
-            of cells.
-        :param bool cells_connectable: Enables new edges between vertices of
-            graph.
-        :param bool cells_cloneable: Enables the cells to be cloned pressing
-            ctrl and dragging them.
-        :param bool cells_resizable: Specifies if vertices in graph can be
-            resized.
-        :param bool allow_create_target: Defines if clones the source if new
-            connection has no target.
-        :param bool allow_dangling_edges: Defines if it can create edges when
-            they don't connect two vertices.
-        :param bool multigraph: Allow multiple edges between nodes
-        :param bool enable_cloning: Enables cloning by control-drag.
-        :param bool show_grid: Show a grid in background to aid users.
-        :param bool snap_to_grid: Snap to background grid when moving vertices
-            in graph.
-        :param bool show_highlight: Show highlight when it hovers over a cell
-            in graph.
-        :param bool show_outline: Show outline of graph in a floating window.
-        :param tuple[str, int, int]|None connection_image: If configured,
-            this image is shown to user when he hovers a vertex. It can be
-            clicked and dragged to create edges. Respectively, formed by
-            image path, its width and height.
-        :param tuple[str, int, int]|None port_image: Replaces image in
-            connection ports. Respectively, formed by image path, its width and
-            height.
-        :param tuple[str]|None font_family: Defines the default family for
-            all fonts in graph. It configures a priority list, trying always to
-            use the left-most family first.
-        :param int|float stroke_width: Defines the stroke width in pixels.
-        :param bool resizable: This specifies if a cell can be resized.
-        """
-        self._cells_movable = cells_movable
-        self._cells_connectable = cells_connectable
-        self._cells_cloneable = cells_cloneable
-        self._cells_resizable = cells_resizable
-        self._allow_create_target = allow_create_target
-        self._allow_dangling_edges = allow_dangling_edges
-        self._multigraph = multigraph
-        self._enable_cloning = enable_cloning
-        self._snap_to_grid = snap_to_grid
-        self._show_grid = show_grid
-        self._show_highlight = show_highlight
-        self._show_outline = show_outline
-        self._connection_image = connection_image
-        self._port_image = port_image
-        self._font_family = font_family
-        self._stroke_width = stroke_width
-        self._resizable = resizable
-
-    @property
-    def cells_movable(self):
-        return self._cells_movable
-
-    @property
-    def cells_connectable(self):
-        return self._cells_connectable
-
-    @property
-    def cells_cloneable(self):
-        return self._cells_cloneable
-
-    @property
-    def cells_resizable(self):
-        return self._cells_connectable
-
-    @property
-    def allow_create_target(self):
-        return self._allow_create_target
-
-    @property
-    def allow_dangling_edges(self):
-        return self._allow_dangling_edges
-
-    @property
-    def multigraph(self):
-        return self._multigraph
-
-    @property
-    def enable_cloning(self):
-        return self._enable_cloning
-
-    @property
-    def show_grid(self):
-        return self._show_grid
-
-    @property
-    def snap_to_grid(self):
-        return self._snap_to_grid
-
-    @property
-    def show_highlight(self):
-        return self._show_highlight
-
-    @property
-    def show_outline(self):
-        return self._show_outline
-
-    @property
-    def connection_image(self):
-        return self._connection_image
-
-    @property
-    def port_image(self):
-        return self._port_image
-
-    @property
-    def font_family(self):
-        return self._font_family
-
-    @property
-    def stroke_width(self):
-        return self._stroke_width
-
-    @property
-    def resizable(self):
-        return self._resizable
+    allow_create_target = attr.ib(default=False, validator=_is_bool)
+    allow_dangling_edges = attr.ib(default=False, validator=_is_bool)
+    cells_cloneable = attr.ib(default=True, validator=_is_bool)
+    cells_connectable = attr.ib(default=True, validator=_is_bool)
+    cells_movable = attr.ib(default=True, validator=_is_bool)
+    cells_resizable = attr.ib(default=True, validator=_is_bool)
+    connection_image = attr.ib(
+        default=None,
+        validator=attr.validators.optional(_is_image_configuration),
+    )
+    enable_cloning = attr.ib(default=True, validator=_is_bool)
+    font_family = attr.ib(
+        default=None, validator=attr.validators.optional(tuple_of(str)))
+    multigraph = attr.ib(default=False, validator=_is_bool)
+    port_image = attr.ib(
+        default=None,
+        validator=attr.validators.optional(_is_image_configuration),
+    )
+    show_grid = attr.ib(default=True, validator=_is_bool)
+    show_highlight = attr.ib(default=True, validator=_is_bool)
+    show_outline = attr.ib(default=False, validator=_is_bool)
+    snap_to_grid = attr.ib(default=True, validator=_is_bool)
 
     def as_dict(self):
-        return {
-            'cells_movable': self._cells_movable,
-            'cells_connectable': self._cells_connectable,
-            'cells_cloneable': self._cells_cloneable,
-            'cells_resizable': self._cells_resizable,
-            'allow_create_target': self._allow_create_target,
-            'allow_dangling_edges': self._allow_dangling_edges,
-            'multigraph': self._multigraph,
-            'enable_cloning': self._enable_cloning,
-            'show_grid': self._show_grid,
-            'snap_to_grid': self._snap_to_grid,
-            'show_highlight': self._show_highlight,
-            'show_outline': self._show_outline,
-            'connection_image': self._connection_image,
-            'port_image': self._port_image,
-            'font_family': self._font_family,
-            'stroke_width': self._stroke_width,
-            'resizable': self._resizable,
-        }
+        return attr.asdict(self)
 
 
 class GraphStyles(object):
@@ -229,6 +148,7 @@ class GraphStyles(object):
 
         known_keys = {
             'dashed',
+            'deletable',
             'end_arrow',
             'fill_color',
             'fill_opacity',
@@ -236,9 +156,11 @@ class GraphStyles(object):
             'image',
             'label_position',
             'label_rotatable',
+            'no_label',
             'resizable',
             'rotatable',
             'shape',
+            'start_arrow',
             'stroke_color',
             'stroke_width',
             'stroke_opacity',
