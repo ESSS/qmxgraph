@@ -81,3 +81,28 @@ class Table:
     """
     tag = attr.ib(default='table', init=False)
     contents = attr.ib(validator=tuple_of(TableRow), convert=tuple)
+
+    def contents_after(self, caption):
+        """
+        Useful for testing: truncates the contents after the first row with the given caption and return it as a list.
+
+        :rtype: tuple[TableRow]
+        """
+        seen_captions = []
+
+        def get_caption(row):
+            first_row_content = row.contents[0]
+            if isinstance(first_row_content, TableData):
+                return first_row_content.contents[0]
+            return first_row_content
+
+        for index, row in enumerate(self.contents):
+            row_caption = get_caption(row)
+            if row_caption == caption:
+                break
+            seen_captions.append(row_caption)
+        else:
+            __tracebackhide__ = True
+            assert False, '\nCould not find row with caption "{}" in\n{}'.format(caption, seen_captions)
+        return tuple(self.contents[index + 1:])
+
