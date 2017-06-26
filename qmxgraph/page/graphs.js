@@ -201,6 +201,31 @@ graphs.createGraph = function createGraph (container, options, styles) {
         );
     };
 
+    var superMxGraphGetPreferredSizeForCell = mxGraph.prototype.getPreferredSizeForCell;
+
+    /**
+     * Override to better fit tables.
+     *
+     * @param {mxCell} cell
+     * @returns {mxRectangle}
+     */
+    mxGraph.prototype.getPreferredSizeForCell = function getPreferredSizeForCell (cell) {
+        if (cell.isTable()) {
+            var result;
+            var originalGridEnabled = this.gridEnabled;
+            this.gridEnabled = false;
+            try {
+                result = superMxGraphGetPreferredSizeForCell.call(this, cell);
+            } finally {
+                this.gridEnabled = originalGridEnabled;
+            }
+            result.height += 1;
+            return result;
+        }
+
+        return superMxGraphGetPreferredSizeForCell.call(this, cell);
+    };
+
     /**
      * Does not automatically reparent cells when moving.
      */
