@@ -393,7 +393,7 @@ def test_get_geometry(graph_cases):
     assert graph.get_geometry(graph.get_edge(*graph.get_vertices())) == \
         [40, 25, 50, 1]
     assert graph.get_geometry(graph.get_decoration()) == [55, 20, 10, 10]
-    table_w, table_h = fix_table_size(110, 80)
+    table_w, table_h = fix_table_size(102, 72)
     assert graph.get_geometry(graph.get_tables()[0]) == [20, 60, table_w, table_h]
 
 
@@ -502,7 +502,7 @@ def test_insert_table_close_to_boundaries(graph_cases):
         "api.insertTable", width - 10, height - 10, 0, contents, 'title')
 
     assert graph.get_container_size() == \
-        fix_table_size(width + 81, height + 91)
+        fix_table_size(width + 79, height + 85)
 
 
 def test_update_table(graph_cases):
