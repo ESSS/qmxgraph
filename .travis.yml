@@ -11,8 +11,6 @@ python:
   - "3.6"
 
 install:
-  - sudo apt-get update
-
   # Setup using Conda (http://conda.pydata.org/docs/travis.html)
   #
   # For our case, it is a whole more interesting as:
