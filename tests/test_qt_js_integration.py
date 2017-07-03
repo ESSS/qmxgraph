@@ -389,6 +389,37 @@ def test_tags(loaded_graph):
     assert loaded_graph.api.get_tag(with_tags_id, 'bar') == '2'
 
 
+def test_get_cell_count(loaded_graph):
+    """
+    :type loaded_graph: qmxgraph.widget.qmxgraph
+    """
+    from qmxgraph.test_tools import get_cell_count
+    node_a = loaded_graph.api.insert_vertex(10, 10, 50, 50, 'A')
+    node_b = loaded_graph.api.insert_vertex(400, 300, 50, 50, 'B')
+    loaded_graph.api.insert_edge(node_a, node_b, 'AB')
+
+    assert get_cell_count(loaded_graph,
+                          'function(cell){ return false }') == 0
+    assert get_cell_count(loaded_graph,
+                          'function(cell){ return cell.isEdge() }') == 1
+    assert get_cell_count(loaded_graph,
+                          'function(cell){ return cell.isVertex() }') == 2
+
+
+def test_last_index_of(loaded_graph):
+    """
+    :type loaded_graph: qmxgraph.widget.qmxgraph
+    """
+    assert eval_js(loaded_graph, "'canal'.lastIndexOf('a')") == 3
+    assert eval_js(loaded_graph, "'canal'.lastIndexOf('a', 2)") == 1
+    assert eval_js(loaded_graph, "'canal'.lastIndexOf('a', 0)") == -1
+    assert eval_js(loaded_graph, "'canal'.lastIndexOf('x')") == -1
+    assert eval_js(loaded_graph, "'canal'.lastIndexOf('c', -5)") == 0
+    assert eval_js(loaded_graph, "'canal'.lastIndexOf('c', 0)") == 0
+    assert eval_js(loaded_graph, "'canal'.lastIndexOf('')") == 5
+    assert eval_js(loaded_graph, "'canal'.lastIndexOf('', 2)") == 2
+
+
 def eval_js(graph_widget, statement):
     return graph_widget.inner_web_view().eval_js(statement)
 
