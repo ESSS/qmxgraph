@@ -393,7 +393,7 @@ def test_get_cell_count(loaded_graph):
     """
     :type loaded_graph: qmxgraph.widget.qmxgraph
     """
-    from qmxgraph.test_tools import get_cell_count
+    from qmxgraph.common_testing import get_cell_count
     node_a = loaded_graph.api.insert_vertex(10, 10, 50, 50, 'A')
     node_b = loaded_graph.api.insert_vertex(400, 300, 50, 50, 'B')
     loaded_graph.api.insert_edge(node_a, node_b, 'AB')
