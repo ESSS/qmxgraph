@@ -84,7 +84,8 @@ class Table:
 
     def contents_after(self, caption):
         """
-        Useful for testing: truncates the contents after the first row with the given caption and return it as a list.
+        Useful for testing: truncates the contents after the first row with
+        the given caption and return it as a list.
 
         :rtype: tuple[TableRow]
         """
@@ -103,6 +104,6 @@ class Table:
             seen_captions.append(row_caption)
         else:
             __tracebackhide__ = True
-            assert False, '\nCould not find row with caption "{}" in\n{}'.format(caption, seen_captions)
+            msg = '\nCould not find row with caption "{}" in\n{}'
+            assert False, msg.format(caption, seen_captions)
         return tuple(self.contents[index + 1:])
-
