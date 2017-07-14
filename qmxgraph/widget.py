@@ -4,8 +4,9 @@ import json
 import weakref
 
 from PyQt5.QtCore import QDataStream, QIODevice, QObject, Qt, pyqtSignal
+from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import QDialog, QGridLayout, QShortcut, QSizePolicy, \
-    QWidget
+    QWidget, QStyleOption, QStyle
 
 from qmxgraph import constants, render
 from qmxgraph import resource_mxgraph, resource_qmxgraph  # noqa
@@ -127,6 +128,20 @@ class QmxGraph(QWidget):
 
         if auto_load:
             self._load_graph_page()
+
+    def paintEvent(self, paint_event):
+        """
+        A simple override to the `QWidget.paintEvent` required soo the QSS
+        rules have effect over `QWidget` subclasses.
+
+        From: http://doc.qt.io/qt-5/stylesheet-reference.html#qwidget-widget
+
+        :type paint_event: PyQt5.QtGui.QPaintEvent
+        """
+        opt = QStyleOption()
+        opt.initFrom(self)
+        p = QPainter(self)
+        self.style().drawPrimitive(QStyle.PE_Widget, opt, p, self)
 
     def load(self):
         """
