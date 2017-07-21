@@ -893,32 +893,48 @@ def _wait_graph_page_ready(host, selenium):
     import socket
     from selenium.common.exceptions import TimeoutException
 
+    timeout = 15
     timeout_exceptions = (TimeoutException, TimeoutError, socket.timeout)
-    attempts = 3
     selenium.set_page_load_timeout(1)
+    refresh = True
     try:
         selenium.get(host.address)
+        refresh = False
     except timeout_exceptions:
-        attempts -= 1
-        if attempts == 0:
-            raise
+        pass
+
+    if refresh:
+        for n in range(timeout):
+            try:
+                selenium.refresh()
+                break
+            except timeout_exceptions:
+                pass
+        else:
+            raise TimeoutException("All page load tries resulted in timeout")
 
     from selenium.webdriver.support.wait import WebDriverWait
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support import expected_conditions as EC
-    timeout = 15
-    attempts = 3
     try:
         WebDriverWait(selenium, timeout=timeout).until(
             EC.presence_of_element_located((By.ID, "graphContainer"))
         )
     except timeout_exceptions as e:
-        attempts -= 1
-        if attempts == 0:
-            raise TimeoutException(
-                "Graph page wasn't ready in address {} after a "
-                "timeout of {} seconds".format(
-                    host.address, timeout)) from e
+        raise TimeoutException(
+            "Graph page wasn't ready in address {} after a timeout of {}"
+            " seconds".format(host.address, timeout)) from e
+
+    for n in range(timeout):
+        has_api = selenium.execute_script('return !!window.api')
+        if has_api:
+            break
+        else:
+            import time
+            time.sleep(0.1)
+    else:
+        msg = "The page is reported to be loaded in {} but 'api' is not found"
+        raise TimeoutException(msg.format(host.address))
 
 
 def _get_port_lock_filename(rootdir):
