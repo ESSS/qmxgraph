@@ -1,8 +1,6 @@
-{% set CONDA_PY = os.environ.get('CONDA_PY', '27') %}
-{% set PY2 = CONDA_PY < '35' %}
 {% set TEST_QMXGRAFH = os.environ.get('TEST_QMXGRAFH', '0') != '0' %}
 
-name: qmxgraph-py{{ CONDA_PY }}
+name: qmxgraph
 
 environment:
   PYTHONPATH:
@@ -34,28 +32,24 @@ environment:
   {% endif %}
 
 dependencies:
-    - python
+    - python>=3.5
     - mxgraph==3.5.1.4  # private/licensed package
 
-    {% if PY2%}
-    - pyqt5==5.5.1+3
-    {% else %}
-    - esss-pylupdate5=5.6.0+1
-    {% endif %}
+    - esss-pylupdate5>=5.6.0+1
 
     - attrs>=17
     - cherrypy==3.8.0
-    - colorama=0.3.3
-    - fix-and-check-env==1.0.0
-    - invoke==0.12.2
-    - jinja2=={{ '2.7.3' if PY2 else '2.8.1' }}
-    - six==1.10.0
+    - colorama>=0.3.3
+    - fix-and-check-env>=1.0.0
+    - invoke>=0.12.2
+    - jinja2>=2.8.1
+    - six>=1.10.0
 
     {% if TEST_QMXGRAFH %}
-    - phantomjs==2.1.1
-    - pytest-mock=1.4.0
-    - pytest-qt=2.1.0
-    - pytest-selenium=1.2.1
-    - pytest-timeout=1.0.0
-    - pytest-xdist=1.15
+    - phantomjs>=2.1.1
+    - pytest-mock>=1.4.0
+    - pytest-qt>=2.1.0
+    - pytest-selenium>=1.2.1
+    - pytest-timeout>=1.0.0
+    - pytest-xdist>=1.15
     {% endif %}
