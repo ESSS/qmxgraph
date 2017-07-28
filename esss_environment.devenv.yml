@@ -42,7 +42,7 @@ dependencies:
     - colorama>=0.3.3
     - fix-and-check-env>=1.0.0
     - invoke>=0.12.2
-    - jinja2>=2.8.1
+    - jinja2>=2.8.1,<2.9.4
     - six>=1.10.0
 
     {% if TEST_QMXGRAFH %}
