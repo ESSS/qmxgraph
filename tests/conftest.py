@@ -811,19 +811,18 @@ class Graph2Vertices1Edge1Decoration(Graph2Vertices1EdgeByCode):
         label = 'decoration'
         self.eval_js_function('api.insertDecoration', x, y, w, h, label, style)
 
-        decoration = self.get_decoration()
+        decoration = self.get_decorations()[0]
         assert int(decoration.get_attribute("x")) == x - (w // 2)
         assert int(decoration.get_attribute("y")) == y - (h // 2)
         assert int(decoration.get_attribute("width")) == w
         assert int(decoration.get_attribute("height")) == h
 
-    def get_decoration(self):
+    def get_decorations(self):
         style = 'purple'
         selector = 'g>g>rect[fill="{}"]'.format(
             self.host.styles[style]['fill_color'])
         decoration = self.selenium.find_elements_by_css_selector(selector)
-        assert len(decoration) <= 1
-        return decoration[0] if len(decoration) == 1 else None
+        return decoration
 
 
 class Graph2Vertices1Edge1Decoration1Table(Graph2Vertices1Edge1Decoration):
