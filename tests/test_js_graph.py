@@ -134,7 +134,11 @@ def test_insert_decoration(graph_cases):
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
     graph = graph_cases('2v_1e_1d')
-    assert graph.get_decoration() is not None
+    assert len(graph.get_decorations()) == 1
+
+    graph.eval_js_function('api.insertDecorationOnEdge', graph.edge_id, 0.75,
+                           10, 10, 'another decoration', 'purple')
+    assert len(graph.get_decorations()) == 2
 
 
 def test_decoration_position(graph_cases):
@@ -142,7 +146,7 @@ def test_decoration_position(graph_cases):
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
     graph = graph_cases('2v_1e_1d')
-    cell_id = graph.get_id(graph.get_decoration())
+    cell_id = graph.get_id(graph.get_decorations()[0])
 
     position = graph.eval_js_function('api.getDecorationPosition', cell_id)
     assert position == 0.4
@@ -157,7 +161,7 @@ def test_get_decoration_parent_cell_id(graph_cases):
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
     graph = graph_cases('2v_1e_1d')
-    cell_id = graph.get_id(graph.get_decoration())
+    cell_id = graph.get_id(graph.get_decorations()[0])
     parent_id = graph.eval_js_function('api.getDecorationParentCellId', cell_id)
     assert parent_id == '4'
 
@@ -315,7 +319,7 @@ def test_get_cell_id_at(graph_cases):
     assert graph.get_id(graph.get_vertices()[0]) == '2'
     assert graph.get_id(graph.get_vertices()[1]) == '3'
     assert graph.get_id(graph.get_edge(*graph.get_vertices())) == '4'
-    assert graph.get_id(graph.get_decoration()) == '5'
+    assert graph.get_id(graph.get_decorations()[0]) == '5'
     assert graph.get_id(graph.get_tables()[0]) == '6'
 
     class Invalid:
@@ -348,11 +352,11 @@ def test_set_visible(graph_cases):
     assert graph.get_edge(*graph.get_vertices()) is not None
 
     # Hide then show decoration again
-    cell_id = graph.get_id(graph.get_decoration())
+    cell_id = graph.get_id(graph.get_decorations()[0])
     graph.set_visible(cell_id, False)
-    assert graph.get_decoration() is None
+    assert len(graph.get_decorations()) == 0
     graph.set_visible(cell_id, True)
-    assert graph.get_decoration() is not None
+    assert len(graph.get_decorations()) == 1
 
     # Hide then show table again
     cell_id = graph.get_id(graph.get_tables()[0])
@@ -392,7 +396,7 @@ def test_get_geometry(graph_cases):
     assert graph.get_geometry(graph.get_vertices()[0]) == [10, 10, 30, 30]
     assert graph.get_geometry(graph.get_edge(*graph.get_vertices())) == \
         [40, 25, 50, 1]
-    assert graph.get_geometry(graph.get_decoration()) == [55, 20, 10, 10]
+    assert graph.get_geometry(graph.get_decorations()[0]) == [55, 20, 10, 10]
     table_w, table_h = fix_table_size(102, 72)
     assert graph.get_geometry(graph.get_tables()[0]) == [20, 60, table_w, table_h]
 
@@ -702,7 +706,7 @@ def test_get_label(graph_cases):
     assert graph.get_label(graph.get_vertices()[0]) == 'foo'
     assert graph.get_label(graph.get_vertices()[1]) == 'bar'
     assert graph.get_label(graph.get_edge(*graph.get_vertices())) == 'edge'
-    assert graph.get_label(graph.get_decoration()) == 'decoration'
+    assert graph.get_label(graph.get_decorations()[0]) == 'decoration'
 
     # Tables use a complex label in HTML
     table_label = graph.get_label(graph.get_tables()[0])
@@ -774,7 +778,7 @@ def test_get_cell_type(graph_cases):
     assert get_cell_type(graph.get_edge(*graph.get_vertices())) == \
            constants.CELL_TYPE_EDGE
 
-    assert get_cell_type(graph.get_decoration()) == \
+    assert get_cell_type(graph.get_decorations()[0]) == \
            constants.CELL_TYPE_DECORATION
 
     assert get_cell_type(graph.get_tables()[0]) == \
@@ -1026,7 +1030,7 @@ def test_on_cells_added(graph_cases):
         graph.get_id(graph.get_vertices()[0]),
         graph.get_id(graph.get_vertices()[1]),
         graph.get_id(graph.get_edge(*graph.get_vertices())),
-        graph.get_id(graph.get_decoration()),
+        graph.get_id(graph.get_decorations()[0]),
         graph.get_id(graph.get_tables()[0]),
     ]
 

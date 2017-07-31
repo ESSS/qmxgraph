@@ -24,7 +24,7 @@ class QmxGraphApi(object):
         :param int y: Y coordinate in screen coordinates.
         :param int width: Width in pixels.
         :param int height: Height in pixels.
-        :param str|None label: Label of vertex, can be omitted.
+        :param str label: Label of vertex.
         :param str|None style: Name of style to be used. Styles
             available are all default ones provided by mxGraph plus additional
             ones configured in initialization of this class.
@@ -71,7 +71,7 @@ class QmxGraphApi(object):
 
         :param str source_id: Id of source vertex in graph.
         :param str target_id: Id of target vertex in graph.
-        :param str|None label: Label of edge, can be omitted.
+        :param str label: Label of edge.
         :param str|None style: Name of style to be used. Styles
             available are all default ones provided by mxGraph plus additional
             ones configured in initialization of this class.
@@ -104,6 +104,7 @@ class QmxGraphApi(object):
         :param int y: Y coordinate in screen coordinates.
         :param int width: Width in pixels.
         :param int height: Height in pixels.
+        :param str label: Label of decoration.
         :param str|None style: Name of style to be used. Styles
             available are all default ones provided by mxGraph plus additional
             ones configured in initialization of this class.
@@ -116,6 +117,35 @@ class QmxGraphApi(object):
         """
         return self.call_api(
             'insertDecoration', x, y, width, height, label, style, tags)
+
+    def insert_decoration_on_edge(self, edge_id, position, width, height,
+                                  label, style=None, tags=None):
+        """
+        Inserts a new decoration over an edge in graph. A decoration is
+        basically an overlay object that is representing some entity over the
+        path of an edge.
+
+        Note that x and y must be inside the bounds of an edge, otherwise this
+        call will raise.
+
+        :param str edge_id: Id of an edge in graph.
+        :param float position: The normalized position in the edge.
+        :param int width: Width in pixels.
+        :param int height: Height in pixels.
+        :param str label: Label of decoration.
+        :param str|None style: Name of style to be used. Styles
+            available are all default ones provided by mxGraph plus additional
+            ones configured in initialization of this class.
+        :param dict[str, str]|None tags: Tags are basically custom
+            attributes that may be added to a cell that may be later queried
+            (or even modified), with the objective of allowing better
+            inspection and interaction with cells in a graph.
+        :rtype: str
+        :return: Id of new decoration.
+        """
+        return self.call_api(
+            'insertDecorationOnEdge', edge_id, position, width, height, label,
+            style, tags)
 
     def insert_table(
             self, x, y, width, contents, title, tags=None, style=None,

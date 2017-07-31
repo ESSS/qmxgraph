@@ -216,6 +216,57 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
 
     // Relative position in edge
     var position = current / total;
+
+    return this._insertDecorationOnEdge(edge, position, width, height, label, style, tags);
+};
+
+/**
+ * Inserts a decoration over an edge in graph. A decoration is basically an
+ * object used as overlay in edges, to show objects present along its path.
+ *
+ * @param {number} edgeId Id of an edge in graph.
+ * @param {number} position The normalized position in the edge.
+ * @param {number} width Width of decoration.
+ * @param {number} height Height of decoration.
+ * @param {string} label Label of decoration.
+ * @param {string} [style] Name of a style or an inline style.
+ * @param {Object} [tags] A dict-like object, with string keys and values. Tags are basically custom
+ * attributes that may be added to a cell that may be later queried (or even modified), with the
+ * objective of allowing better inspection and interaction with cells in a graph.
+ * @returns {number} Id of new decoration.
+ * @throws {Error} If edge isn't found in graph.
+ */
+graphs.Api.prototype.insertDecorationOnEdge = function insertDecorationOnEdge (
+    edgeId, position, width, height, label, style, tags) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var edge = this._findCell(model, edgeId);
+
+    return this._insertDecorationOnEdge(edge, position, width, height, label, style, tags);
+};
+
+/**
+ * Inserts a decoration over an edge in graph. A decoration is basically an
+ * object used as overlay in edges, to show objects present along its path.
+ *
+ * @param {mxCell} edge An edge in graph.
+ * @param {number} position The normalized position in the edge.
+ * @param {number} width Width of decoration.
+ * @param {number} height Height of decoration.
+ * @param {string} label Label of decoration.
+ * @param {string} [style] Name of a style or an inline style.
+ * @param {Object} [tags] A dict-like object, with string keys and values. Tags are basically custom
+ * attributes that may be added to a cell that may be later queried (or even modified), with the
+ * objective of allowing better inspection and interaction with cells in a graph.
+ * @returns {number} Id of new decoration.
+ */
+graphs.Api.prototype._insertDecorationOnEdge = function _insertDecorationOnEdge (
+    edge, position, width, height, label, style, tags) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
     position = (position * 2) - 1;  // mxGraph normalizes between [-1, 1].
 
     style = graphs.utils.setStyleKey(style, 'labelPosition', 'left');
