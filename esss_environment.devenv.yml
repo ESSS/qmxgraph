@@ -43,7 +43,7 @@ dependencies:
     - fix-and-check-env>=1.0.0
     - invoke>=0.12.2
     - jinja2>=2.8.1,<2.9.4
-    - six>=1.10.0
+    - six
 
     {% if TEST_QMXGRAFH %}
     - phantomjs>=2.1.1
