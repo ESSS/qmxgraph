@@ -31,34 +31,31 @@ class CherryPyServer(object):
         if self.is_running():
             return
 
-        if not sys.platform.startswith('win'):
-            signaled = []
-
-            def handler(signum, frame):
-                signaled.append(True)
-
-            import signal
-            signal.signal(signal.SIGCONT, handler)
-
-        from multiprocessing import Process
+        from multiprocessing import Queue, Process
+        import queue
+        q = Queue()
         cherrypy_server = Process(
-            target=_do_start_server, args=(os.getpid(), page, config))
+            target=_do_start_server, args=(q, page, config))
         cherrypy_server.start()
 
-        if not sys.platform.startswith('win'):
-            timeout = current = 5
-            step = 0.2
-            import time
+        if sys.platform.startswith('win'):
+            timeout = 0.1
+            fail_on_timeout = False
+        else:
+            timeout = 15
+            fail_on_timeout = True
+
+        try:
+            error_msg = q.get(timeout=timeout)
+        except queue.Empty:
             address = '{}:{}'.format(
                 config['global']['server.socket_host'],
                 config['global']['server.socket_port'],
             )
-            while not signaled:
-                current -= step
-                assert current > 0, "Server unable to start at {} after a " \
-                                    "timeout of {} seconds".format(
-                                        address, timeout)
-                time.sleep(step)
+            msg = "Server unable to start at {} after a timeout of {} seconds"
+            assert not fail_on_timeout, msg.format(address, timeout)
+        else:
+            assert error_msg is None, error_msg
 
         self.server_pid = cherrypy_server.pid
 
@@ -107,7 +104,7 @@ class CherryPyServer(object):
 
 # free function as member static functions aren't pickable and this must be
 # stateless and pickable as it is called from other process
-def _do_start_server(pid, page, config):
+def _do_start_server(queue, page, config):
     import cherrypy
 
     if not sys.platform.startswith('win'):
@@ -119,11 +116,11 @@ def _do_start_server(pid, page, config):
 
         def callback():
             cherrypy.engine.unsubscribe(channel, callback)
-
-            import os
-            import signal
-            os.kill(pid, signal.SIGCONT)
+            queue.put(None)
 
         cherrypy.engine.subscribe(channel, callback)
 
-    cherrypy.quickstart(page, config=config)
+    try:
+        cherrypy.quickstart(page, config=config)
+    except RuntimeError as error:
+        queue.put(str(error))
