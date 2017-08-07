@@ -40,6 +40,11 @@ def phantomjs_driver(capabilities, driver_path, port):
     return PhantomJS(**kwargs)
 
 
+@pytest.fixture
+def driver_args():
+    return ['--debug=true']
+
+
 @pytest.yield_fixture(autouse=True)
 def enable_qgraph_debug():
     """
