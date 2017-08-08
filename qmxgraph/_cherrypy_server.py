@@ -38,7 +38,7 @@ class CherryPyServer(object):
             target=_do_start_server, args=(q, page, config))
         cherrypy_server.start()
 
-        if sys.platform.startswith('win'):
+        if sys.platform.startswith('win'):  # pragma: no cover
             timeout = 0.1
             fail_on_timeout = False
         else:
@@ -47,7 +47,7 @@ class CherryPyServer(object):
 
         try:
             error_msg = q.get(timeout=timeout)
-        except queue.Empty:
+        except queue.Empty:  # pragma: no cover
             address = '{}:{}'.format(
                 config['global']['server.socket_host'],
                 config['global']['server.socket_port'],
@@ -74,7 +74,7 @@ class CherryPyServer(object):
             import signal
             try:
                 os.kill(self.server_pid, signal.SIGTERM)
-            except WindowsError as e:
+            except WindowsError as e:  # pragma: no cover
                 # If already dead for any reason, just let it go
                 if e.winerror != 5:
                     exc_type, exc_value, tb = sys.exc_info()
@@ -122,5 +122,5 @@ def _do_start_server(queue, page, config):
 
     try:
         cherrypy.quickstart(page, config=config)
-    except RuntimeError as error:
+    except RuntimeError as error:  # pragma: no cover
         queue.put(str(error))
