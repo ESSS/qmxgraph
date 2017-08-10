@@ -53,5 +53,7 @@ dependencies:
     - pytest-selenium>=1.2.1
     - pytest-timeout>=1.0.0
     - pytest-xdist>=1.15
-    - pytest-xvfb  # [linux]
+        {% if sys.platform != 'win32' %}
+    - pytest-xvfb
+        {% endif %}
     {% endif %}
