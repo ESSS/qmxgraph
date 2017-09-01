@@ -287,6 +287,17 @@ class QmxGraphApi(object):
         """
         return self.call_api('getGeometry', cell_id)
 
+    def get_terminal_points(self, cell_id):
+        """
+        Gets the terminal points of an edge;
+
+        :param str cell_id: Id of a edge in graph.
+        :rtype: list
+        :return: List composed, respectively, by lists where the items are the
+            x and y coordinates for the source and target point.
+        """
+        return self.call_api('getEdgeTerminalPoints', cell_id)
+
     def get_decoration_position(self, cell_id):
         """
         Gets the decoration's relative position.

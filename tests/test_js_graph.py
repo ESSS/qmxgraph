@@ -104,6 +104,21 @@ def test_insert_edge(graph_cases, mode):
     assert graph.get_edge(*graph.get_vertices()) is not None
 
 
+def test_get_terminal_points(graph_cases):
+    """
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    """
+    graph = graph_cases('2v_1e')
+    edge_id = graph.get_id(graph.get_edge(*graph.get_vertices()))
+    terminal_points = graph.eval_js_function("api.getEdgeTerminalPoints", edge_id)
+    (source_x, source_y), (target_x, target_y) = terminal_points
+
+    assert source_x == pytest.approx(40.0)
+    assert source_y == pytest.approx(25.0)
+    assert target_x == pytest.approx(90.0)
+    assert target_y == pytest.approx(25.0)
+
+
 def test_insert_edge_error_endpoint_not_found(graph_cases, selenium_extras):
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
@@ -149,11 +164,11 @@ def test_decoration_position(graph_cases):
     cell_id = graph.get_id(graph.get_decorations()[0])
 
     position = graph.eval_js_function('api.getDecorationPosition', cell_id)
-    assert position == 0.4
+    assert position == pytest.approx(0.4)
 
     graph.eval_js_function('api.setDecorationPosition', cell_id, 0.8)
     position = graph.eval_js_function('api.getDecorationPosition', cell_id)
-    assert position == 0.8
+    assert position == pytest.approx(0.8)
 
 
 def test_get_decoration_parent_cell_id(graph_cases):
