@@ -806,10 +806,17 @@ class Graph2Vertices1Edge1Decoration(Graph2Vertices1EdgeByCode):
     def __init__(self, selenium, host):
         Graph2Vertices1EdgeByCode.__init__(self, selenium, host)
 
+        vertices_width = 30
+        vertices_top_border = 10
+        source_left_border = 10
+        source_right_border = source_left_border + vertices_width
+        target_left_border = 90
+        edge_length = target_left_border - source_right_border
+
         # Decorations must be placed over an edge to work. They are drawn
         # centered at the point given over edge.
-        x = 60
-        y = 25
+        x = source_right_border + edge_length * 0.4  # 0.4 along edge.
+        y = vertices_top_border + vertices_width / 2  # edge's y coordinate.
         w = 10
         h = 10
         style = 'purple'

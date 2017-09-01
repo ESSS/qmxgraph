@@ -194,18 +194,9 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
             "decoration over an edge.");
     }
 
-    // Need terminal positions to be able to determine correct relative position
-    // of decoration in relation to its parent edge.
-    var view = graph.view;
-    var sourcePort = view.getTerminalPort(
-        view.getState(edge), view.getState(edge.getTerminal(true)), true);
-    var targetPort = view.getTerminalPort(
-        view.getState(edge), view.getState(edge.getTerminal(false)), false);
-
-    var sourcePoint = view.getPerimeterPoint(
-        sourcePort, new mxPoint(x, y), false);
-    var targetPoint = view.getPerimeterPoint(
-        targetPort, new mxPoint(x, y), false);
+    var edgeTerminalPoints = this._getMxEdgeTerminalPoints(edge);
+    var sourcePoint = edgeTerminalPoints[0];
+    var targetPoint = edgeTerminalPoints[1];
 
     var distance = function(a, b) {
         return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
@@ -1181,6 +1172,63 @@ graphs.Api.prototype.getEdgeTerminalsWithPorts = function getEdgeTerminals (edge
     }
 
     return this._getMxEdgeTerminalsWithPorts(edge);
+};
+
+/**
+ * Gets the terminal points for an edge.
+ *
+ * @param {mxCell} edge An edge.
+ * @returns {[mxPoint, mxPoint]} An array with two point (the source and target points).
+ * @throws {Error} Given cell isn't an edge.
+ */
+graphs.Api.prototype._getMxEdgeTerminalPoints = function _getMxEdgeTerminalPoints (edge) {
+    "use strict";
+
+    // Need terminal positions to be able to determine correct relative position
+    // of decoration in relation to its parent edge.
+    var graph = this._graphEditor.graph;
+    var view = graph.view;
+    var edgeId = edge.getId();
+
+    if (!edge.isEdge()) {
+        throw Error("Cell with id " + edgeId + " is not an edge");
+    }
+
+    var sourcePort = view.getTerminalPort(
+        view.getState(edge), view.getState(edge.getTerminal(true)), true);
+    var targetPort = view.getTerminalPort(
+        view.getState(edge), view.getState(edge.getTerminal(false)), false);
+
+    var edgeGeo = this.getGeometry(edgeId);
+    var x = edgeGeo[0] + Math.floor(edgeGeo[2] / 2);
+    var y = edgeGeo[1] + Math.floor(edgeGeo[3] / 2);
+
+    var sourcePoint = view.getPerimeterPoint(sourcePort, new mxPoint(x, y), false);
+    var targetPoint = view.getPerimeterPoint(targetPort, new mxPoint(x, y), false);
+    return [sourcePoint, targetPoint];
+};
+
+/**
+ * Gets the terminal points for an edge.
+ *
+ * @param {number} edgeId Id of an edge in graph.
+ * @returns {[[number, number], [number, number]]} An array with two values, the "x,y" coordinates
+ * for the source and the "x,y" for the target.
+ * @throws {Error} Unable to find edge.
+ * @throws {Error} Given cell isn't an edge.
+ */
+graphs.Api.prototype.getEdgeTerminalPoints = function getEdgeTerminalPoints (edgeId) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var edge = this._findCell(model, edgeId);
+
+    var terminal_points = this._getMxEdgeTerminalPoints(edge);
+    return [
+        [terminal_points[0].x, terminal_points[0].y],
+        [terminal_points[1].x, terminal_points[1].y]
+    ];
 };
 
 /**
