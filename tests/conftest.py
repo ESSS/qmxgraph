@@ -258,6 +258,9 @@ def pytest_collection_modifyitems(items):
 
     See pytest-rerunfailures plugin for more information.
     """
+    import os
+    if os.environ.get('CI', 'false') != 'true':
+        return
     for item in items:
         if 'graph_cases' in getattr(item, 'fixturenames', []):
             item.add_marker(pytest.mark.flaky(reruns=3))
