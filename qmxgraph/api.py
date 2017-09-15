@@ -22,6 +22,9 @@ class QmxGraphApi(object):
     def bar(not_self):
         return 'foo' + 'bar'
 
+    def foobar():
+        pass
+
     def insert_vertex(self, x, y, width, height, label, style=None, tags=None):
         """
         Inserts a new vertex in graph.
