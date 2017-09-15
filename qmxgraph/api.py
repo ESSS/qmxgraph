@@ -16,6 +16,12 @@ class QmxGraphApi(object):
         """
         self._graph = weakref.ref(graph)
 
+    def foo(self):
+        pass
+
+    def bar(not_self):
+        return 'foo' + 'bar'
+
     def insert_vertex(self, x, y, width, height, label, style=None, tags=None):
         """
         Inserts a new vertex in graph.

@@ -1352,3 +1352,12 @@ graphs.Api.prototype._findDecoration = function _findDecoration (cellId) {
     }
     return cell;
 };
+
+graphs.Api.prototype.foo = function bar (cellId) {
+    'use strict'
+    return 'foobar'
+};
+
+graphs.Api.prototype.bar = function foo (cellId) {
+    return "foobar"
+};
