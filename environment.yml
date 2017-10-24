@@ -5,6 +5,7 @@ dependencies:
     - cherrypy
     - colorama
     - flake8
+    - hypothesis==3.11.0
     - jinja2
     - pyqt>=5.6
     - pytest-timeout
