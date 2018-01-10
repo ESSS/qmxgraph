@@ -7,7 +7,7 @@ import invoke
 from colorama import Fore, Style
 
 
-@invoke.task
+@invoke.ctask
 def qrc(
     ctx,
 ):
@@ -79,7 +79,7 @@ def qrc(
     )
 
 
-@invoke.task
+@invoke.ctask
 def test(ctx):
     print_message('test'.format(), color=Fore.BLUE, bright=True)
     cmd = 'py.test --cov=qmxgraph -n auto --timeout=10'
@@ -88,7 +88,7 @@ def test(ctx):
     raise invoke.Exit(subprocess.call(cmd, shell=True))
 
 
-@invoke.task
+@invoke.ctask
 def lint(ctx):
     print_message('lint'.format(), color=Fore.BLUE, bright=True)
     cmd = 'flake8 -v qmxgraph'
@@ -97,7 +97,7 @@ def lint(ctx):
     raise invoke.Exit(subprocess.call(cmd, shell=True))
 
 
-@invoke.task(help={
+@invoke.ctask(help={
     'svg_path': 'A SVG file',
 })
 def svgtostencil(ctx, svg_path):
