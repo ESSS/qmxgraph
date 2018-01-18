@@ -11,7 +11,7 @@ dependencies:
     - pytest-timeout
     - six
     - pip:
-      - invoke==0.12.2
+      - invoke==0.13.0
       - pytest-mock
       - pytest-qt
       - pytest-rerunfailures
