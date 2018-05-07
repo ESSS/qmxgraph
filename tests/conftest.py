@@ -281,6 +281,7 @@ class GraphCaseFactory(object):
             "1v_style": Graph1VertexWithStyle,
             "2v": Graph2Vertices,
             "2v_1e": Graph2Vertices1EdgeByCode,
+            "3v_1e": Graph3Vertices1EdgeByCode,
             "2v_1eDD": Graph2Vertices1EdgeByDragDrop,
             "2v_1e_1d": Graph2Vertices1Edge1Decoration,
             "2v_1e_1d_1t": Graph2Vertices1Edge1Decoration1Table,
@@ -793,6 +794,14 @@ class Graph2Vertices1EdgeByCode(Graph2Vertices):
         self.source_id = self.vertex1_id
         self.target_id = self.vertex2_id
         self.edge_id = self.insert_edge(self.source_id, self.target_id, 'edge')
+
+
+class Graph3Vertices1EdgeByCode(Graph2Vertices1EdgeByCode):
+
+    def __init__(self, selenium, host):
+        Graph2Vertices1EdgeByCode.__init__(self, selenium, host)
+
+        self.vertex3_id = self.insert_vertex(10, 90, 30, 30, 'fuz', None)
 
 
 class Graph2Vertices1EdgeByDragDrop(Graph2Vertices):

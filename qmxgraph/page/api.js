@@ -6,6 +6,7 @@
 /*global mxEvent */
 /*global mxGraph */
 /*global mxPoint */
+/*global mxTerminalChange*/
 /*global mxUtils */
 
 /*global graphs */
@@ -26,6 +27,21 @@ graphs.Api = function Api (graphEditor) {
 
     this._graphEditor = graphEditor;
 };
+
+
+/**
+ * Constant indicating a cell will be used as source terminal.
+ * @type {string}
+ */
+graphs.Api.SOURCE_TERMINAL_CELL = 'source';
+
+
+/**
+ * Constant indicating a cell will be used as target terminal.
+ * @type {string}
+ */
+graphs.Api.TARGET_TERMINAL_CELL = 'target';
+
 
 /**
  * Inserts a new vertex in an arbitrary position in graph.
@@ -831,6 +847,42 @@ graphs.Api.prototype.onSelectionChanged = function onSelectionChanged (handler) 
     selectionModel.addListener(mxEvent.CHANGE, selectionHandler);
 };
 
+/**
+ * Add function to handle selection change events in the graph.
+ *
+ * @param {function} handler Callback that handles event. Receives, respectively, cell id
+ * boolean indicating if the changed terminal is the source (or target), id of the net terminal,
+ * id of the old terminal.
+ */
+graphs.Api.prototype.onTerminalChanged = function onTerminalChanged (handler) {
+    "use strict";
+
+    var cellConnectedHandler = function(source, event) {
+        var changeList = event.getProperty('edit').changes;
+        for (var i = 0; i < changeList.length; i++) {
+            var change = changeList[i];
+
+            var notifyTerminalChange = (
+                change instanceof mxTerminalChange &&
+                change.previous !== null &&
+                change.terminal !== null
+            );
+            if (notifyTerminalChange) {
+                handler(
+                    change.cell.getId(),
+                    (change.source ? 'source' : 'target'),
+                    change.terminal.getId(),
+                    change.previous.getId()
+                );
+            }
+        }
+    };
+
+    var graph = this._graphEditor.graph;
+    graph.model.addListener(mxEvent.CHANGE, cellConnectedHandler);
+    graph = null;
+};
+
 
 /**
  * Register a handler to event when cells have their label changed.
@@ -1111,6 +1163,35 @@ graphs.Api.prototype.getEdgeTerminals = function getEdgeTerminals (edgeId) {
     var targetId = edge.getTerminal(false).getId();
 
     return [sourceId, targetId];
+};
+
+/**
+ * Set an edge's  terminal.
+ *
+ * @param {number} cellId The id of a edge in graph.
+ * @param {string} terminalType Indicates if the affected terminal is the source or target (one of
+ * `graphs.Api.*_TERMINAL_CELL`).
+ * @param {number} newTerminalCellId The if of the new terminal for the edge.
+ * @throws {Error} Unable to find cell.
+ * @throws {Error} Not a valid terminal type.
+ */
+graphs.Api.prototype.setEdgeTerminal = function setEdgeTerminal (
+    cellId, terminalType, newTerminalCellId) {
+    "use strict";
+    var isSource = true;
+    if (terminalType === graphs.Api.SOURCE_TERMINAL_CELL) {
+        isSource = true;
+    } else if (terminalType === graphs.Api.TARGET_TERMINAL_CELL) {
+        isSource = false;
+    } else {
+        throw Error(String(terminalType) + ' is not a valid value for `terminalType`');
+    }
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var edge = this._findCell(model, cellId);
+    var terminal = this._findCell(model, newTerminalCellId);
+    model.setTerminal(edge, terminal, isSource);
 };
 
 /**

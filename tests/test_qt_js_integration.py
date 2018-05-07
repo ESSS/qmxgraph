@@ -36,58 +36,62 @@ def test_error_redirection(loaded_graph):
     assert column in (0, -1)  # older WebKit may not provide column
 
 
-def test_events_bridge(graph, qtbot):
+def test_events_bridge(graph, qtbot, mocker):
     """
     Verify if the Python code can listen to JavaScript events by using
     qmxgraph's events bridge.
 
     :type graph: qmxgraph.widget.qmxgraph
     :type qtbot: pytestqt.plugin.QtBot
+    :type mocker: pytest_mock.MockFixture
     """
+    from qmxgraph.api import QmxGraphApi
     from qmxgraph.widget import EventsBridge
 
     events = EventsBridge()
     graph.set_events_bridge(events)
 
-    added = []
-    removed = []
-    labels = []
-    selections = []
+    added_handler = mocker.Mock()
+    removed_handler = mocker.Mock()
+    labels_handler = mocker.Mock()
+    selections_handler = mocker.Mock()
+    terminal_handler = mocker.Mock()
 
-    def on_cells_added(cell_ids):
-        added.extend(cell_ids)
-
-    events.on_cells_added.connect(on_cells_added)
-
-    def on_cells_removed(cell_ids):
-        removed.extend(cell_ids)
-
-    events.on_cells_removed.connect(on_cells_removed)
-
-    def on_label_changed(a, b, c):
-        labels.extend([a, b, c])
-
-    events.on_label_changed.connect(on_label_changed)
-
-    def on_selection_changed(cells_ids):
-        selections.extend(cells_ids)
-
-    events.on_selection_changed.connect(on_selection_changed)
+    events.on_cells_added.connect(added_handler)
+    events.on_cells_removed.connect(removed_handler)
+    events.on_label_changed.connect(labels_handler)
+    events.on_selection_changed.connect(selections_handler)
+    events.on_terminal_changed.connect(terminal_handler)
 
     wait_until_loaded(graph, qtbot)
 
-    vertex_id = graph.api.insert_vertex(10, 10, 20, 20, 'test')
-    assert added == [vertex_id]
+    vertex_id = graph.api.insert_vertex(40, 40, 20, 20, 'test')
+    assert added_handler.call_args_list == [mocker.call([vertex_id])]
 
-    assert selections == []
+    assert selections_handler.call_args_list == []
     eval_js(graph, "graphEditor.execute('selectVertices')")
-    assert selections == [vertex_id]
+    assert selections_handler.call_args_list == [mocker.call([vertex_id])]
 
     graph.api.set_label(vertex_id, 'TOTALLY NEW LABEL')
-    assert labels == [vertex_id, 'TOTALLY NEW LABEL', 'test']
+    assert labels_handler.call_args_list == [
+        mocker.call(vertex_id, 'TOTALLY NEW LABEL', 'test')]
+
+    foo_id = graph.api.insert_vertex(440, 40, 20, 20, 'foo')
+    bar_id = graph.api.insert_vertex(40, 140, 20, 20, 'bar')
+    edge_id = graph.api.insert_edge(vertex_id, foo_id, 'edge')
+    graph.api.set_edge_terminal(
+        edge_id, QmxGraphApi.TARGET_TERMINAL_CELL, bar_id)
+    graph.api.set_edge_terminal(
+        edge_id, QmxGraphApi.SOURCE_TERMINAL_CELL, foo_id)
+    assert terminal_handler.call_args_list == [
+        mocker.call(edge_id, QmxGraphApi.TARGET_TERMINAL_CELL, bar_id,
+                    foo_id),
+        mocker.call(edge_id, QmxGraphApi.SOURCE_TERMINAL_CELL, foo_id,
+                    vertex_id),
+    ]
 
     graph.api.remove_cells([vertex_id])
-    assert removed == [vertex_id]
+    assert removed_handler.call_args_list == [mocker.call([vertex_id])]
 
 
 def test_set_double_click_handler(graph, qtbot, mocker):
