@@ -10,6 +10,9 @@ class QmxGraphApi(object):
     graph drawing library.
     """
 
+    SOURCE_TERMINAL_CELL = 'source'
+    TARGET_TERMINAL_CELL = 'target'
+
     def __init__(self, graph):
         """
         :param qmxgraph.widget.QmxGraph graph: A graph drawing widget.
@@ -457,6 +460,19 @@ class QmxGraphApi(object):
         return self.call_api(
             'onSelectionChanged', qmxgraph.js.Variable(handler))
 
+    def on_terminal_changed(self, handler):
+        """
+        Add function to handle terminal change events in the graph.
+
+        :param handler: Name of signal bound to JavaScript by a bridge object
+            that is going to be used as callback to event. Receives,
+            respectively, cell id, boolean indicating if the changed terminal
+            is the source (or target), id of the net terminal, id of the old
+            terminal.
+        """
+        return self.call_api(
+            'onTerminalChanged', qmxgraph.js.Variable(handler))
+
     def resize_container(self, width, height):
         """
         Resizes the container of graph drawing widget.
@@ -566,6 +582,28 @@ class QmxGraphApi(object):
             - the port's name used on the target (can be `None`);
         """
         return self.call_api('getEdgeTerminalsWithPorts', edge_id)
+
+    def set_edge_terminal(self, edge_id, terminal_type, new_terminal_cell_id):
+        """
+        Set an edge's terminal.
+
+        :param str edge_id: The id of a edge in graph.
+        :param str terminal_type: Indicates if the affect terminal is the
+            source or target for the edge. The valid values are:
+            - `QmxGraphApi.SOURCE_TERMINAL_CELL`;
+            - `QmxGraphApi.TARGET_TERMINAL_CELL`;
+        :param new_terminal_cell_id: The if of the new terminal for the edge.
+        """
+        valid_terminal_types = {
+            self.SOURCE_TERMINAL_CELL,
+            self.TARGET_TERMINAL_CELL,
+        }
+        if terminal_type not in valid_terminal_types:
+            err_msg = '%s is not a valid value for `terminal_type`'
+            raise ValueError(err_msg % (terminal_type,))
+
+        return self.call_api(
+            'setEdgeTerminal', edge_id, terminal_type, new_terminal_cell_id)
 
     def dump(self):
         """

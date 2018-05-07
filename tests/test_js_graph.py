@@ -402,7 +402,7 @@ def test_set_visible_error_not_found(graph_cases, selenium_extras):
         "Unable to find cell with id {}".format(cell_id)
 
 
-def test_get_geometry(graph_cases):
+def test_get_geometry_plain(graph_cases):
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -1240,6 +1240,28 @@ def test_get_edge_terminals(graph_cases):
         'api.getEdgeTerminals', graph.get_id(edge))
     assert source_id == graph.get_id(source)
     assert target_id == graph.get_id(target)
+
+
+@pytest.mark.parametrize('terminal_type', ['source', 'target'])
+def test_set_edge_terminals(graph_cases, terminal_type):
+    """
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    :type terminal_type: str
+    """
+    graph = graph_cases('3v_1e')
+    graph.eval_js_function(
+        'api.setEdgeTerminal', graph.edge_id, terminal_type, graph.vertex3_id)
+
+    source_id, target_id = graph.eval_js_function(
+        'api.getEdgeTerminals', graph.edge_id)
+    if terminal_type == 'source':
+        assert source_id == graph.vertex3_id
+        assert target_id == graph.target_id
+    elif terminal_type == 'target':
+        assert source_id == graph.source_id
+        assert target_id == graph.vertex3_id
+    else:
+        assert 0
 
 
 def test_set_get_style(graph_cases):
