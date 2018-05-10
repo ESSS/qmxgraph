@@ -466,6 +466,7 @@ graphs.parseStyles = function parseStyles (rawStyles) {
     var styleMap = {};
     /* jshint -W069 */
     styleMap['dashed'] = mxConstants.STYLE_DASHED;
+    styleMap['decoration_base_rotation'] = mxConstants.STYLE_DECORATION_BASE_ROTATION;
     styleMap['deletable'] = mxConstants.STYLE_DELETABLE;
     styleMap['end_arrow'] = mxConstants.STYLE_ENDARROW;
     styleMap['fill_color'] = mxConstants.STYLE_FILLCOLOR;

@@ -10,6 +10,12 @@
     "use strict";
 
     /**
+     * Defines the key of a base rotation applied to decoration objects in mxGraph.
+     * @type {string}
+     */
+    mxConstants.STYLE_DECORATION_BASE_ROTATION = 'decorationBaseRotation';
+
+    /**
      * Defines the key for the label rotatable style. This specifies if a cell's label can be
      * rotated. Possible values are 0 or 1. Default is 1.
      * @type {string}
