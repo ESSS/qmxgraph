@@ -273,23 +273,6 @@ graphs.utils.createTableElement = function createTableElement (contents, title) 
 };
 
 /**
- * In case cell is added too close to graph boundaries resize the container.
- *
- * @param {mxGraph} graph A graph.
- * @param {mxCell} cell A cell in graph.
- */
-graphs.utils.resizeContainerOnDemand = function resizeContainerOnDemand (graph, cell) {
-    "use strict";
-
-    var bbox = graph.getBoundingBox([cell]);
-    var containerWidth = Math.max(
-        graph.container.offsetWidth, bbox.x + bbox.width);
-    var containerHeight = Math.max(
-        graph.container.offsetHeight, bbox.y + bbox.height);
-    graph.doResizeContainer(containerWidth, containerHeight);
-};
-
-/**
  * Replace html "unsafe" characters on a given string.
  * From https://stackoverflow.com/a/4835406/783219
  *

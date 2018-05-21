@@ -77,8 +77,6 @@ graphs.Api.prototype.insertVertex = function insertVertex (
         style
     );
 
-    graphs.utils.resizeContainerOnDemand(graph, vertex);
-
     return vertex.getId();
 };
 
@@ -134,7 +132,6 @@ graphs.Api.prototype.insertPort = function insertPort (
     } finally {
         model.endUpdate();
     }
-    graphs.utils.resizeContainerOnDemand(graph, port);
 };
 
 /**
@@ -369,7 +366,6 @@ graphs.Api.prototype.insertTable = function insertTable (
         model.endUpdate();
     }
 
-    graphs.utils.resizeContainerOnDemand(graph, table);
     return table.getId();
 };
 
@@ -704,6 +700,48 @@ graphs.Api.prototype.resizeContainer = function resizeContainer (width, height) 
     }
 
     this._graphEditor.graph.doResizeContainer(width, height);
+};
+
+/**
+ * Zoom in the graph.
+ */
+graphs.Api.prototype.zoomIn = function zoomIn () {
+    "use strict";
+    this._graphEditor.graph.zoomIn();
+};
+
+/**
+ * Zoom out the graph.
+ */
+graphs.Api.prototype.zoomOut = function zoomOut () {
+    "use strict";
+    this._graphEditor.graph.zoomOut();
+};
+
+/**
+ * Return the current scale (zoom).
+ *
+ * @returns {number}
+ */
+graphs.Api.prototype.getZoomScale = function getZoomScale () {
+    "use strict";
+    return this._graphEditor.graph.view.scale;
+};
+
+/**
+ * Reset graph's zoom.
+ */
+graphs.Api.prototype.resetZoom = function resetZoom () {
+    "use strict";
+    this._graphEditor.graph.zoomActual();
+};
+
+/**
+ * Rescale the graph to fit in the container.
+ */
+graphs.Api.prototype.fit = function fit () {
+    "use strict";
+    this._graphEditor.graph.fit(10);
 };
 
 /**

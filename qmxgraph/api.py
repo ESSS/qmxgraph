@@ -339,6 +339,38 @@ class QmxGraphApi(object):
         """
         return self.call_api('isVisible', cell_id)
 
+    def zoom_in(self):
+        """
+        Zoom in the graph.
+        """
+        return self.call_api('zoomIn')
+
+    def zoom_out(self):
+        """
+        Zoom out the graph.
+        """
+        return self.call_api('zoomOut')
+
+    def reset_zoom(self):
+        """
+        Reset graph's zoom.
+        """
+        return self.call_api('resetZoom')
+
+    def fit(self):
+        """
+        Rescale the graph to fit in the container.
+        """
+        return self.call_api('fit')
+
+    def get_zoom_scale(self):
+        """
+        Return the current scale (zoom).
+
+        :rtype: float
+        """
+        return self.call_api('getZoomScale')
+
     def set_selected_cells(self, cell_ids):
         """
         Select the cells with the given ids.

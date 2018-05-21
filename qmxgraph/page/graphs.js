@@ -431,6 +431,22 @@ graphs.createGraph = function createGraph (container, options, styles) {
     };
     graph.addListener(mxEvent.REFRESH, onRefresh);
 
+    // * Adds mouse wheel handling for zoom
+    mxEvent.addMouseWheelListener(function(evt, up) {
+        // - `up = true` direction:
+        //      Moves the viewport closer to the graph;
+        //      When browsing a web page the vertical scrollbar will move up;
+        // - `up = false` direction:
+        //      Moves the viewport away from the graph;
+        //      When browsing a web page the vertical scrollbar will move down;
+        if (up) {
+            graph.zoomIn();
+        } else {
+            graph.zoomOut();
+        }
+        mxEvent.consume(evt);
+    });
+
     // DEBUG -------------------------------------------------------------------
 
     graph.container.addEventListener(

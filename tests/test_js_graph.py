@@ -70,20 +70,6 @@ def test_insert_vertex_with_style(graph_cases):
     assert vertex.get_attribute('fill') != default
 
 
-def test_insert_vertex_close_to_boundaries(graph_cases):
-    """
-    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
-    """
-    graph = graph_cases('empty')
-
-    width, height = graph.get_container_size()
-
-    assert graph.eval_js_function(
-        "api.insertVertex", width - 10, height - 10, 25, 25, 'label')
-
-    assert graph.get_container_size() == (width + 16, height + 16)
-
-
 @pytest.mark.parametrize(
     'mode',
     [
@@ -499,29 +485,6 @@ def test_table_with_image(graph_cases):
     assert len(image_elements) == 1
     image = image_elements[0]
     assert image.get_attribute('src').endswith('some-image-path')
-
-
-def test_insert_table_close_to_boundaries(graph_cases):
-    """
-    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
-    """
-    graph = graph_cases('empty')
-
-    width, height = graph.get_container_size()
-
-    contents = {  # graphs.utils.TableDescription
-        'contents': [
-            # graphs.utils.TableRowDescription's
-            {'contents': ['alpha', '100']},
-            {'contents': ['beta', '200']},
-            {'contents': ['gamma', '300']},
-        ]
-    }
-    assert graph.eval_js_function(
-        "api.insertTable", width - 10, height - 10, 0, contents, 'title')
-
-    assert graph.get_container_size() == \
-        fix_table_size(width + 79, height + 85)
 
 
 def test_update_table(graph_cases):
@@ -1226,6 +1189,43 @@ def test_set_popup_menu_handler(graph_cases):
     y = vertex_label_el.location['y'] + vertex_label_el.size['height'] // 2
     assert graph.selenium.execute_script('return window.__popupMenu__') == \
         [[vertex_id, x, y]]
+
+
+@pytest.mark.parametrize('action, expected_scale', [('zoomIn', 1.2), ('zoomOut', 0.83)])
+def test_zoom(graph_cases, action, expected_scale):
+    """
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    :type action: str
+    :type expected_scale: float
+    """
+    graph = graph_cases('2v_1e')
+    obtained_scale = graph.eval_js_function('api.getZoomScale')
+    assert obtained_scale == 1.0
+
+    graph.eval_js_function('api.{}'.format(action))
+    obtained_scale = graph.eval_js_function('api.getZoomScale')
+    assert obtained_scale == expected_scale
+
+    graph.eval_js_function('api.resetZoom')
+    obtained_scale = graph.eval_js_function('api.getZoomScale')
+    assert obtained_scale == 1.0
+
+
+@pytest.mark.parametrize('action', [None, 'zoomIn', 'zoomOut'])
+def test_fit(graph_cases, action):
+    """
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    :type action: Optional[str]
+    """
+    graph = graph_cases('2v_1e')
+    obtained_scale = graph.eval_js_function('api.getZoomScale')
+    assert obtained_scale == 1.0
+    if action is not None:
+        graph.eval_js_function('api.{}'.format(action))
+
+    graph.eval_js_function('api.fit')
+    obtained_scale = graph.eval_js_function('api.getZoomScale')
+    assert obtained_scale == pytest.approx(3.14, abs=2)
 
 
 def test_get_edge_terminals(graph_cases):
