@@ -707,6 +707,7 @@ graphs.Api.prototype.resizeContainer = function resizeContainer (width, height) 
  */
 graphs.Api.prototype.zoomIn = function zoomIn () {
     "use strict";
+
     this._graphEditor.graph.zoomIn();
 };
 
@@ -715,6 +716,7 @@ graphs.Api.prototype.zoomIn = function zoomIn () {
  */
 graphs.Api.prototype.zoomOut = function zoomOut () {
     "use strict";
+
     this._graphEditor.graph.zoomOut();
 };
 
@@ -725,7 +727,8 @@ graphs.Api.prototype.zoomOut = function zoomOut () {
  */
 graphs.Api.prototype.getZoomScale = function getZoomScale () {
     "use strict";
-    return this._graphEditor.graph.view.scale;
+
+    return this._graphEditor.graph.view.getScale();
 };
 
 /**
@@ -733,7 +736,38 @@ graphs.Api.prototype.getZoomScale = function getZoomScale () {
  */
 graphs.Api.prototype.resetZoom = function resetZoom () {
     "use strict";
+
     this._graphEditor.graph.zoomActual();
+};
+
+/**
+ * Get the current scale and translation.
+ *
+ * @returns {number[]} The graph scale, the translation along the x axis, and the translation
+ * along the y axis. The three values returned by this function is suitable to be supplied to
+ * {@link graphs.Api#setScaleAndTranslation} to set the scale and translation to a previous value.
+ */
+graphs.Api.prototype.getScaleAndTranslation = function getScaleAndTranslation () {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var scale = graph.view.getScale();
+    var translate = graph.view.getTranslate();
+    return [scale, translate.x, translate.y];
+};
+
+/**
+ * Set the scale and translation.
+ *
+ * @param {number} scale The new graph's scale (1 = 100%).
+ * @param {number} x The new graph's translation along the X axis (0 = origin).
+ * @param {number} y The new graph's scale along the Y axis (0 = origin}.
+ */
+graphs.Api.prototype.setScaleAndTranslation = function setScaleAndTranslation (scale, x, y) {
+    "use strict";
+
+    var view = this._graphEditor.graph.getView();
+    view.scaleAndTranslate(scale, x, y);
 };
 
 /**
@@ -741,6 +775,7 @@ graphs.Api.prototype.resetZoom = function resetZoom () {
  */
 graphs.Api.prototype.fit = function fit () {
     "use strict";
+
     this._graphEditor.graph.fit(10);
 };
 
