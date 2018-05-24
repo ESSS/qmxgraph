@@ -339,6 +339,62 @@ class QmxGraphApi(object):
         """
         return self.call_api('isVisible', cell_id)
 
+    def zoom_in(self):
+        """
+        Zoom in the graph.
+        """
+        return self.call_api('zoomIn')
+
+    def zoom_out(self):
+        """
+        Zoom out the graph.
+        """
+        return self.call_api('zoomOut')
+
+    def reset_zoom(self):
+        """
+        Reset graph's zoom.
+        """
+        return self.call_api('resetZoom')
+
+    def fit(self):
+        """
+        Rescale the graph to fit in the container.
+        """
+        return self.call_api('fit')
+
+    def get_zoom_scale(self):
+        """
+        Return the current scale (zoom).
+
+        :rtype: float
+        """
+        return self.call_api('getZoomScale')
+
+    def get_scale_and_translation(self):
+        """
+        Get the current scale and translation.
+
+        :rtype: Tuple[float, float, float]
+        :return: Respectively the values of graph scale, the translation
+            along the x axis, and the translation along the y axis. The
+            three values returned by this function is suitable to be
+            supplied to `` to set the scale and translation to a previous
+            value.
+        """
+        return tuple(self.call_api('getScaleAndTranslation'))
+
+    def set_scale_and_translation(self, scale, x, y):
+        """
+        Set the scale and translation.
+
+        :param float scale: The new graph's scale (1 = 100%).
+        :param float x: The new graph's translation along the X axis
+            (0 = origin).
+        :param float y: The new graph's scale along the Y axis (0 = origin}.
+        """
+        return self.call_api('setScaleAndTranslation', scale, x, y)
+
     def set_selected_cells(self, cell_ids):
         """
         Select the cells with the given ids.

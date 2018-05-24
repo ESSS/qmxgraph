@@ -77,8 +77,6 @@ graphs.Api.prototype.insertVertex = function insertVertex (
         style
     );
 
-    graphs.utils.resizeContainerOnDemand(graph, vertex);
-
     return vertex.getId();
 };
 
@@ -134,7 +132,6 @@ graphs.Api.prototype.insertPort = function insertPort (
     } finally {
         model.endUpdate();
     }
-    graphs.utils.resizeContainerOnDemand(graph, port);
 };
 
 /**
@@ -369,7 +366,6 @@ graphs.Api.prototype.insertTable = function insertTable (
         model.endUpdate();
     }
 
-    graphs.utils.resizeContainerOnDemand(graph, table);
     return table.getId();
 };
 
@@ -704,6 +700,83 @@ graphs.Api.prototype.resizeContainer = function resizeContainer (width, height) 
     }
 
     this._graphEditor.graph.doResizeContainer(width, height);
+};
+
+/**
+ * Zoom in the graph.
+ */
+graphs.Api.prototype.zoomIn = function zoomIn () {
+    "use strict";
+
+    this._graphEditor.graph.zoomIn();
+};
+
+/**
+ * Zoom out the graph.
+ */
+graphs.Api.prototype.zoomOut = function zoomOut () {
+    "use strict";
+
+    this._graphEditor.graph.zoomOut();
+};
+
+/**
+ * Return the current scale (zoom).
+ *
+ * @returns {number}
+ */
+graphs.Api.prototype.getZoomScale = function getZoomScale () {
+    "use strict";
+
+    return this._graphEditor.graph.view.getScale();
+};
+
+/**
+ * Reset graph's zoom.
+ */
+graphs.Api.prototype.resetZoom = function resetZoom () {
+    "use strict";
+
+    this._graphEditor.graph.zoomActual();
+};
+
+/**
+ * Get the current scale and translation.
+ *
+ * @returns {number[]} The graph scale, the translation along the x axis, and the translation
+ * along the y axis. The three values returned by this function is suitable to be supplied to
+ * {@link graphs.Api#setScaleAndTranslation} to set the scale and translation to a previous value.
+ */
+graphs.Api.prototype.getScaleAndTranslation = function getScaleAndTranslation () {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var scale = graph.view.getScale();
+    var translate = graph.view.getTranslate();
+    return [scale, translate.x, translate.y];
+};
+
+/**
+ * Set the scale and translation.
+ *
+ * @param {number} scale The new graph's scale (1 = 100%).
+ * @param {number} x The new graph's translation along the X axis (0 = origin).
+ * @param {number} y The new graph's scale along the Y axis (0 = origin}.
+ */
+graphs.Api.prototype.setScaleAndTranslation = function setScaleAndTranslation (scale, x, y) {
+    "use strict";
+
+    var view = this._graphEditor.graph.getView();
+    view.scaleAndTranslate(scale, x, y);
+};
+
+/**
+ * Rescale the graph to fit in the container.
+ */
+graphs.Api.prototype.fit = function fit () {
+    "use strict";
+
+    this._graphEditor.graph.fit(10);
 };
 
 /**

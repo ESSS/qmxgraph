@@ -423,10 +423,15 @@ class QmxGraph(QWidget):
 
             if version in (1, 2):
                 vertices = parsed.get('vertices', [])
+                scale = self.api.get_zoom_scale()
                 for v in vertices:
+                    # place vertices with an offset so their center falls
+                    # in the event point.
+                    vertex_x = x + (v['dx'] - v['width'] * 0.5) * scale
+                    vertex_y = y + (v['dy'] - v['height'] * 0.5) * scale
                     self.api.insert_vertex(
-                        x=x + v['dx'] - v['width'] // 2,
-                        y=y + v['dy'] - v['height'] // 2,
+                        x=vertex_x,
+                        y=vertex_y,
                         width=v['width'],
                         height=v['height'],
                         label=v['label'],
