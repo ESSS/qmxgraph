@@ -1,3 +1,5 @@
+/*global mxConstants */
+
 /*global mxUtils */
 
 /*global graphs */
@@ -93,9 +95,16 @@ graphs.utils.obtainDecorationStyle = function obtainDecorationStyle (
 
     var rotation = graphs.utils.calculateEdgeAngle(graph, edge);
 
+    // Obtain customized base rotation in the element's style
+    // TODO: handle multiple names (overrides) in the baseStyle for obtaining desired style
+    var styleName = baseStyle.split(';')[0];
+    var styleSheet = graph.stylesheet.styles[styleName];
+
     // + 90 as rotation of objects in mxGraph, or at least when using rotation
     // by style, have 0 degrees concurrent with X axis.
-    rotation = (rotation + 90) % 360;
+    var baseRotation = mxUtils.getValue(styleSheet, mxConstants.STYLE_DECORATION_BASE_ROTATION, 90);
+
+    rotation = (rotation + baseRotation) % 360;
 
     // Rotation style must be integers in [0, 360] interval.
     if (rotation < 0) {

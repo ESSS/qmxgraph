@@ -148,6 +148,7 @@ class GraphStyles(object):
 
         known_keys = {
             'dashed',
+            'decoration_base_rotation',
             'deletable',
             'end_arrow',
             'fill_color',
