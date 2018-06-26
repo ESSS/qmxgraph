@@ -2,7 +2,7 @@
 QmxGraph
 ========
 
-.. image:: https://img.shields.io/travis/ESSS/qmxgraph.svg
+.. image:: https://travis-ci.org/ESSS/qmxgraph.svg?branch=master
         :target: https://travis-ci.org/ESSS/qmxgraph
 
 .. image:: https://coveralls.io/repos/github/ESSS/qmxgraph/badge.svg?branch=master
