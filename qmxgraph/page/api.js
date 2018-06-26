@@ -328,7 +328,7 @@ graphs.Api.prototype.insertTable = function insertTable (
     var coords;
     if (isRelative) {
         parent = this._findCell(model, parentId);
-        coords = {x: x, y: y};
+        coords = {x: x, y: y};  // No adjustments in coordinates
     } else {
         parent = graph.getDefaultParent();
         coords = graphs.utils.adjustCoordinates(graph, x, y);
