@@ -325,12 +325,14 @@ graphs.Api.prototype.insertTable = function insertTable (
     var model = graph.getModel();
     var isRelative = parentId != null;  // jshint ignore:line
     var parent = null;
+    var coords;
     if (isRelative) {
         parent = this._findCell(model, parentId);
+        coords = {x: x, y: y};
     } else {
         parent = graph.getDefaultParent();
+        coords = graphs.utils.adjustCoordinates(graph, x, y);
     }
-    var coords = graphs.utils.adjustCoordinates(graph, x, y);
 
     var tableStyle = 'table';
     if (style != null) {  // jshint ignore:line
