@@ -425,7 +425,11 @@ def test_insert_table(graph_cases):
     assert len(graph.get_tables()) == 1
 
 
-def test_insert_child_table(graph_cases):
+@pytest.mark.parametrize(
+    'action, expected_scale',
+    [(None, 1.0), ('zoomIn', 1.2), ('zoomOut', 0.83)],
+)
+def test_insert_child_table(graph_cases, action, expected_scale):
     """
     When supplying `parent_id` the origin (the x and y coordinates) are
     normalized and relative to the parent bounds. Here is used another table
@@ -435,6 +439,21 @@ def test_insert_child_table(graph_cases):
     """
     graph = graph_cases('1t')
 
+    # Applying zoom, so it changes the scale and transformation
+    obtained_scale = graph.eval_js_function('api.getZoomScale')
+    assert obtained_scale == 1.0
+    ini_scale, ini_x, ini_y = graph.eval_js_function('api.getScaleAndTranslation')
+    assert (ini_scale, ini_x, ini_y) == (1, 0, 0)
+
+    if action is not None:
+        graph.eval_js_function('api.{}'.format(action))
+        obtained_scale = graph.eval_js_function('api.getZoomScale')
+        assert obtained_scale == expected_scale
+        ini_scale, ini_x, ini_y = graph.eval_js_function('api.getScaleAndTranslation')
+        assert ini_scale != 1
+        assert ini_x != 0
+        assert ini_y != 0
+
     tables = graph.get_tables()
     assert len(tables) == 1
     parent_id = graph.get_id(tables[0])
@@ -443,6 +462,12 @@ def test_insert_child_table(graph_cases):
         None, parent_id)
     tables = graph.get_tables()
     assert len(tables) == 2
+
+    # After resetting the zoom, bounds of the tables must respect the
+    # constraints being tested below between parent and child bounds
+    graph.eval_js_function('api.resetZoom')
+    obtained_scale = graph.eval_js_function('api.getZoomScale')
+    assert obtained_scale == 1.0
 
     def get_bounds(cell_id):
         return graph.eval_js_function('api.getGeometry', cell_id)
