@@ -529,6 +529,16 @@ class QmxGraphApi(object):
         return self.call_api(
             'onTerminalChanged', qmxgraph.js.Variable(handler))
 
+    def on_view_update(self, handler):
+        """
+        Add function to handle updates in the graph view.
+         :param handler: Name of signal bound to JavaScript by a bridge object
+            that is going to be used as callback to event. Receives,
+            respectively, graph dump and graph scale and translation.
+        """
+        return self.call_api(
+            'onViewUpdate', qmxgraph.js.Variable(handler))
+
     def resize_container(self, width, height):
         """
         Resizes the container of graph drawing widget.
