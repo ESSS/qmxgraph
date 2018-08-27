@@ -901,6 +901,25 @@ graphs.Api.prototype.onCellsAdded = function onCellsAdded (handler) {
 };
 
 /**
+ * Add function to handle update events in the graph view.
+ *
+ * @param {function} handler Callback that handles event. Receives two arguments:
+ *   1. graph dump;
+ *   2. graph scale and translation;
+ */
+graphs.Api.prototype.onViewUpdate = function onViewUpdate (handler) {
+    "use strict";
+    var graph = this._graphEditor.graph;
+     var listener = (function(sender, evt)
+    {
+        handler(this.dump(), this.getScaleAndTranslation());
+    }).bind(this);
+     // Listen to events that generate UNDO events
+    graph.getModel().addListener(mxEvent.UNDO, listener);
+    graph.getView().addListener(mxEvent.UNDO, listener);
+};
+
+/**
  * Add function to handle selection change events in the graph.
  *
  * @param {function} handler Callback that handles event. Receives an array with the id of cells

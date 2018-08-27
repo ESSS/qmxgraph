@@ -201,6 +201,8 @@ class QmxGraph(QWidget):
                 'bridge_events_handler.on_selection_changed')
             self.api.on_terminal_changed(
                 'bridge_events_handler.on_terminal_changed')
+            self.api.on_view_update(
+                'bridge_events_handler.on_view_update')
 
     def set_double_click_handler(self, handler):
         """
@@ -563,6 +565,12 @@ class EventsBridge(QObject):
     # old_terminal_id: str
     on_terminal_changed = pyqtSignal(
         str, str, str, str, name='on_terminal_changed')
+    # JavaScript client code emits this signal when the view is updated.
+    # Arguments:
+    # graph_view: str
+    # scale_and_translation: QVariantList
+    on_view_update = pyqtSignal(
+        str, 'QVariantList', name='on_view_update')
 
 
 class _DoubleClickBridge(QObject):
