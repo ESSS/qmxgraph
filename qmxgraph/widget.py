@@ -572,6 +572,7 @@ class EventsBridge(QObject):
     on_view_update = pyqtSignal(
         str, 'QVariantList', name='on_view_update')
 
+
 class _DoubleClickBridge(QObject):
     """
     A private bridge used for double click events in JavaScript graph.

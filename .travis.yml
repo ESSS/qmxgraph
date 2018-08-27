@@ -26,13 +26,10 @@ install:
   - conda config --add channels conda-forge
   - conda info -a  # for debug reasons
 
-  - conda create -n qmxgraph python=$TRAVIS_PYTHON_VERSION
+  - conda create -n qmxgraph python=$TRAVIS_PYTHON_VERSION coveralls pytest-cov
   - conda env update -n qmxgraph
   - source activate qmxgraph
   - conda list  # for debug reasons
-
-  - pip install coveralls --use-wheel
-  - pip install pytest-cov
 
 script:
   - scripts/run_travis_$SCRIPT.sh
