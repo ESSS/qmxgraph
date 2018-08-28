@@ -910,11 +910,10 @@ graphs.Api.prototype.onCellsAdded = function onCellsAdded (handler) {
 graphs.Api.prototype.onViewUpdate = function onViewUpdate (handler) {
     "use strict";
     var graph = this._graphEditor.graph;
-     var listener = (function(sender, evt)
-    {
+    var listener = (function(sender, evt) {
         handler(this.dump(), this.getScaleAndTranslation());
     }).bind(this);
-     // Listen to events that generate UNDO events
+    // Listen to events that generate UNDO events.
     graph.getModel().addListener(mxEvent.UNDO, listener);
     graph.getView().addListener(mxEvent.UNDO, listener);
 };
