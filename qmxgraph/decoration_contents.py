@@ -47,7 +47,7 @@ class TableData:
     """
     tag = attr.ib(default='td', init=False)
     contents = attr.ib(validator=tuple_of(str, Image),
-                       convert=tuple)
+                       converter=tuple)
     colspan = attr.ib(default=1, validator=_is_int)
     rowspan = attr.ib(default=1, validator=_is_int)
     style = attr.ib(default=None, validator=attr.validators.optional(_is_str))
@@ -67,7 +67,7 @@ class TableRow:
     """
     tag = attr.ib(default='tr', init=False)
     contents = attr.ib(validator=tuple_of(str, TableData),
-                       convert=tuple)
+                       converter=tuple)
 
 
 @attr.s(frozen=True, slots=True)
@@ -80,7 +80,7 @@ class Table:
     :ivar tuple[TableRow] contents: The table rows.
     """
     tag = attr.ib(default='table', init=False)
-    contents = attr.ib(validator=tuple_of(TableRow), convert=tuple)
+    contents = attr.ib(validator=tuple_of(TableRow), converter=tuple)
 
     def contents_after(self, caption):
         """
