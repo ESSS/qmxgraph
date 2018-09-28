@@ -42,7 +42,7 @@ dependencies:
     - colorama>=0.3,<0.4
     - fix-and-check-env>=1.0.0
     - invoke==1.0.0
-    - jinja2>=2.8.1,<2.9.4
+    - jinja2==2.10
     - pyqt>=5.6,<5.7
     - six
 
