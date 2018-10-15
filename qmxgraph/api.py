@@ -685,9 +685,46 @@ class QmxGraphApi(object):
         """
         Restore the graph's state to one saved with `dump`.
 
-        :param str state: A xml string previously obtained with `bump`.
+        :param str state: A xml string previously obtained with `dump`.
         """
         return self.call_api('restore', state)
+
+    def set_cells_deletable(self, enabled):
+        self._call_graph_api('setCellsDeletable', enabled)
+
+    def is_cells_deletable(self):
+        return self._call_graph_api('isCellsDeletable')
+
+    def set_cells_disconnectable(self, enabled):
+        self._call_graph_api('setCellsDisconnectable', enabled)
+
+    def is_cells_disconnectable(self):
+        return self._call_graph_api('isCellsDisconnectable')
+
+    def set_cells_editable(self, enabled):
+        self._call_graph_api('setCellsEditable', enabled)
+
+    def is_cells_editable(self):
+        return self._call_graph_api('isCellsEditable')
+
+    def set_cells_movable(self, enabled):
+        self._call_graph_api('setCellsMovable', enabled)
+
+    def is_cells_movable(self):
+        return self._call_graph_api('isCellsMovable')
+
+    def set_connectable(self, enabled):
+        self._call_graph_api('setConnectable', enabled)
+
+    def is_connectable(self):
+        return self._call_graph_api('isConnectable')
+
+    def _call_graph_api(self, fn, *args):
+        """
+        Call a function in underlying API's mxGraph provided by JavaScript.
+        """
+        graph_fn = '{}.{}'.format('_graphEditor.graph', fn)
+        return self.call_api(graph_fn, *args)
 
     def call_api(self, fn, *args):
         """
