@@ -361,17 +361,24 @@ def test_invalid_api_call(loaded_graph, debug):
     try:
         if debug:
             # When debug feature is enabled, it fails as soon as call is made
-            with pytest.raises(qmxgraph.js.InvalidJavaScriptError) as e:
+            with pytest.raises(qmxgraph.js.InvalidJavaScriptError) as api_exception:
                 loaded_graph.api.call_api('BOOM')
 
-            assert str(e.value) == \
+            assert str(api_exception.value) == \
                 'Unable to find function "BOOM" in QmxGraph JavaScript API'
+
+            with pytest.raises(qmxgraph.js.InvalidJavaScriptError) as graph_exception:
+                loaded_graph.api._call_graph_api('BOOM')
+
+            assert str(graph_exception.value) == \
+                'Unable to find function "_graphEditor.graph.BOOM" in QmxGraph JavaScript API'
         else:
             # When debug feature is disabled, code will raise on JavaScript
             # side, but unless an error bridge is configured that could go
             # unnoticed, as call would return None and could easily be
             # mistaken by an OK call
             assert loaded_graph.api.call_api('BOOM') is None
+            assert loaded_graph.api._call_graph_api('BOOM') is None
     finally:
         qmxgraph.debug.set_qmxgraph_debug(old_debug)
 
