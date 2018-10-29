@@ -1,8 +1,8 @@
 import json
 
 import pytest
-from PyQt5.QtCore import QByteArray, QDataStream, QIODevice, QMimeData, \
-    QPoint, Qt
+from PyQt5.QtCore import (QByteArray, QDataStream, QIODevice, QMimeData,
+                          QPoint, Qt)
 from PyQt5.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
 
 import qmxgraph.constants
@@ -326,7 +326,7 @@ def test_drag_drop_invalid_version(loaded_graph, drag_drop_events):
     :type drag_drop_events: DragDropEventsFactory
     """
     mime_data = qmxgraph.mime.create_qt_mime_data({
-        'version': -1,
+        'version':-1,
     })
 
     drag_enter_event = drag_drop_events.drag_enter(mime_data)
@@ -381,6 +381,29 @@ def test_invalid_api_call(loaded_graph, debug):
             assert loaded_graph.api._call_graph_api('BOOM') is None
     finally:
         qmxgraph.debug.set_qmxgraph_debug(old_debug)
+
+
+@pytest.mark.parametrize('enabled', (True, False))
+def test_graph_api_calls(loaded_graph, enabled):
+    """
+    Tests the available calls to the graph api.
+    """
+    graph_api_functions = [
+        ('is_cells_deletable', 'set_cells_deletable'),
+        ('is_cells_disconnectable', 'set_cells_disconnectable'),
+        ('is_cells_editable', 'set_cells_editable'),
+        ('is_cells_movable', 'set_cells_movable',),
+        ('is_connectable', 'set_connectable',),
+    ]
+
+    for getter_name, setter_name in graph_api_functions:
+        getter_func = getattr(loaded_graph.api, getter_name)
+        setter_func = getattr(loaded_graph.api, setter_name)
+
+        setter_func(enabled)
+        assert getter_func() is enabled
+        setter_func(not enabled)
+        assert getter_func() is not enabled
 
 
 def test_tags(loaded_graph):
