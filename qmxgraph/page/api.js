@@ -1406,6 +1406,126 @@ graphs.Api.prototype.getEdgeTerminalPoints = function getEdgeTerminalPoints (edg
 };
 
 /**
+ * Sets graph cellsDeletable property.
+ *
+ * @param {boolean} enabled Enable value of this property.
+ */
+graphs.Api.prototype.setCellsDeletable = function setCellsDeletable(enabled) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    graph.setCellsDeletable(enabled);
+};
+
+/**
+ * Returns current graph cellsDeletable property.
+ *
+ * @returns {boolean} Enable value of this property.
+ */
+graphs.Api.prototype.isCellsDeletable = function isCellsDeletable(enabled) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    return graph.isCellsDeletable(enabled);
+};
+
+/**
+ * Sets graph cellsDisconnectable property.
+ *
+ * @param {boolean} enabled Enable value of this property.
+ */
+graphs.Api.prototype.setCellsDisconnectable = function setCellsDisconnectable(enabled) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    graph.setCellsDisconnectable(enabled);
+};
+
+/**
+ * Returns current graph cellsDisconnectable property.
+ *
+ * @returns {boolean} Enable value of this property.
+ */
+graphs.Api.prototype.isCellsDisconnectable = function isCellsDisconnectable(enabled) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    return graph.isCellsDisconnectable(enabled);
+};
+
+/**
+ * Sets graph cellsEditable property.
+ *
+ * @param {boolean} enabled Enable value of this property.
+ */
+graphs.Api.prototype.setCellsEditable = function setCellsEditable(enabled) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    graph.setCellsEditable(enabled);
+};
+
+/**
+ * Returns current graph cellsEditable property.
+ *
+ * @returns {boolean} Enable value of this property.
+ */
+graphs.Api.prototype.isCellsEditable = function isCellsEditable(enabled) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    return graph.isCellsEditable(enabled);
+};
+
+/**
+ * Sets graph cellsMovable property.
+ *
+ * @param {boolean} enabled Enable value of this property.
+ */
+graphs.Api.prototype.setCellsMovable = function setCellsMovable(enabled) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    graph.setCellsMovable(enabled);
+};
+
+/**
+ * Returns current graph cellsMovable property.
+ *
+ * @returns {boolean} Enable value of this property.
+ */
+graphs.Api.prototype.isCellsMovable = function isCellsMovable(enabled) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    return graph.isCellsMovable(enabled);
+};
+
+/**
+ * Sets graph connectable property.
+ *
+ * @param {boolean} enabled Enable value of this property.
+ */
+graphs.Api.prototype.setConnectable = function setConnectable(enabled) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    graph.setConnectable(enabled);
+};
+
+/**
+ * Returns current graph connectable property.
+ *
+ * @returns {boolean} Enable value of this property.
+ */
+graphs.Api.prototype.isConnectable = function isConnectable(enabled) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    return graph.isConnectable(enabled);
+};
+
+/**
  * Helper method to customize value of nodes. Values are formated according to suggestion in
  * https://jgraph.github.io/mxgraph/docs/js-api/files/model/mxCell-js.html, to be able to associate
  * custom attributes (known as "tags" in QmxGraph context) to a cell.
