@@ -690,41 +690,34 @@ class QmxGraphApi(object):
         return self.call_api('restore', state)
 
     def set_cells_deletable(self, enabled):
-        self._call_graph_api('setCellsDeletable', enabled)
+        self.call_api('setCellsDeletable', enabled)
 
     def is_cells_deletable(self):
-        return self._call_graph_api('isCellsDeletable')
+        return self.call_api('isCellsDeletable')
 
     def set_cells_disconnectable(self, enabled):
-        self._call_graph_api('setCellsDisconnectable', enabled)
+        self.call_api('setCellsDisconnectable', enabled)
 
     def is_cells_disconnectable(self):
-        return self._call_graph_api('isCellsDisconnectable')
+        return self.call_api('isCellsDisconnectable')
 
     def set_cells_editable(self, enabled):
-        self._call_graph_api('setCellsEditable', enabled)
+        self.call_api('setCellsEditable', enabled)
 
     def is_cells_editable(self):
-        return self._call_graph_api('isCellsEditable')
+        return self.call_api('isCellsEditable')
 
     def set_cells_movable(self, enabled):
-        self._call_graph_api('setCellsMovable', enabled)
+        self.call_api('setCellsMovable', enabled)
 
     def is_cells_movable(self):
-        return self._call_graph_api('isCellsMovable')
+        return self.call_api('isCellsMovable')
 
     def set_connectable(self, enabled):
-        self._call_graph_api('setConnectable', enabled)
+        self.call_api('setConnectable', enabled)
 
     def is_connectable(self):
-        return self._call_graph_api('isConnectable')
-
-    def _call_graph_api(self, fn, *args):
-        """
-        Call a function in underlying API's mxGraph provided by JavaScript.
-        """
-        graph_fn = '{}.{}'.format('_graphEditor.graph', fn)
-        return self.call_api(graph_fn, *args)
+        return self.call_api('isConnectable')
 
     def call_api(self, fn, *args):
         """
