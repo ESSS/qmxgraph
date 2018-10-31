@@ -39,7 +39,7 @@ dependencies:
 
     - attrs>=17
     - cherrypy==3.8.0
-    - colorama>=0.3,<0.4
+    - colorama
     - fix-and-check-env>=1.0.0
     - invoke==1.0.0
     - jinja2==2.10
