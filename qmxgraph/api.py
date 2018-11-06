@@ -685,9 +685,39 @@ class QmxGraphApi(object):
         """
         Restore the graph's state to one saved with `dump`.
 
-        :param str state: A xml string previously obtained with `bump`.
+        :param str state: A xml string previously obtained with `dump`.
         """
         return self.call_api('restore', state)
+
+    def set_cells_deletable(self, enabled):
+        self.call_api('setCellsDeletable', enabled)
+
+    def is_cells_deletable(self):
+        return self.call_api('isCellsDeletable')
+
+    def set_cells_disconnectable(self, enabled):
+        self.call_api('setCellsDisconnectable', enabled)
+
+    def is_cells_disconnectable(self):
+        return self.call_api('isCellsDisconnectable')
+
+    def set_cells_editable(self, enabled):
+        self.call_api('setCellsEditable', enabled)
+
+    def is_cells_editable(self):
+        return self.call_api('isCellsEditable')
+
+    def set_cells_movable(self, enabled):
+        self.call_api('setCellsMovable', enabled)
+
+    def is_cells_movable(self):
+        return self.call_api('isCellsMovable')
+
+    def set_connectable(self, enabled):
+        self.call_api('setConnectable', enabled)
+
+    def is_connectable(self):
+        return self.call_api('isConnectable')
 
     def call_api(self, fn, *args):
         """
