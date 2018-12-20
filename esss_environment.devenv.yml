@@ -38,7 +38,7 @@ dependencies:
     - esss-pylupdate5>=5.6.0+1
 
     - attrs>=17
-    - cherrypy==3.8.0
+    - cherrypy==7.1.0
     - colorama
     - fix-and-check-env>=1.0.0
     - invoke==1.0.0
