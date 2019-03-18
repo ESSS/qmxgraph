@@ -9,6 +9,7 @@ from selenium.webdriver.common.keys import Keys
 
 import qmxgraph.constants
 from qmxgraph import constants, js, server
+from qmxgraph.api import QmxGraphApi
 from qmxgraph.configuration import GraphOptions, GraphStyles
 
 
@@ -1502,3 +1503,28 @@ def insert_by_parametrized_type(graph, cell_type, tags=None):
         assert False, "Unexpected cell type: {}".format(cell_type)
 
     return cell_id
+
+
+@pytest.mark.parametrize(
+    'layout_name',
+    [
+        QmxGraphApi.LAYOUT_ORGANIC,
+        QmxGraphApi.LAYOUT_COMPACT,
+        QmxGraphApi.LAYOUT_CIRCLE,
+        QmxGraphApi.LAYOUT_COMPACT_TREE,
+        QmxGraphApi.LAYOUT_EDGE_LABEL,
+        QmxGraphApi.LAYOUT_PARALLEL_EDGE,
+        QmxGraphApi.LAYOUT_PARTITION,
+        QmxGraphApi.LAYOUT_RADIAL_TREE,
+        QmxGraphApi.LAYOUT_STACK,
+    ],
+)
+def test_run_all_layouts(layout_name, graph_cases):
+    graph = graph_cases('3v_1e')
+    graph.eval_js_function('api.runLayout', layout_name)
+
+
+def test_run_invalid_layout(graph_cases):
+    graph = graph_cases('3v_1e')
+    with pytest.raises(WebDriverException):
+        graph.eval_js_function('api.runLayout', 'invalid_layout_name')

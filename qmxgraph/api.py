@@ -13,6 +13,16 @@ class QmxGraphApi(object):
     SOURCE_TERMINAL_CELL = 'source'
     TARGET_TERMINAL_CELL = 'target'
 
+    LAYOUT_ORGANIC = 'organic'
+    LAYOUT_COMPACT = 'compact'
+    LAYOUT_CIRCLE = 'circle'
+    LAYOUT_COMPACT_TREE = 'compact_tree'
+    LAYOUT_EDGE_LABEL = 'edge_label'
+    LAYOUT_PARALLEL_EDGE = 'parallel_edge'
+    LAYOUT_PARTITION = 'partition'
+    LAYOUT_RADIAL_TREE = 'radial_tree'
+    LAYOUT_STACK = 'stack'
+
     def __init__(self, graph):
         """
         :param qmxgraph.widget.QmxGraph graph: A graph drawing widget.
@@ -718,6 +728,9 @@ class QmxGraphApi(object):
 
     def is_connectable(self):
         return self.call_api('isConnectable')
+
+    def run_layout(self, layout_name):
+        return self.call_api('runLayout', layout_name)
 
     def call_api(self, fn, *args):
         """
