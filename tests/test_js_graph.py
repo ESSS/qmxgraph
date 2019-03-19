@@ -1524,6 +1524,32 @@ def test_run_all_layouts(layout_name, graph_cases):
     graph.eval_js_function('api.runLayout', layout_name)
 
 
+def test_run_organic_layout(graph_cases):
+    graph = graph_cases('3v_3e')
+    label = lambda cell: graph.get_label(cell)
+    nodes_positions = {
+        label(v): {
+            'before': None,
+            'after': None,
+        }
+        for v in graph.get_vertices()
+    }
+
+    for v in graph.get_vertices():
+        nodes_positions[label(v)]['before'] = graph.get_vertex_position(v)
+    graph.eval_js_function('api.runLayout', QmxGraphApi.LAYOUT_ORGANIC)
+    for v in graph.get_vertices():
+        nodes_positions[label(v)]['after'] = graph.get_vertex_position(v)
+
+    for position_data in nodes_positions.values():
+        # We do not have the exact expected position to check - But we do know that the positions
+        # should at least change.
+        x_before, y_before = position_data['before']
+        x_after, y_after = position_data['after']
+        assert not pytest.approx(x_before) == x_after
+        assert not pytest.approx(y_before) == y_after
+
+
 def test_run_invalid_layout(graph_cases):
     graph = graph_cases('3v_1e')
     with pytest.raises(WebDriverException):
