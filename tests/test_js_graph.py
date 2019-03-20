@@ -1544,10 +1544,8 @@ def test_run_organic_layout(graph_cases):
     for position_data in nodes_positions.values():
         # We do not have the exact expected position to check - But we do know that the positions
         # should at least change.
-        x_before, y_before = position_data['before']
-        x_after, y_after = position_data['after']
-        assert not pytest.approx(x_before) == x_after
-        assert not pytest.approx(y_before) == y_after
+        assert not pytest.approx(position_data['before']) == position_data['after'], \
+            "Expected position different from %s, but got %s" % ({position_data['before']}, {position_data['after']})
 
 
 def test_run_invalid_layout(graph_cases):
