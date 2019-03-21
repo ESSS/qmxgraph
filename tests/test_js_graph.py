@@ -9,6 +9,7 @@ from selenium.webdriver.common.keys import Keys
 
 import qmxgraph.constants
 from qmxgraph import constants, js, server
+from qmxgraph.api import QmxGraphApi
 from qmxgraph.configuration import GraphOptions, GraphStyles
 
 
@@ -398,8 +399,11 @@ def test_get_geometry_plain(graph_cases):
     assert graph.get_geometry(graph.get_edge(*graph.get_vertices())) == \
         [40, 25, 50, 1]
     assert graph.get_geometry(graph.get_decorations()[0]) == [55, 20, 10, 10]
-    table_w, table_h = fix_table_size(102, 72)
-    assert graph.get_geometry(graph.get_tables()[0]) == [20, 60, table_w, table_h]
+    # Table geometry is dependent on how the contents are rendered.
+    # Using `pytest.approx` to account for platform differences.
+    obtained_table_geometry = graph.get_geometry(graph.get_tables()[0])
+    assert pytest.approx(obtained_table_geometry, rel=0.1) == \
+        [20, 60, 108, 72]
 
 
 def test_get_geometry_error_not_found(graph_cases, selenium_extras):
@@ -1475,16 +1479,6 @@ def test_ports(graph_cases):
     assert not graph.eval_js_function('api.hasCell', edge_id)
 
 
-
-def fix_table_size(width, height):
-    """
-    Table is rendered slightly different between platforms, as its width isn't
-    fixed but content-based.
-    """
-    fix_width = 0 if sys.platform.startswith('win') else 10
-    return width + fix_width, height
-
-
 def insert_by_parametrized_type(graph, cell_type, tags=None):
     if cell_type == qmxgraph.constants.CELL_TYPE_VERTEX:
         cell_id = graph.insert_vertex(tags=tags)
@@ -1502,3 +1496,52 @@ def insert_by_parametrized_type(graph, cell_type, tags=None):
         assert False, "Unexpected cell type: {}".format(cell_type)
 
     return cell_id
+
+
+@pytest.mark.parametrize(
+    'layout_name',
+    [
+        QmxGraphApi.LAYOUT_ORGANIC,
+        QmxGraphApi.LAYOUT_COMPACT,
+        QmxGraphApi.LAYOUT_CIRCLE,
+        QmxGraphApi.LAYOUT_COMPACT_TREE,
+        QmxGraphApi.LAYOUT_EDGE_LABEL,
+        QmxGraphApi.LAYOUT_PARALLEL_EDGE,
+        QmxGraphApi.LAYOUT_PARTITION,
+        QmxGraphApi.LAYOUT_RADIAL_TREE,
+        QmxGraphApi.LAYOUT_STACK,
+    ],
+)
+def test_run_all_layouts(layout_name, graph_cases):
+    graph = graph_cases('3v_1e')
+    graph.eval_js_function('api.runLayout', layout_name)
+
+
+def test_run_organic_layout(graph_cases):
+    graph = graph_cases('3v_3e')
+    label = lambda cell: graph.get_label(cell)
+    nodes_positions = {
+        label(v): {
+            'before': None,
+            'after': None,
+        }
+        for v in graph.get_vertices()
+    }
+
+    for v in graph.get_vertices():
+        nodes_positions[label(v)]['before'] = graph.get_vertex_position(v)
+    graph.eval_js_function('api.runLayout', QmxGraphApi.LAYOUT_ORGANIC)
+    for v in graph.get_vertices():
+        nodes_positions[label(v)]['after'] = graph.get_vertex_position(v)
+
+    for position_data in nodes_positions.values():
+        # We do not have the exact expected position to check - But we do know that the positions
+        # should at least change.
+        assert not pytest.approx(position_data['before']) == position_data['after'], \
+            "Expected position different from %s, but got %s" % ({position_data['before']}, {position_data['after']})
+
+
+def test_run_invalid_layout(graph_cases):
+    graph = graph_cases('3v_1e')
+    with pytest.raises(WebDriverException):
+        graph.eval_js_function('api.runLayout', 'invalid_layout_name')

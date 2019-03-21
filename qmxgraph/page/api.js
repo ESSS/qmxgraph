@@ -1646,3 +1646,41 @@ graphs.Api.prototype._findDecoration = function _findDecoration (cellId) {
     }
     return cell;
 };
+
+/**
+ * Automatically organize the graph using one of the available layouts. If the layout is not
+ * implemented, an exception will be raised.
+ *
+ * @param {string} layoutName The layout name (e.g.: 'organic'). Check the code for the available
+ * layouts.
+ * @throws {Error} If the layout is unknown.
+ */
+graphs.Api.prototype.runLayout = function runLayout(layoutName) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var layout = null;
+    if (layoutName == "organic") {
+        layout = new mxFastOrganicLayout(graph);
+    } else if (layoutName == "compact") {
+        layout = new mxCompactTreeLayout(graph);
+    } else if (layoutName == "circle") {
+        layout = new mxCircleLayout(graph);
+    } else if (layoutName == "compact_tree") {
+        layout = new mxCompactTreeLayout(graph);
+    } else if (layoutName == "edge_label") {
+        layout = new mxEdgeLabelLayout(graph);
+    } else if (layoutName == "parallel_edge") {
+        layout = new mxParallelEdgeLayout(graph);
+    } else if (layoutName == "partition") {
+        layout = new mxPartitionLayout(graph, true, 10, 20);
+    } else if (layoutName == "radial_tree") {
+        layout = new mxRadialTreeLayout(graph);
+    } else if (layoutName == "stack") {
+        layout = new mxStackLayout(graph);
+    } else {
+        throw new Error("Unknown layout named " + layoutName);
+    }
+
+    layout.execute(graph.getDefaultParent());
+};

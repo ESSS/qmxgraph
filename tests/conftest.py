@@ -286,6 +286,7 @@ class GraphCaseFactory(object):
             "2v_1e_1d": Graph2Vertices1Edge1Decoration,
             "2v_1e_1d_1t": Graph2Vertices1Edge1Decoration1Table,
             "1t": Graph1Table,
+            "3v_3e": Graph3Vertices3EdgesByCode,
         }
 
     def __call__(self, case_name):
@@ -349,10 +350,10 @@ class BaseGraphCase(object):
         """
         :param selenium.webdriver.remote.webelement.WebElement vertex:
             Graphical representation of vertex.
-        :rtype: tuple[int, int]
+        :rtype: tuple[float, float]
         :return: Left/X and top/Y screen coordinates of vertex, respectively.
         """
-        return int(vertex.get_attribute('x')), int(vertex.get_attribute('y'))
+        return float(vertex.get_attribute('x')), float(vertex.get_attribute('y'))
 
     def get_vertex_size(self, vertex):
         """
@@ -802,6 +803,20 @@ class Graph3Vertices1EdgeByCode(Graph2Vertices1EdgeByCode):
         Graph2Vertices1EdgeByCode.__init__(self, selenium, host)
 
         self.vertex3_id = self.insert_vertex(10, 90, 30, 30, 'fuz', None)
+
+
+class Graph3Vertices3EdgesByCode(BaseGraphCase):
+
+    def __init__(self, selenium, host):
+        BaseGraphCase.__init__(self, selenium, host)
+
+        self.vertex1_id = self.insert_vertex(0, 0, 1, 1, label='foo')
+        self.vertex2_id = self.insert_vertex(100, 0, 1, 1, label='bar')
+        self.vertex3_id = self.insert_vertex(200, 0, 1, 1, label='fuz')
+
+        self.edge1_id = self.insert_edge(self.vertex1_id, self.vertex2_id, 'edge1')
+        self.edge2_id = self.insert_edge(self.vertex1_id, self.vertex3_id, 'edge2')
+        self.edge3_id = self.insert_edge(self.vertex2_id, self.vertex3_id, 'edge3')
 
 
 class Graph2Vertices1EdgeByDragDrop(Graph2Vertices):
