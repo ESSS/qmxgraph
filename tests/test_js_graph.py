@@ -399,8 +399,11 @@ def test_get_geometry_plain(graph_cases):
     assert graph.get_geometry(graph.get_edge(*graph.get_vertices())) == \
         [40, 25, 50, 1]
     assert graph.get_geometry(graph.get_decorations()[0]) == [55, 20, 10, 10]
-    table_w, table_h = fix_table_size(102, 72)
-    assert graph.get_geometry(graph.get_tables()[0]) == [20, 60, table_w, table_h]
+    # Table geometry is dependent on how the contents are rendered.
+    # Using `pytest.approx` to account for platform differences.
+    obtained_table_geometry = graph.get_geometry(graph.get_tables()[0])
+    assert pytest.approx(obtained_table_geometry, rel=0.1) == \
+        [20, 60, 108, 72]
 
 
 def test_get_geometry_error_not_found(graph_cases, selenium_extras):
@@ -1474,16 +1477,6 @@ def test_ports(graph_cases):
     assert graph.eval_js_function('api.hasCell', edge_id)
     graph.eval_js_function('api.removePort', vertex_b_id, port_y_name)
     assert not graph.eval_js_function('api.hasCell', edge_id)
-
-
-
-def fix_table_size(width, height):
-    """
-    Table is rendered slightly different between platforms, as its width isn't
-    fixed but content-based.
-    """
-    fix_width = 0 if sys.platform.startswith('win') else 10
-    return width + fix_width, height
 
 
 def insert_by_parametrized_type(graph, cell_type, tags=None):
