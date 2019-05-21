@@ -50,6 +50,10 @@ class QmxGraph(QWidget):
     # indicates if loaded successfully.
     loadFinished = pyqtSignal(bool)
 
+    # Signal fired when custom drop events are found. Arguments are
+    # the contents of the drop and position of drop (x, y)
+    customAppDropEvent = pyqtSignal(list, int, int)
+
     def __init__(
         self,
         options=None,
@@ -57,6 +61,7 @@ class QmxGraph(QWidget):
         stencils=tuple(),
         auto_load=True,
         parent=None,
+        customizations=None,
     ):
         """
         :param qmxgraph.configuration.GraphOptions|None options: Features
@@ -125,6 +130,8 @@ class QmxGraph(QWidget):
 
         self._double_click_bridge = _DoubleClickBridge()
         self._popup_menu_bridge = _PopupMenuBridge()
+
+        self._customizations = customizations
 
         if auto_load:
             self._load_graph_page()
@@ -372,6 +379,9 @@ class QmxGraph(QWidget):
                 height = self_.height()
                 self_.api.resize_container(width, height)
 
+                if self._customizations is not None:
+                    self.inner_web_view().eval_js(self._customizations)
+
             self_.loadFinished.emit(bool(ok and self_.is_loaded()))
 
         self._web_view.loadFinished.connect(post_load)
@@ -414,8 +424,8 @@ class QmxGraph(QWidget):
             parsed = json.loads(data_stream.readString().decode('utf8'))
 
             # Refer to `mime.py` for docs about format
-            version = parsed['version']
-            if version not in (1, 2):
+            version = parsed.pop('version', 0)
+            if version not in (1, 2, 3):
                 raise ValueError(
                     "Unsupported version of QmxGraph MIME data: {}".format(
                         version))
@@ -423,8 +433,8 @@ class QmxGraph(QWidget):
             x = event.pos().x()
             y = event.pos().y()
 
-            if version in (1, 2):
-                vertices = parsed.get('vertices', [])
+            if version in (1, 2, 3):
+                vertices = parsed.pop('vertices', [])
                 scale = self.api.get_zoom_scale()
                 for v in vertices:
                     # place vertices with an offset so their center falls
@@ -441,8 +451,8 @@ class QmxGraph(QWidget):
                         tags=v.get('tags', {}),
                     )
 
-            if version in (2,):
-                decorations = parsed.get('decorations', [])
+            if version in (2, 3):
+                decorations = parsed.pop('decorations', [])
                 for v in decorations:
                     self.api.insert_decoration(
                         x=x,
@@ -453,6 +463,11 @@ class QmxGraph(QWidget):
                         style=v.get('style', None),
                         tags=v.get('tags', {}),
                     )
+
+            if version in (3,):
+                custom_app_drop_events = parsed.pop('custom_app_drop_events', [])
+                if custom_app_drop_events:
+                    self.customAppDropEvent.emit(custom_app_drop_events, x, y)
 
             event.acceptProposedAction()
         else:
