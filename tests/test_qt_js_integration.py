@@ -288,6 +288,36 @@ def test_drag_drop(loaded_graph, drag_drop_events):
     assert loaded_graph.api.get_tag(cell_id, 'bar') == 'a'
 
 
+def test_drag_drop_custom_app(loaded_graph, drag_drop_events, qtbot):
+    """
+    Dragging and dropping data with valid qmxgraph MIME data in qmxgraph should
+    result graph changes according to contents of dropped data.
+
+    :type loaded_graph: qmxgraph.widget.qmxgraph
+    :type drag_drop_events: DragDropEventsFactory
+    """
+    mime_data = qmxgraph.mime.create_qt_mime_data({
+        'custom_app_drop_events': ['foo', 'bar'],
+    })
+
+    with qtbot.waitSignal(loaded_graph.customAppDropEvent, timeout=2000) as notification_signal:
+        drag_enter_event = drag_drop_events.drag_enter(
+            mime_data, position=(100, 100))
+        loaded_graph.inner_web_view().dragEnterEvent(drag_enter_event)
+        assert drag_enter_event.acceptProposedAction.call_count == 1
+
+        drag_move_event = drag_drop_events.drag_move(
+            mime_data, position=(100, 100))
+        loaded_graph.inner_web_view().dragEnterEvent(drag_move_event)
+        assert drag_move_event.acceptProposedAction.call_count == 1
+
+        drop_event = drag_drop_events.drop(mime_data, position=(100, 100))
+        loaded_graph.inner_web_view().dropEvent(drop_event)
+        assert drop_event.acceptProposedAction.call_count == 1
+
+    assert notification_signal.signal_triggered
+
+
 def test_drag_drop_invalid_mime_type(loaded_graph, drag_drop_events):
     """
     Can't drop data in qmxgraph unless it is from qmxgraph valid MIME type,
