@@ -7,7 +7,6 @@ env:
     - SCRIPT=lint
     - SCRIPT=tests
 python:
-  - "3.5"
   - "3.6"
 
 install:
