@@ -8,6 +8,7 @@ dependencies:
     - hypothesis ==3.11.0
     - invoke
     - jinja2
+    - pip
     - pyqt =5.6
     - pytest-mock
     - pytest-qt
