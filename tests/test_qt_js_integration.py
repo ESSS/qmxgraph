@@ -498,6 +498,41 @@ def eval_js(graph_widget, statement):
     return graph_widget.inner_web_view().eval_js(statement)
 
 
+@pytest.mark.parametrize('custom_code, expected', [
+    (None, None),
+    ("", None),
+    (
+        "graphs.Api.prototype.resetZoom = function () {return 'Custom code'};",
+        'Custom code',
+    ),
+])
+def test_custom_function(qtbot, custom_code, expected):
+    from qmxgraph.widget import QmxGraph
+    graph = QmxGraph(
+        auto_load=False,
+        customizations=custom_code,
+    )
+    graph.show()
+    qtbot.addWidget(graph)
+    wait_until_loaded(graph, qtbot)
+    assert graph.api.reset_zoom() == expected
+
+
+def test_new_custom_function(qtbot):
+    custom_code = '''
+        graphs.Api.prototype.newFunc = function () {return 'Custom code'};
+    '''
+    from qmxgraph.widget import QmxGraph
+    graph = QmxGraph(
+        auto_load=False,
+        customizations=custom_code,
+    )
+    graph.show()
+    qtbot.addWidget(graph)
+    wait_until_loaded(graph, qtbot)
+    assert graph.api.call_api('newFunc') == 'Custom code'
+
+
 @pytest.fixture
 def graph(qtbot):
     """
