@@ -13,7 +13,6 @@ dependencies:
     - pytest-qt
     - pytest-selenium
     - pytest-timeout
-    - pytest-xdist
     - pytest-xvfb
     - pip:
       - pytest-rerunfailures
