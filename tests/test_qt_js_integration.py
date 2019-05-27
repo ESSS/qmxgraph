@@ -297,10 +297,10 @@ def test_drag_drop_custom_app(loaded_graph, drag_drop_events, qtbot):
     :type drag_drop_events: DragDropEventsFactory
     """
     mime_data = qmxgraph.mime.create_qt_mime_data({
-        'custom_app_drop_events': ['foo', 'bar'],
+        'custom_app_drop_event_data': ['foo', 'bar'],
     })
 
-    with qtbot.waitSignal(loaded_graph.customAppDropEvent, timeout=2000) as notification_signal:
+    with qtbot.waitSignal(loaded_graph.customAppDropEvent, timeout=2000):
         drag_enter_event = drag_drop_events.drag_enter(
             mime_data, position=(100, 100))
         loaded_graph.inner_web_view().dragEnterEvent(drag_enter_event)
@@ -314,8 +314,6 @@ def test_drag_drop_custom_app(loaded_graph, drag_drop_events, qtbot):
         drop_event = drag_drop_events.drop(mime_data, position=(100, 100))
         loaded_graph.inner_web_view().dropEvent(drop_event)
         assert drop_event.acceptProposedAction.call_count == 1
-
-    assert notification_signal.signal_triggered
 
 
 def test_drag_drop_invalid_mime_type(loaded_graph, drag_drop_events):

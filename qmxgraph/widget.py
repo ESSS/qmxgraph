@@ -52,7 +52,7 @@ class QmxGraph(QWidget):
 
     # Signal fired when custom drop events are found. Arguments are
     # the contents of the drop and position of drop (x, y)
-    customAppDropEvent = pyqtSignal(list, int, int)
+    customAppDropEvent = pyqtSignal(object, int, int)
 
     def __init__(
         self,
@@ -465,9 +465,9 @@ class QmxGraph(QWidget):
                     )
 
             if version in (3,):
-                custom_app_drop_events = parsed.pop('custom_app_drop_events', [])
-                if custom_app_drop_events:
-                    self.customAppDropEvent.emit(custom_app_drop_events, x, y)
+                custom_app_drop_event_data = parsed.pop('custom_app_drop_event_data', None)
+                if custom_app_drop_event_data:
+                    self.customAppDropEvent.emit(custom_app_drop_event_data, x, y)
 
             event.acceptProposedAction()
         else:

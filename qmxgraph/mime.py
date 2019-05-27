@@ -37,10 +37,8 @@ QGraph drag & drop is a JSON object. Format spec is found below:
             },
             ...
         ]
-    custom_app_drop_events:  # optional, some drop event in the graph that will be returned to the app for processing
-        [
-            # Some json serializable object, will be returned to the app as it is
-        ]
+    custom_app_drop_event_data:  # if given, a `customAppDropEvent` signal will be emitted with this object
+        {} # A json serializable object, will be returned to the app as it is
 }
 ```
 """
