@@ -288,6 +288,34 @@ def test_drag_drop(loaded_graph, drag_drop_events):
     assert loaded_graph.api.get_tag(cell_id, 'bar') == 'a'
 
 
+def test_drag_drop_custom_app(loaded_graph, drag_drop_events, qtbot):
+    """
+    Dragging and dropping data with valid qmxgraph MIME data in qmxgraph should
+    result graph changes according to contents of dropped data.
+
+    :type loaded_graph: qmxgraph.widget.qmxgraph
+    :type drag_drop_events: DragDropEventsFactory
+    """
+    mime_data = qmxgraph.mime.create_qt_mime_data({
+        'custom_app_drop_event_data': ['foo', 'bar'],
+    })
+
+    with qtbot.waitSignal(loaded_graph.customAppDropEvent, timeout=2000):
+        drag_enter_event = drag_drop_events.drag_enter(
+            mime_data, position=(100, 100))
+        loaded_graph.inner_web_view().dragEnterEvent(drag_enter_event)
+        assert drag_enter_event.acceptProposedAction.call_count == 1
+
+        drag_move_event = drag_drop_events.drag_move(
+            mime_data, position=(100, 100))
+        loaded_graph.inner_web_view().dragEnterEvent(drag_move_event)
+        assert drag_move_event.acceptProposedAction.call_count == 1
+
+        drop_event = drag_drop_events.drop(mime_data, position=(100, 100))
+        loaded_graph.inner_web_view().dropEvent(drop_event)
+        assert drop_event.acceptProposedAction.call_count == 1
+
+
 def test_drag_drop_invalid_mime_type(loaded_graph, drag_drop_events):
     """
     Can't drop data in qmxgraph unless it is from qmxgraph valid MIME type,
@@ -466,6 +494,41 @@ def test_last_index_of(loaded_graph):
 
 def eval_js(graph_widget, statement):
     return graph_widget.inner_web_view().eval_js(statement)
+
+
+@pytest.mark.parametrize('custom_code, expected', [
+    (None, None),
+    ("", None),
+    (
+        "graphs.Api.prototype.resetZoom = function () {return 'Custom code'};",
+        'Custom code',
+    ),
+])
+def test_custom_function(qtbot, custom_code, expected):
+    from qmxgraph.widget import QmxGraph
+    graph = QmxGraph(
+        auto_load=False,
+        customizations=custom_code,
+    )
+    graph.show()
+    qtbot.addWidget(graph)
+    wait_until_loaded(graph, qtbot)
+    assert graph.api.reset_zoom() == expected
+
+
+def test_new_custom_function(qtbot):
+    custom_code = '''
+        graphs.Api.prototype.newFunc = function () {return 'Custom code'};
+    '''
+    from qmxgraph.widget import QmxGraph
+    graph = QmxGraph(
+        auto_load=False,
+        customizations=custom_code,
+    )
+    graph.show()
+    qtbot.addWidget(graph)
+    wait_until_loaded(graph, qtbot)
+    assert graph.api.call_api('newFunc') == 'Custom code'
 
 
 @pytest.fixture
