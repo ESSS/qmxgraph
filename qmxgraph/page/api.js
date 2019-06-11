@@ -1052,6 +1052,7 @@ graphs.Api.prototype.setStyle = function setStyle(cellId, style) {
     var model = graph.getModel();
     var cell = this._findCell(model, cellId);
     model.setStyle(cell, style);  // Use the model to trigger mxStyleChange as needed.
+    graph.refresh(cell); // Force a refresh of that cell to guarantee
 };
 
 /**
