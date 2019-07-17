@@ -168,7 +168,7 @@ graphs.Api.prototype.insertEdge = function insertEdge (
     }
     var target = this._findCell(model, targetId);
     if (targetPortName) {
-        source = this._findPort(model, targetId, targetPortName, true);
+        target = this._findPort(model, targetId, targetPortName, true);
     }
 
     var edge = graph.insertEdge(parent, null, value, source, target, style);
