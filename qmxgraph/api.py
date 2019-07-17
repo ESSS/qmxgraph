@@ -349,6 +349,23 @@ class QmxGraphApi(object):
         """
         return self.call_api('isVisible', cell_id)
 
+    def set_connectable(self, cell_id, connectable):
+        """
+        Change connectable state of a cell.
+
+        :param str cell_id: Id of a cell in graph.
+        :param bool connectable: If connectable or not.
+        """
+        self.call_api('setConnectable', cell_id, connectable)
+
+    def is_connectable(self, cell_id):
+        """
+        Indicates the cell's connectivity.
+
+        :param str cell_id: Id of a cell in graph.
+        """
+        return self.call_api('isConnectable', cell_id)
+
     def zoom_in(self):
         """
         Zoom in the graph.
@@ -723,11 +740,11 @@ class QmxGraphApi(object):
     def is_cells_movable(self):
         return self.call_api('isCellsMovable')
 
-    def set_connectable(self, enabled):
-        self.call_api('setConnectable', enabled)
+    def set_cells_connectable(self, enabled):
+        self.call_api('setCellsConnectable', enabled)
 
-    def is_connectable(self):
-        return self.call_api('isConnectable')
+    def is_cells_connectable(self):
+        return self.call_api('isCellsConnectable')
 
     def run_layout(self, layout_name):
         return self.call_api('runLayout', layout_name)

@@ -1397,6 +1397,27 @@ def test_set_get_style(graph_cases):
     assert 'Unable to find cell with id nonexistent' in str(excinfo.value)
 
 
+def test_set_get_connectable(graph_cases):
+    """
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    """
+    graph = graph_cases('1v')
+    vertices = graph.get_vertices()
+    assert len(vertices) == 1
+    vertex_id = graph.get_id(vertices[0])
+
+    connectable = graph.eval_js_function('api.isConnectable', vertex_id)
+    assert connectable
+
+    graph.eval_js_function('api.setConnectable', vertex_id, False)
+    connectable = graph.eval_js_function('api.isConnectable', vertex_id)
+    assert not connectable
+
+    graph.eval_js_function('api.setConnectable', vertex_id, True)
+    connectable = graph.eval_js_function('api.isConnectable', vertex_id)
+    assert connectable
+
+
 def test_get_edge_terminals_error_edge_not_found(graph_cases, selenium_extras):
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
