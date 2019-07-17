@@ -1463,7 +1463,7 @@ def test_custom_font_family(graph_cases_factory, port):
         graph = cases("1v")
 
         match = graph.selenium.find_elements_by_css_selector(
-            'div[style*="font-family:Helvetica"]')
+            'div[style*="font-family:"][style*="Helvetica"]')
         assert len(match) == 1
 
 
