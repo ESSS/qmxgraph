@@ -667,12 +667,12 @@ class QmxGraphApi(object):
         connection.
 
         :param str edge_id: Id of an edge in graph.
-        :rtype: list[str|None]
+        :rtype: list[List[str|None]]
         :return: A list with 4 items:
-            - the source vertex id;
-            - the port's name used on the source (can be `None`);
-            - the target vertex id;
-            - the port's name used on the target (can be `None`);
+            - - the source vertex id;
+              - the port's name used on the source (can be `None`);
+            - - the target vertex id;
+              - the port's name used on the target (can be `None`);
         """
         return self.call_api('getEdgeTerminalsWithPorts', edge_id)
 

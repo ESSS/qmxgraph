@@ -852,9 +852,11 @@ graphs.Api.prototype.removePort = function removePort (vertexId, portName) {
     var edges = graph.getEdges(parent);
     for (var i = edges.length; i--;) {
         var terminals = this._getMxEdgeTerminalsWithPorts(edges[i]);
+        var source_terminal = terminals[0];
+        var target_terminal = terminals[1];
         if (
-            (terminals[0] == vertexId && terminals[1] == portName) ||  // jshint ignore:line
-            (terminals[2] == vertexId && terminals[3] == portName)  // jshint ignore:line
+            (source_terminal[0] == vertexId && source_terminal[1] == portName)  // jshint ignore:line
+            || (target_terminal[0] == vertexId && target_terminal[1] == portName)  // jshint ignore:line
         ){
             cellsToRemove.push(edges[i]);
         }
@@ -1327,7 +1329,7 @@ graphs.Api.prototype.setEdgeTerminal = function setEdgeTerminal (
  * description of return value).
  *
  * @param {mxCell} edge The edge object (the type of cell is not checked).
- * @returns {[number, string, number, string]}
+ * @returns {[[number, string], [number, string]]}
  * @private
  */
 graphs.Api.prototype._getMxEdgeTerminalsWithPorts = function _getMxEdgeTerminalsWithPorts (edge) {
@@ -1348,26 +1350,30 @@ graphs.Api.prototype._getMxEdgeTerminalsWithPorts = function _getMxEdgeTerminals
     var sourcePortName = this._qmxgraphSourcePortNameExtractionRegex.exec(style);
     if (sourcePortName !== null) {
         sourcePortName = sourcePortName[1];
+    } else {
+        sourcePortName = null;
     }
     var targetPortName = this._qmxgraphTargetPortNameExtractionRegex.exec(style);
     if (targetPortName !== null) {
         targetPortName = targetPortName[1];
+    } else {
+        targetPortName = null;
     }
 
-    return [sourceId, sourcePortName, targetId, targetPortName];
+    return [[sourceId, sourcePortName], [targetId, targetPortName]];
 };
 
 /**
  * Gets the ids of endpoint vertices of an edge and the ports used.
  *
  * @param {number} edgeId Id of an edge in graph.
- * @returns {[number, string, number, string]} An array with four values: source vertex id, port id
+ * @returns {[[number, string], [number, string]]} An array with four values: source vertex id, port id
  * on source, target vertex id, and port id on target. The port ids can be null if not used for the
  * connection.
  * @throws {Error} Unable to find edge.
  * @throws {Error} Given cell isn't an edge.
  */
-graphs.Api.prototype.getEdgeTerminalsWithPorts = function getEdgeTerminals (edgeId) {
+graphs.Api.prototype.getEdgeTerminalsWithPorts = function getEdgeTerminalsWithPorts (edgeId) {
     "use strict";
 
     var graph = this._graphEditor.graph;
