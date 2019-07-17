@@ -1500,10 +1500,9 @@ def test_ports(graph_cases):
         [vertex_a_id, vertex_b_id]
         == graph.eval_js_function('api.getEdgeTerminals', edge_id)
     )
-    assert (
-        [vertex_a_id, port_x_name, vertex_b_id, port_y_name]
-        == graph.eval_js_function('api.getEdgeTerminalsWithPorts', edge_id)
-    )
+    assert [
+        [vertex_a_id, port_x_name], [vertex_b_id, port_y_name]
+    ] == graph.eval_js_function('api.getEdgeTerminalsWithPorts', edge_id)
     graph.eval_js_function('api.removePort', vertex_b_id, port_y_name)
     assert not graph.eval_js_function('api.hasCell', edge_id)
 
