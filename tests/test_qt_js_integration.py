@@ -386,7 +386,7 @@ def test_graph_api_calls(loaded_graph, enabled):
         ('is_cells_disconnectable', 'set_cells_disconnectable'),
         ('is_cells_editable', 'set_cells_editable'),
         ('is_cells_movable', 'set_cells_movable',),
-        ('is_connectable', 'set_connectable',),
+        ('is_cells_connectable', 'set_cells_connectable',),
     ]
 
     for getter_name, setter_name in graph_api_functions:

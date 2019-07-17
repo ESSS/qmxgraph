@@ -598,6 +598,40 @@ graphs.Api.prototype.isVisible = function isVisible (cellId) {
 };
 
 /**
+ * Sets a cell connectable property.
+ *
+ * @param {number} cellId Id of a cell in graph.
+ * @param {boolean} enabled Enable value of this property.
+ */
+graphs.Api.prototype.setConnectable = function setConnectable(cellId, enabled) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var cell = this._findCell(model, cellId);
+    if (cell) {
+        cell.setConnectable(enabled);
+    } else {
+        throw Error("Unable to find cell with id " + cellId);
+    }
+};
+
+/**
+ * Returns current cell's connectable property. If the graph has connection forbidden this will return `false`.
+ *
+ * @returns {boolean} Enable value of this property.
+ */
+graphs.Api.prototype.isConnectable = function isConnectable(cellId) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var cell = this._findCell(model, cellId);
+    return model.isConnectable(cell);
+};
+
+
+/**
  * Select the cells with the given ids.
  *
  * @param {number[]} cellIds An array with the ids of the cells to select.
@@ -1507,7 +1541,7 @@ graphs.Api.prototype.isCellsMovable = function isCellsMovable(enabled) {
  *
  * @param {boolean} enabled Enable value of this property.
  */
-graphs.Api.prototype.setConnectable = function setConnectable(enabled) {
+graphs.Api.prototype.setCellsConnectable = function setCellsConnectable(enabled) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -1519,11 +1553,11 @@ graphs.Api.prototype.setConnectable = function setConnectable(enabled) {
  *
  * @returns {boolean} Enable value of this property.
  */
-graphs.Api.prototype.isConnectable = function isConnectable(enabled) {
+graphs.Api.prototype.isCellsConnectable = function isCellsConnectable() {
     "use strict";
 
     var graph = this._graphEditor.graph;
-    return graph.isConnectable(enabled);
+    return graph.isConnectable();
 };
 
 /**
