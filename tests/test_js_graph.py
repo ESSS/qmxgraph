@@ -1397,6 +1397,27 @@ def test_set_get_style(graph_cases):
     assert 'Unable to find cell with id nonexistent' in str(excinfo.value)
 
 
+def test_set_get_connectable(graph_cases):
+    """
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    """
+    graph = graph_cases('1v')
+    vertices = graph.get_vertices()
+    assert len(vertices) == 1
+    vertex_id = graph.get_id(vertices[0])
+
+    connectable = graph.eval_js_function('api.isConnectable', vertex_id)
+    assert connectable
+
+    graph.eval_js_function('api.setConnectable', vertex_id, False)
+    connectable = graph.eval_js_function('api.isConnectable', vertex_id)
+    assert not connectable
+
+    graph.eval_js_function('api.setConnectable', vertex_id, True)
+    connectable = graph.eval_js_function('api.isConnectable', vertex_id)
+    assert connectable
+
+
 def test_get_edge_terminals_error_edge_not_found(graph_cases, selenium_extras):
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
@@ -1442,7 +1463,7 @@ def test_custom_font_family(graph_cases_factory, port):
         graph = cases("1v")
 
         match = graph.selenium.find_elements_by_css_selector(
-            'div[style*="font-family:Helvetica"]')
+            'div[style*="font-family:"][style*="Helvetica"]')
         assert len(match) == 1
 
 
@@ -1475,6 +1496,13 @@ def test_ports(graph_cases):
 
     # When removing a port remove edges connected through it.
     assert graph.eval_js_function('api.hasCell', edge_id)
+    assert (
+        [vertex_a_id, vertex_b_id]
+        == graph.eval_js_function('api.getEdgeTerminals', edge_id)
+    )
+    assert [
+        [vertex_a_id, port_x_name], [vertex_b_id, port_y_name]
+    ] == graph.eval_js_function('api.getEdgeTerminalsWithPorts', edge_id)
     graph.eval_js_function('api.removePort', vertex_b_id, port_y_name)
     assert not graph.eval_js_function('api.hasCell', edge_id)
 
