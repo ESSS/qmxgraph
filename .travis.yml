@@ -3,7 +3,12 @@ language: python
 env:
   matrix:
     - SCRIPT=lint
-    - SCRIPT=tests
+    - SCRIPT=tests MXGRAPTH_VERSION=v3.7.5
+    - SCRIPT=tests MXGRAPTH_VERSION=master
+
+jobs:
+  allow_failures:
+  - env: SCRIPT=tests MXGRAPTH_VERSION=master
 
 python:
   - "3.6"
