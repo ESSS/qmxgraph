@@ -20,4 +20,6 @@ current Qt version supported (<= 5.6) is still using WebKit_ as its web
 browser engine, all of its limitations apply when developing new embedded web
 features.
 
+Due to changes in mxgraph we are currently only supporting an old version of mxgraph (3.7.5).
+
 .. _WebKit: https://webkit.org/
