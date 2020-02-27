@@ -80,11 +80,6 @@ graphs.Api.prototype.insertVertex = function insertVertex (
     return vertex.getId();
 };
 
-graphs.Api.prototype._getPortId = function _getPortId (vertexId, name) {
-    "use strict";
-    return mxCell._PORT_ID_PREFIX + vertexId + '-' + name;
-};
-
 /**
  * Inserts a new port in vertex.
  *
@@ -110,7 +105,7 @@ graphs.Api.prototype.insertPort = function insertPort (
     var model = graph.getModel();
     var parent = this._findCell(model, vertexId);
     this._findPort(model, vertexId, portName, false);
-    var portId = this._getPortId(vertexId, portName);
+    var portId = mxCell.createPortId(vertexId, portName);
 
     var value = this._prepareCellValue(label, tags);
     model.beginUpdate();
@@ -598,6 +593,42 @@ graphs.Api.prototype.isVisible = function isVisible (cellId) {
 };
 
 /**
+ * Show/hide a cell's port.
+ *
+ * @param {number} cellId Id of a cell in graph.
+ * @param {string} portName Name of a port in the cell.
+ * @param {boolean} visible Visibility state.
+ * @throws {Error} Unable to find cell.
+ */
+graphs.Api.prototype.setPortVisible = function setPortVisible (cellId, portName, visible) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    this._findCell(model, cellId);  // Cell missing detection.
+    var port = this._findPort(model, cellId, portName, true);
+    model.setVisible(port, visible);
+};
+
+/**
+ * Indicates a cell's visibility.
+ *
+ * @param {number} cellId Id of a cell in graph.
+ * @param {string} portName Name of a port in the cell.
+ * @throws {Error} Unable to find cell.
+ * @throws {Error} If a port with the given name is not present in the vertex.
+ */
+graphs.Api.prototype.isPortVisible = function isPortVisible (cellId, portName) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    this._findCell(model, cellId);  // Cell missing detection.
+    var port = this._findPort(model, cellId, portName, true);
+    return model.isVisible(port);
+};
+
+/**
  * Sets a cell connectable property.
  *
  * @param {number} cellId Id of a cell in graph.
@@ -977,10 +1008,10 @@ graphs.Api.prototype.onSelectionChanged = function onSelectionChanged (handler) 
 };
 
 /**
- * Add function to handle selection change events in the graph.
+ * Add function to handle terminal change events in the graph.
  *
- * @param {function} handler Callback that handles event. Receives, respectively, cell id
- * boolean indicating if the changed terminal is the source (or target), id of the net terminal,
+ * @param {function} handler Callback that handles event. Receives, respectively, cell id,
+ * boolean indicating if the changed terminal is the source (or target), id of the new terminal,
  * id of the old terminal.
  */
 graphs.Api.prototype.onTerminalChanged = function onTerminalChanged (handler) {
@@ -1003,6 +1034,86 @@ graphs.Api.prototype.onTerminalChanged = function onTerminalChanged (handler) {
                     change.terminal.getId(),
                     change.previous.getId()
                 );
+            }
+        }
+    };
+
+    var graph = this._graphEditor.graph;
+    graph.model.addListener(mxEvent.CHANGE, cellConnectedHandler);
+    graph = null;
+};
+
+/**
+ * Add function to handle terminal change events with the connection port information in the graph.
+ *
+ * @param {function} handler Callback that handles event. Receives, respectively, cell id,
+ * boolean indicating if the changed terminal is the source (or target), id of the new terminal,
+ * port id used in the new terminal, id of the old terminal, port id used in the old terminal.
+ */
+graphs.Api.prototype.onTerminalWithPortChanged = function onTerminalWithPortChanged (handler) {
+    "use strict";
+
+    function getPortNameFromStyle(stylesheet, style, source) {
+        var styleObj = stylesheet.getCellStyle(style, null) || {};
+        var portData = mxCell.parsePortId(styleObj[source + 'Port']);
+        return portData[1];
+    }
+
+    var cellConnectedHandler = function(source, event) {
+        var changeList = event.getProperty('edit').changes;
+        var eventMap = {};
+
+        for (var i = 0; i < changeList.length; i++) {
+            var change = changeList[i];
+            if (!change.cell) {
+                continue;
+            }
+            var eventTargetId = change.cell.getId();
+
+            var styleChange = (
+                change instanceof mxStyleChange &&
+                change.previous !== undefined &&
+                change.style !== undefined
+            );
+            if (styleChange) {
+                var eventData = eventMap[eventTargetId] = eventMap[eventTargetId] || {};
+                eventData.previousStyle = change.previous;
+                eventData.newStyle = change.style;
+                continue;
+            }
+
+            var notifyTerminalChange = (
+                change instanceof mxTerminalChange &&
+                change.previous !== null &&
+                change.terminal !== null
+            );
+            if (notifyTerminalChange) {
+                var eventData = eventMap[eventTargetId] = eventMap[eventTargetId] || {};
+                eventData.source = change.source ? 'source' : 'target';
+                eventData.newTerminalId = change.terminal.getId();
+                eventData.previousTerminalId = change.previous.getId();
+                continue;
+            }
+        }
+
+        var stylesheet = new mxStylesheet();
+        for (var eventTargetId in eventMap) {
+            if (Object.prototype.hasOwnProperty.call(eventMap, eventTargetId)) {
+                var eventData = eventMap[eventTargetId];
+                if (eventData.source !== undefined) {
+                    var newPortName = getPortNameFromStyle(
+                        stylesheet, eventData.newStyle, eventData.source);
+                    var previousPortName = getPortNameFromStyle(
+                        stylesheet, eventData.previousStyle, eventData.source);
+                    handler(
+                        eventTargetId,
+                        eventData.source,
+                        eventData.newTerminalId,
+                        newPortName,
+                        eventData.previousTerminalId,
+                        previousPortName
+                    );
+                }
             }
         }
     };
@@ -1302,13 +1413,17 @@ graphs.Api.prototype.getEdgeTerminals = function getEdgeTerminals (edgeId) {
  * @param {string} terminalType Indicates if the affected terminal is the source or target (one of
  * `graphs.Api.*_TERMINAL_CELL`).
  * @param {number} newTerminalCellId The if of the new terminal for the edge.
+ * @param {string} portName The name of the port to use in the connection, if it is a "falsy"
+ * value do not use a port.
  * @throws {Error} Unable to find cell.
+ * @throws {Error} Unable to find cell's port.
  * @throws {Error} Not a valid terminal type.
  */
 graphs.Api.prototype.setEdgeTerminal = function setEdgeTerminal (
-    cellId, terminalType, newTerminalCellId) {
+    cellId, terminalType, newTerminalCellId, portName) {
     "use strict";
     var isSource = true;
+
     if (terminalType === graphs.Api.SOURCE_TERMINAL_CELL) {
         isSource = true;
     } else if (terminalType === graphs.Api.TARGET_TERMINAL_CELL) {
@@ -1321,7 +1436,25 @@ graphs.Api.prototype.setEdgeTerminal = function setEdgeTerminal (
     var model = graph.getModel();
     var edge = this._findCell(model, cellId);
     var terminal = this._findCell(model, newTerminalCellId);
-    model.setTerminal(edge, terminal, isSource);
+    if (portName) {
+        // Port missing detection.
+        this._findPort(model, newTerminalCellId, portName, true);
+    }
+    model.beginUpdate();
+    try {
+        model.setTerminal(edge, terminal, isSource);
+        if (portName) {
+            var edge_style = model.getStyle(edge);
+            var terminal_key = terminalType + 'Port';
+            var terminal_value = mxCell.createPortId(cellId, portName);
+            edge_style = graphs.utils.setStyleKey(edge_style, terminal_key, terminal_value);
+            model.setStyle(edge, edge_style);
+        }
+    } finally {
+        model.endUpdate();
+    }
+
+
 };
 
 /**
@@ -1657,7 +1790,7 @@ graphs.Api.prototype._findCell = function _findCell(model, cellId) {
 graphs.Api.prototype._findPort = function _findPort (model, cellId, portName, alreadyExits) {
     "use strict";
 
-    var portId = this._getPortId(cellId, portName);
+    var portId = mxCell.createPortId(cellId, portName);
     var port = model.getCell(portId);
     var portFound = !!port;
 
