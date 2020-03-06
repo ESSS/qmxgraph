@@ -1,44 +1,45 @@
 """
-QGraph drag & drop format (MIME type: application/x-qmxgraph-dd)
-==============================================================
+QmxGraph drag & drop format (MIME type: application/x-qmxgraph-dd)
+==================================================================
 
-QGraph drag & drop is a JSON object. Format spec is found below:
+QmxGraph drag & drop is a JSON object. Format spec is found below:
 
-```
-{
-    version: <int>,  # version of format used by data, version value is added
-                     # since cross application D&D is supported and it is
-                     # necessary to know the source version
-    vertices:  # optional, vertices are going to be added to graph
-        [
-            {
-                dx: <int>,  # how much it should displaced in X axis from
-                            # where user dropped
-                dy: <int>,  # how much it should displaced in Y axis from
-                            # where user dropped
-                width: <int>,  # width of new vertex
-                height: <int>,  # height of new vertex
-                label: <str>,  # label of new vertex
-                style: <str>,  # optional, style of new vertex
-                tags: <dict[str, str]>,  # optional, tags associated
-                                         # with vertex
-            },
-            ...
-        ]
-    decorations:  # optional, decorations are going to be added to graph
-        [
-            {
-                width: <int>,  # width of new decoration
-                height: <int>,  # height of new decoration
-                label: <str>,  # label of new decoration
-                style: <str>,  # optional, style of new decoration
-                tags: <dict[str, str]>,  # optional, tags associated
-                                         # with decoration
-            },
-            ...
-        ]
-}
-```
+.. code-block::
+
+    {
+        version: <int>,  # version of format used by data, version value is added
+                         # since cross application D&D is supported and it is
+                         # necessary to know the source version
+        vertices:  # optional, vertices are going to be added to graph
+            [
+                {
+                    dx: <int>,  # how much it should displaced in X axis from
+                                # where user dropped
+                    dy: <int>,  # how much it should displaced in Y axis from
+                                # where user dropped
+                    width: <int>,  # width of new vertex
+                    height: <int>,  # height of new vertex
+                    label: <str>,  # label of new vertex
+                    style: <str>,  # optional, style of new vertex
+                    tags: <dict[str, str]>,  # optional, tags associated
+                                             # with vertex
+                },
+                ...
+            ]
+        decorations:  # optional, decorations are going to be added to graph
+            [
+                {
+                    width: <int>,  # width of new decoration
+                    height: <int>,  # height of new decoration
+                    label: <str>,  # label of new decoration
+                    style: <str>,  # optional, style of new decoration
+                    tags: <dict[str, str]>,  # optional, tags associated
+                                             # with decoration
+                },
+                ...
+            ]
+    }
+
 """
 
 import json

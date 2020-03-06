@@ -1,5 +1,6 @@
-Welcome to qmxgraph's documentation!
-======================================
+====================================
+Welcome to QmxGraph's documentation!
+====================================
 
 Contents:
 
@@ -8,12 +9,5 @@ Contents:
 
    readme
    installation
-   usage
    history
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   reference/reference

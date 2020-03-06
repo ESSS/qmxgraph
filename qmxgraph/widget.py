@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import json
+import os
 import weakref
 
 from PyQt5.QtCore import QDataStream, QIODevice, QObject, Qt, pyqtSignal
@@ -9,22 +10,25 @@ from PyQt5.QtWidgets import QDialog, QGridLayout, QShortcut, QSizePolicy, \
     QWidget, QStyleOption, QStyle
 
 from qmxgraph import constants, render
-from qmxgraph import resource_mxgraph, resource_qmxgraph  # noqa
 from qmxgraph.api import QmxGraphApi
 from qmxgraph.configuration import GraphOptions, GraphStyles
 
 from ._web_view import QWebViewWithDragDrop
 
 
+# Some ugliness to successfully build the doc on ReadTheDocs...
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+if not on_rtd:
+    from qmxgraph import resource_mxgraph, resource_qmxgraph  # noqa
+
+
 class QmxGraph(QWidget):
     """
-    A graph widget that is actually an web wiew using as backend
-    [mxGraph](https://jgraph.github.io/mxgraph/), a very feature rich JS graph
-    library which is also used as backend to the powerful Google Drive's
-    draw.io widget.
+    A graph widget that is actually an web view using as backend mxGraph_,
+    a very feature rich JS graph library which is also used as backend to
+    the powerful Google Drive's draw.io widget.
 
-    Tags
-    ----
+    **Tags**
 
     Tags don't have any impact or influence on QmxGraph features. It is just a
     feature so client code can associate custom data with cells created in a
@@ -39,11 +43,12 @@ class QmxGraph(QWidget):
     An important observation is that tag values are *always* strings. If a
     value of other type is used it will raise an error.
 
-    Debug/Inspection
-    ----------------
+    **Debug/Inspection**
 
     It is possible to open a web inspector for underlying graph drawing page by
     typing `F12` with widget focused.
+
+    .. _mxGraph: https://jgraph.github.io/mxgraph/
     """
 
     # Signal fired when underlying web view finishes loading. Argument
@@ -247,7 +252,7 @@ class QmxGraph(QWidget):
     @property
     def api(self):
         """
-        :rtype: qmxgraph.widget.QmxGraphApi
+        :rtype: qmxgraph.api.QmxGraphApi
         :return: Proxy to API to manipulate graph.
         """
         return self._api
@@ -530,47 +535,79 @@ class EventsBridge(QObject):
     A bridge object between Python/Qt and JavaScript that provides a series
     of signals that are connected to events fired on JavaScript.
 
+    :ivar pyqtSignal on_cells_removed: JavaScript client code emits this
+        signal when cells are removed from graph. Arguments:
+
+        - cell_ids: QVariantList
+
+    :ivar pyqtSignal on_cells_added: JavaScript client code emits this
+        signal when cells are added to graph. Arguments:
+
+        - cell_ids: QVariantList
+
+    :ivar pyqtSignal on_label_changed: JavaScript client code emits this
+        signal when cell is renamed. Arguments:
+
+        - cell_id: str
+        - new_label: str
+        - old_label: str
+
+    :ivar pyqtSignal on_selection_changed: JavaScript client code emits
+        this signal when the current selection change. Arguments:
+
+        - cell_ids: QVariantList
+
+    :ivar pyqtSignal on_terminal_changed: JavaScript client code emits
+        this signal when a cell terminal change. Arguments:
+
+        - cell_id: str
+        - terminal_type: str
+        - new_terminal_id: str
+        - old_terminal_id: str
+
+    :ivar pyqtSignal on_view_update: JavaScript client code emits this
+        signal when the view is updated. Arguments:
+
+        - graph_view: str
+        - scale_and_translation: QVariantList
+
+
     Using this object connecting to events from JavaScript basically becomes a
     matter of using Qt signals.
+
+    .. code-block::
+
+        def on_cells_added_handler(cell_ids):
+            print(f'added {cell_ids}')
+
+        def on_terminal_changed_handler(
+            cell_id, terminal_type, new_terminal_id, old_terminal_id):
+            print(
+                f'{terminal_type} of {cell_id} changed from'
+                f' {old_terminal_id} to {new_terminal_id}'
+            )
+
+        def on_cells_removed_handler(cell_ids):
+            print(f'removed {cell_ids}')
+
+        events_bridge = EventsBridge()
+        widget = ...
+        widget.set_events_bridge(events_bridge)
+
+        events_bridge.on_cells_added.connect(on_cells_added_handler)
+        events_bridge.on_cells_removed.connect(on_cells_removed_handler)
+        events_bridge.on_terminal_changed.connect(on_terminal_changed_handler)
+
     """
 
-    # JavaScript client code emits this signal when cells are removed from
-    # graph. Id of cells removed are given as argument.
-    # Arguments:
-    # cell_ids: QVariantList
     on_cells_removed = pyqtSignal('QVariantList', name='on_cells_removed')
-    # JavaScript client code emits this signal when cells are added to
-    # graph.
-    # Arguments:
-    # cell_ids: QVariantList
     on_cells_added = pyqtSignal('QVariantList', name='on_cells_added')
-    # JavaScript client code emits this signal when cell is renamed.
-    # Arguments:
-    # cell_id: str
-    # new_label: str
-    # old_label: str
-    on_label_changed = pyqtSignal(
-        str, str, str, name='on_label_changed')
-    # JavaScript client code emits this signal when the current selection
-    # change.
-    # Arguments:
-    # cell_ids: str
+    on_label_changed = pyqtSignal(str, str, str, name='on_label_changed')
     on_selection_changed = pyqtSignal(
         'QVariantList', name='on_selection_changed')
-    # JavaScript client code emits this signal when a cell terminal change.
-    # Arguments:
-    # cell_id: str
-    # terminal_type: str
-    # new_terminal_id: str
-    # old_terminal_id: str
     on_terminal_changed = pyqtSignal(
         str, str, str, str, name='on_terminal_changed')
-    # JavaScript client code emits this signal when the view is updated.
-    # Arguments:
-    # graph_view: str
-    # scale_and_translation: QVariantList
-    on_view_update = pyqtSignal(
-        str, 'QVariantList', name='on_view_update')
+    on_view_update = pyqtSignal(str, 'QVariantList', name='on_view_update')
 
 
 class _DoubleClickBridge(QObject):

@@ -66,4 +66,6 @@ target/
 qmxgraph/resource_*.qrc
 qmxgraph/resource_*.py
 
+environment.yml
+docs_environment.yml
 esss_environment.yml

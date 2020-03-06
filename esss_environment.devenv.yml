@@ -4,7 +4,7 @@ name: qmxgraph
 
 environment:
   PYTHONPATH:
-    - {{ os.path.join(root) }}
+    - {{ root }}
 
 # PhantomJS
 # pros:

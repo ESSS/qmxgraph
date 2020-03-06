@@ -41,10 +41,10 @@ class QmxGraphApi(object):
         :param str|None style: Name of style to be used. Styles
             available are all default ones provided by mxGraph plus additional
             ones configured in initialization of this class.
-        :param dict[str, str]|None tags: Tags are basically custom
-            attributes that may be added to a cell that may be later queried
-            (or even modified), with the objective of allowing better
-            inspection and interaction with cells in a graph.
+        :param dict[str,str]|None tags: Tags are basically custom attributes
+            that may be added to a cell that may be later queried (or even
+            modified), with the objective of allowing better inspection and
+            interaction with cells in a graph.
         :rtype: str
         :return: Id of new vertex.
         """
@@ -68,10 +68,10 @@ class QmxGraphApi(object):
         :param str|None style: Name of style to be used. Styles
             available are all default ones provided by mxGraph plus additional
             ones configured in initialization of this class.
-        :param dict[str, str]|None tags: Tags are basically custom
-            attributes that may be added to a cell that may be later queried
-            (or even modified), with the objective of allowing better
-             inspection and interaction with cells in a graph.
+        :param dict[str,str]|None tags: Tags are basically custom attributes
+            that may be added to a cell that may be later queried (or even
+            modified), with the objective of allowing better inspection and
+            interaction with cells in a graph.
         """
         return self.call_api(
             'insertPort', vertex_id, port_name, x, y, width, height, label,
@@ -88,10 +88,10 @@ class QmxGraphApi(object):
         :param str|None style: Name of style to be used. Styles
             available are all default ones provided by mxGraph plus additional
             ones configured in initialization of this class.
-        :param dict[str, str]|None tags: Tags are basically custom
-            attributes that may be added to a cell that may be later queried
-            (or even modified), with the objective of allowing better
-            inspection and interaction with cells in a graph.
+        :param dict[str,str]|None tags: Tags are basically custom attributes
+            that may be added to a cell that may be later queried (or even
+            modified), with the objective of allowing better inspection and
+            interaction with cells in a graph.
         :param str|None source_port_name: The name of the port used to connect
             to source vertex.
         :param str|None target_port_name: The name of the port used to connect
@@ -121,10 +121,10 @@ class QmxGraphApi(object):
         :param str|None style: Name of style to be used. Styles
             available are all default ones provided by mxGraph plus additional
             ones configured in initialization of this class.
-        :param dict[str, str]|None tags: Tags are basically custom
-            attributes that may be added to a cell that may be later queried
-            (or even modified), with the objective of allowing better
-            inspection and interaction with cells in a graph.
+        :param dict[str,str]|None tags: Tags are basically custom attributes
+            that may be added to a cell that may be later queried (or even
+            modified), with the objective of allowing better inspection and
+            interaction with cells in a graph.
         :rtype: str
         :return: Id of new decoration.
         """
@@ -149,10 +149,10 @@ class QmxGraphApi(object):
         :param str|None style: Name of style to be used. Styles
             available are all default ones provided by mxGraph plus additional
             ones configured in initialization of this class.
-        :param dict[str, str]|None tags: Tags are basically custom
-            attributes that may be added to a cell that may be later queried
-            (or even modified), with the objective of allowing better
-            inspection and interaction with cells in a graph.
+        :param dict[str,str]|None tags: Tags are basically custom attributes
+            that may be added to a cell that may be later queried (or even
+            modified), with the objective of allowing better inspection and
+            interaction with cells in a graph.
         :rtype: str
         :return: Id of new decoration.
         """
@@ -175,10 +175,10 @@ class QmxGraphApi(object):
         :param qmxgraph.decoration_contents.Table contents:
             The table contents.
         :param str title: Title of table.
-        :param dict[str, str]|None tags: Tags are basically custom
-            attributes that may be added to a cell that may be later queried
-            (or even modified), with the objective of allowing better
-            inspection and interaction with cells in a graph.
+        :param dict[str,str]|None tags: Tags are basically custom attributes
+            that may be added to a cell that may be later queried (or even
+            modified), with the objective of allowing better inspection and
+            interaction with cells in a graph.
         :param str|None style: Name of style to be used (Note that the
             `'table'` style is always used, options configured with this style
             have greater precedence). Styles available are all default ones
@@ -281,10 +281,11 @@ class QmxGraphApi(object):
         :param str cell_id: Id of a cell in graph.
         :rtype: str
         :return: Possible returns are:
-            * qmxgraph.constants.CELL_TYPE_VERTEX for vertices
-            * qmxgraph.constants.CELL_TYPE_EDGE for edges
-            * qmxgraph.constants.CELL_TYPE_DECORATION for decorations
-            * qmxgraph.constants.CELL_TYPE_TABLE for tables
+
+            - :data:`qmxgraph.constants.CELL_TYPE_VERTEX` for vertices;
+            - :data:`qmxgraph.constants.CELL_TYPE_EDGE` for edges;
+            - :data:`qmxgraph.constants.CELL_TYPE_DECORATION` for decorations;
+            - :data:`qmxgraph.constants.CELL_TYPE_TABLE` for tables;
 
             It raises if none of these types are a match.
         """
@@ -296,7 +297,13 @@ class QmxGraphApi(object):
 
         :param str cell_id: Id of a cell in graph.
         :rtype: list
-        :return: List composed, respectively, by x, y, width and height.
+        :return: A list with 4 items:
+
+            - x;
+            - y;
+            - width;
+            - height;
+
         """
         return self.call_api('getGeometry', cell_id)
 
@@ -306,8 +313,14 @@ class QmxGraphApi(object):
 
         :param str cell_id: Id of a edge in graph.
         :rtype: list
-        :return: List composed, respectively, by lists where the items are the
-            x and y coordinates for the source and target point.
+        :return: 2 lists with 2 items each:
+
+            - - the source x coordinate;
+              - the source y coordinate;
+
+            - - the target x coordinate;
+              - the target y coordinate;
+
         """
         return self.call_api('getEdgeTerminalPoints', cell_id)
 
@@ -403,11 +416,15 @@ class QmxGraphApi(object):
         Get the current scale and translation.
 
         :rtype: Tuple[float, float, float]
-        :return: Respectively the values of graph scale, the translation
-            along the x axis, and the translation along the y axis. The
-            three values returned by this function is suitable to be
-            supplied to `` to set the scale and translation to a previous
-            value.
+        :return: The values represent:
+
+            - graph scale;
+            - translation along the x axis;
+            - translation along the y axis;
+
+            The three values returned by this function is suitable to be
+            supplied to :func:`QmxGraphApi.set_scale_and_translation` to
+            set the scale and translation to a previous value.
         """
         return tuple(self.call_api('getScaleAndTranslation'))
 
@@ -667,12 +684,15 @@ class QmxGraphApi(object):
         connection.
 
         :param str edge_id: Id of an edge in graph.
-        :rtype: list[List[str|None]]
-        :return: A list with 4 items:
+        :rtype: list[list[str|None]]
+        :return: 2 lists with 2 items each:
+
             - - the source vertex id;
               - the port's name used on the source (can be `None`);
+
             - - the target vertex id;
               - the port's name used on the target (can be `None`);
+
         """
         return self.call_api('getEdgeTerminalsWithPorts', edge_id)
 
@@ -701,7 +721,7 @@ class QmxGraphApi(object):
     def dump(self):
         """
         Obtain a representation of the current state of the graph as an XML
-        string. The state can be restored calling `restore`.
+        string. The state can be restored calling :func:`QmxGraphApi.restore`.
 
         :rtype: str
         :return: A xml string.
