@@ -30,21 +30,22 @@ class Variable(object):
 
     For instance,
 
-    ```python
-    prepare_js_call('foo', Variable('bar'))
-    ```
+    .. code-block::
 
-    generates a JavaScript statement string `foo(bar)`, basically telling
-    JavaScript to call `foo` with whatever object is bound to `bar` on JS side.
+        prepare_js_call('foo', Variable('bar'))
+
+    generates a JavaScript statement string ``foo(bar)``, basically telling
+    JavaScript to call ``foo`` with whatever object is bound to ``bar`` on
+    JS side.
 
     On the other hand
 
-    ```python
-    prepare_js_call('foo', 'bar')
-    ```
+    .. code-block::
 
-    generates a JavaScript statement string `foo('bar')`, where JavaScript
-    would call `foo` with a string `'bar'`.
+        prepare_js_call('foo', 'bar')
+
+    generates a JavaScript statement string ``foo('bar')``, where JavaScript
+    would call ``foo`` with a string ``'bar'``.
 
     This kind of object is convenient when generating statements involving
     bridge objects that were previously added to JavaScript window object,

@@ -16,10 +16,12 @@ install:
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda config --add channels conda-forge
+  - conda install conda-devenv
   - conda info -a  # for debug reasons
 
-  - conda create -n qmxgraph python=$TRAVIS_PYTHON_VERSION coveralls pytest-cov
-  - conda env update -n qmxgraph
+  - export TEST_QMXGRAPH=1
+  - conda devenv -n qmxgraph
+  - conda install -n qmxgraph coveralls pytest-cov
   - source activate qmxgraph
   - conda list  # for debug reasons
 

@@ -1,0 +1,8 @@
+name: qmxgraph-docs
+
+includes:
+  - {{ root }}/environment.devenv.yml
+
+dependencies:
+    - sphinx
+    - sphinx_rtd_theme

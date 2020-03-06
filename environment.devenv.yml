@@ -1,0 +1,39 @@
+{% set TEST_QMXGRAPH = os.environ.get('TEST_QMXGRAPH', '0') != '0' %}
+{% set PYTHON_VERSION = os.environ.get('PYTHON_VERSION', '3.6') %}
+{% set PYTHON_VERSION = os.environ.get('TRAVIS_PYTHON_VERSION', PYTHON_VERSION) %}
+
+name: qmxgraph
+
+environment:
+    PYTHONPATH:
+        - {{ root }}
+
+    # Tip: Use `--driver <driver_name>` to change driver for a single run
+    {% if TEST_QMXGRAPH %}
+    PYTEST_ADDOPTS: --driver PhantomJS
+    {% endif %}
+
+dependencies:
+    - python ={{ PYTHON_VERSION }}
+
+    - attrs >=17
+    - cherrypy
+    - colorama
+    - flake8
+    - hypothesis ==3.11.0
+    - invoke
+    - jinja2
+    - pip
+    - pyqt =5.6
+
+    {% if TEST_QMXGRAPH %}
+    - pytest-mock
+    - pytest-qt
+    - pytest-rerunfailures
+    - pytest-selenium
+    - pytest-timeout
+        {% if sys.platform != 'win32' %}
+    - pytest-xvfb
+        {% endif %}
+    {% endif %}
+

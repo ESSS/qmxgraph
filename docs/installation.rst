@@ -1,51 +1,35 @@
-.. highlight:: shell
-
 ============
 Installation
 ============
 
+Since pip no longer offers the PyQt version required by qmxgraph you will need `Conda`_ and `conda-devenv`_ to setup the environment.
+Until a new version is published the only option is getting the source code.
+To install the required dependencies and build the necessary static resources:
 
-Stable release
---------------
+.. code-block:: shell
 
-To install qmxgraph, run this command in your terminal:
+    git clone https://github.com/ESSS/qmxgraph.git
+    cd qmxgraph
+    git clone --depth=1 --branch v3.7.5 https://github.com/jgraph/mxgraph.git
+    export PYTHON_VERSION=3.6  # Optional
+    conda devenv
+    conda activate qmxgraph
+    inv qrc
 
-.. code-block:: console
+If you want to run the tests:
 
-    $ pip install qmxgraph
+.. code-block:: shell
+    :emphasize-lines: 5,9
 
-This is the preferred method to install qmxgraph, as it will always install the most recent stable release. 
+    git clone https://github.com/ESSS/qmxgraph.git
+    cd qmxgraph
+    git clone --depth=1 --branch v3.7.5 https://github.com/jgraph/mxgraph.git
+    export PYTHON_VERSION=3.6  # Optional
+    export TEST_QMXGRAPH=1
+    conda devenv
+    conda activate qmxgraph
+    inv qrc
+    inv test
 
-If you don't have `pip`_ installed, this `Python installation guide`_ can guide
-you through the process.
-
-.. _pip: https://pip.pypa.io
-.. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
-
-
-From sources
-------------
-
-The sources for qmxgraph can be downloaded from the `Github repo`_.
-
-You can either clone the public repository:
-
-.. code-block:: console
-
-    $ git clone git://github.com/ESSS/qmxgraph
-
-Or download the `tarball`_:
-
-.. code-block:: console
-
-    $ curl  -OL https://github.com/ESSS/qmxgraph/tarball/master
-
-Once you have a copy of the source, you can install it with:
-
-.. code-block:: console
-
-    $ python setup.py install
-
-
-.. _Github repo: https://github.com/ESSS/qmxgraph
-.. _tarball: https://github.com/ESSS/qmxgraph/tarball/master
+.. _Conda: https://docs.conda.io/projects/conda/en/latest/index.html
+.. _conda-devenv: https://conda-devenv.readthedocs.io/en/latest/

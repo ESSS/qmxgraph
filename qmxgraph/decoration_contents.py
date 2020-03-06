@@ -1,3 +1,11 @@
+"""
+Classes to used to represent content in:
+
+- :meth:`qmxgraph.api.QmxGraphApi.insert_table`
+- :meth:`qmxgraph.api.QmxGraphApi.update_table`
+
+"""
+
 import attr
 
 from qmxgraph.extra_attr_validators import tuple_of
@@ -13,7 +21,7 @@ _is_str = attr.validators.instance_of(str)
 @attr.s(frozen=True, slots=True)
 class Image:
     """
-    Represet an image tag that could be embedded into a table contents.
+    Represents an image tag that could be embedded into a table contents.
 
     The image's width and height are required since mxgraph will render the
     html in a helper container in order to get the cell's size. To avoid the
