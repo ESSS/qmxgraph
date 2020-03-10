@@ -56,40 +56,60 @@ def test_events_bridge(graph, qtbot, mocker):
     labels_handler = mocker.Mock()
     selections_handler = mocker.Mock()
     terminal_handler = mocker.Mock()
+    terminal_with_port_handler = mocker.Mock()
 
     events.on_cells_added.connect(added_handler)
     events.on_cells_removed.connect(removed_handler)
     events.on_label_changed.connect(labels_handler)
     events.on_selection_changed.connect(selections_handler)
     events.on_terminal_changed.connect(terminal_handler)
+    events.on_terminal_with_port_changed.connect(terminal_with_port_handler)
 
     wait_until_loaded(graph, qtbot)
-
+    # on_cells_added
     vertex_id = graph.api.insert_vertex(40, 40, 20, 20, 'test')
     assert added_handler.call_args_list == [mocker.call([vertex_id])]
-
+    # on_selection_changed
     assert selections_handler.call_args_list == []
     eval_js(graph, "graphEditor.execute('selectVertices')")
     assert selections_handler.call_args_list == [mocker.call([vertex_id])]
-
+    # on_label_changed
     graph.api.set_label(vertex_id, 'TOTALLY NEW LABEL')
     assert labels_handler.call_args_list == [
         mocker.call(vertex_id, 'TOTALLY NEW LABEL', 'test')]
-
+    # on_terminal_changed, on_terminal_with_port_changed
     foo_id = graph.api.insert_vertex(440, 40, 20, 20, 'foo')
     bar_id = graph.api.insert_vertex(40, 140, 20, 20, 'bar')
     edge_id = graph.api.insert_edge(vertex_id, foo_id, 'edge')
+    bar_port_name = 'a-port'
+    graph.api.insert_port(bar_id, bar_port_name, 0, 0, 5, 5)
+
     graph.api.set_edge_terminal(
-        edge_id, QmxGraphApi.TARGET_TERMINAL_CELL, bar_id)
+        edge_id, QmxGraphApi.TARGET_TERMINAL_CELL, bar_id, bar_port_name)
     graph.api.set_edge_terminal(
         edge_id, QmxGraphApi.SOURCE_TERMINAL_CELL, foo_id)
-    assert terminal_handler.call_args_list == [
-        mocker.call(edge_id, QmxGraphApi.TARGET_TERMINAL_CELL, bar_id,
-                    foo_id),
-        mocker.call(edge_id, QmxGraphApi.SOURCE_TERMINAL_CELL, foo_id,
-                    vertex_id),
-    ]
 
+    assert terminal_handler.call_args_list == [
+        mocker.call(
+            edge_id, QmxGraphApi.TARGET_TERMINAL_CELL, bar_id, foo_id
+        ),
+        mocker.call(
+            edge_id, QmxGraphApi.SOURCE_TERMINAL_CELL, foo_id, vertex_id
+        ),
+    ]
+    assert terminal_with_port_handler.call_args_list == [
+        mocker.call(
+            edge_id, QmxGraphApi.TARGET_TERMINAL_CELL,
+            bar_id, bar_port_name,
+            foo_id, '',
+        ),
+        mocker.call(
+            edge_id, QmxGraphApi.SOURCE_TERMINAL_CELL,
+            foo_id, '',
+            vertex_id, '',
+        ),
+    ]
+    # on_cells_removed
     graph.api.remove_cells([vertex_id])
     assert removed_handler.call_args_list == [mocker.call([vertex_id])]
 

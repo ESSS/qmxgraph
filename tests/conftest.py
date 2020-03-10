@@ -278,6 +278,7 @@ class GraphCaseFactory(object):
         self.case_map = {
             "empty": BaseGraphCase,
             "1v": Graph1Vertex,
+            "1v_1p": Graph1Vertex1Port,
             "1v_style": Graph1VertexWithStyle,
             "2v": Graph2Vertices,
             "2v_1e": Graph2Vertices1EdgeByCode,
@@ -746,6 +747,26 @@ class Graph1Vertex(BaseGraphCase):
             'g>g>rect[fill="{}"]'.format(color))
         assert len(rect) <= 1
         return rect[0] if rect else None
+
+
+class Graph1Vertex1Port(Graph1Vertex):
+
+    def __init__(self, selenium, host):
+        Graph1Vertex.__init__(self, selenium, host)
+        vertex_id = self.get_id(self.get_vertex())
+        self.port_color = '#987654'
+        selenium.execute_script(
+            f"api.insertPort("
+            f"  {vertex_id}, 'foo',"
+            f"  0, 0, 5, 5,"
+            f"  '', 'shape=ellipse;fillColor={self.port_color}', null)"
+        )
+
+    def get_port(self):
+        port_elements = self.selenium.find_elements_by_css_selector(
+            f'g>g>ellipse[fill="{self.port_color}"]')
+        assert len(port_elements) <= 1
+        return port_elements[0] if port_elements else None
 
 
 class Graph1VertexWithStyle(BaseGraphCase):
