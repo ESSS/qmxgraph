@@ -9,5 +9,6 @@ Contents:
 
    readme
    installation
+   examples/examples
    history
    reference/reference
