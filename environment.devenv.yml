@@ -4,6 +4,9 @@
 
 name: qmxgraph
 
+includes:
+  - {{ root }}/base_environment.yml
+
 environment:
     PYTHONPATH:
         - {{ root }}
@@ -16,17 +19,9 @@ environment:
 dependencies:
     - python ={{ PYTHON_VERSION }}
 
-    - attrs >=17
-    - cherrypy
-    - colorama
-    - flake8
-    - hypothesis ==3.11.0
-    - invoke
-    - jinja2
-    - pip
-    - pyqt =5.6
-
     {% if TEST_QMXGRAPH %}
+    - cherrypy
+    - hypothesis ==3.11.0
     - pytest-mock
     - pytest-qt
     - pytest-rerunfailures

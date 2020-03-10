@@ -1,0 +1,12 @@
+name: qmxgraph
+
+dependencies:
+    - python
+
+    - attrs >=17
+    - colorama
+    - flake8
+    - invoke
+    - jinja2
+    - pip
+    - pyqt =5.6
