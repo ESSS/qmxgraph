@@ -2,6 +2,9 @@
 
 name: qmxgraph
 
+includes:
+  - {{ root }}/base_environment.yml
+
 environment:
   PYTHONPATH:
     - {{ root }}
@@ -38,7 +41,6 @@ dependencies:
     - esss-pylupdate5>=5.6.0+1
 
     - attrs>=17
-    - cherrypy==7.1.0
     - colorama
     - fix-and-check-env>=1.0.0
     - invoke>=1.0.0
@@ -47,6 +49,7 @@ dependencies:
     - six
 
     {% if TEST_QMXGRAPH %}
+    - cherrypy==7.1.0
     - phantomjs>=2.1
     - pytest-mock>=1.4.0
     - pytest-qt>=2.1.0
