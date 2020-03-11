@@ -1,5 +1,4 @@
 import pytest
-import six
 
 
 def pytest_configure(config):
@@ -696,7 +695,7 @@ class BaseGraphCase(object):
         :rtype: str
         :return: Id of cell.
         """
-        if not isinstance(cell, six.string_types):
+        if not isinstance(cell, str):
             cell = self.get_id(cell)
         return cell
 

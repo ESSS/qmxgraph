@@ -212,10 +212,6 @@ def generate_qrc(target_filename, file_map):
     target_dir = os.path.dirname(target_filename)
     contents = generate_qrc_contents(file_map, target_dir)
 
-    import six
-    if six.PY2:
-        contents = contents.decode('utf8')
-
     # UTF-8 is the encoding adopted by Qt (and subsequently PyQt) resource
     # collection tools. It seems to not be officially stated anywhere in docs
     # unfortunately, but if it is possible to see this encoding in use by
@@ -459,8 +455,7 @@ if sys.platform.startswith('win'):
 
         def parse_subst_line(line):
             import locale
-            import six
-            if not isinstance(line, six.text_type):
+            if not isinstance(line, str):
                 line = line.decode(locale.getpreferredencoding(False))
 
             match = re.match(r'^(\w:)\\: => (.+)$', line)
