@@ -79,6 +79,63 @@ def qrc(
     )
 
 
+@invoke.task(help={
+    'python-version': (
+        'Can be used to define the python version used when creating the'
+        ' work environment'
+    ),
+})
+def docs(ctx, python_version=None):
+    """
+    Create the documentation html locally.
+    """
+    import json
+    import subprocess
+    import tempfile
+    from pathlib import Path
+
+    conda_info_json = subprocess.check_output(['conda', 'info', '--json'])
+    conda_info = json.loads(conda_info_json)
+    current_env_name = conda_info["active_prefix_name"]
+    if current_env_name in (None, 'base'):
+        raise invoke.Exit("Activate the project's conda environment first")
+    else:
+        docs_env_name = f'{current_env_name}-docs'
+
+    new_environ = os.environ.copy()
+    new_environ['TEST_QMXGRAPH'] = '0'
+    if python_version is not None:
+        new_environ['PYTHON_VERSION'] = python_version
+
+    script = [
+        '',  # To have a new line at the start (see windows new line).
+        f'conda devenv --name {docs_env_name} --file docs_environment.devenv.yml',
+        f'conda activate {docs_env_name}',
+        'cd docs',
+        'sphinx-build . _build -W',
+    ]
+    if sys.platform == 'win32':
+        suffix = '.bat'
+        new_line = '\n@echo on\ncall '
+        command = ['cmd', '/C']
+    else:
+        suffix = '.bash'
+        new_line = '\n'
+        command = ['bash', '-x']
+
+    script_file = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
+    try:
+        script_file.close()
+        script_file = Path(script_file.name)
+        script_file.write_text(new_line.join(script))
+
+        command.append(str(script_file))
+        subprocess.check_call(command, env=new_environ)
+    finally:
+        script_file.unlink()
+
+
+
 @invoke.task
 def test(ctx):
     print_message('test'.format(), color=Fore.BLUE, bright=True)
@@ -154,10 +211,6 @@ def generate_qrc(target_filename, file_map):
     """
     target_dir = os.path.dirname(target_filename)
     contents = generate_qrc_contents(file_map, target_dir)
-
-    import six
-    if six.PY2:
-        contents = contents.decode('utf8')
 
     # UTF-8 is the encoding adopted by Qt (and subsequently PyQt) resource
     # collection tools. It seems to not be officially stated anywhere in docs
@@ -402,8 +455,7 @@ if sys.platform.startswith('win'):
 
         def parse_subst_line(line):
             import locale
-            import six
-            if not isinstance(line, six.text_type):
+            if not isinstance(line, str):
                 line = line.decode(locale.getpreferredencoding(False))
 
             match = re.match(r'^(\w:)\\: => (.+)$', line)
@@ -441,6 +493,7 @@ QRC_FILE_TEMPLATE = '''\
 # Only task registered in this global collection will be detected by invoke.
 ns = invoke.Collection()
 ns.add_task(qrc)
+ns.add_task(docs)
 ns.add_task(test)
 ns.add_task(lint)
 ns.add_task(svgtostencil)

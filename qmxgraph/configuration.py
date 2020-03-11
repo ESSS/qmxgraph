@@ -39,7 +39,7 @@ class GraphOptions(object):
         of cells.
     :ivar bool cells_resizable: Specifies if vertices in graph can be
         resized.
-    :ivar tuple[str, int, int]|None connection_image: If configured,
+    :ivar tuple[str,int,int]|None connection_image: If configured,
         this image is shown to user when he hovers a vertex. It can be
         clicked and dragged to create edges. Respectively, formed by
         image path, its width and height.
@@ -48,7 +48,7 @@ class GraphOptions(object):
         all fonts in graph. It configures a priority list, trying always to
         use the left-most family first.
     :ivar bool multigraph: Allow multiple edges between nodes
-    :ivar tuple[str, int, int]|None port_image: Replaces image in
+    :ivar tuple[str,int,int]|None port_image: Replaces image in
         connection ports. Respectively, formed by image path, its width and
         height.
     :ivar bool show_grid: Show a grid in background to aid users.
@@ -93,47 +93,50 @@ class GraphStyles(object):
     Each key in styles dict given as input will define the *name* of style.
     Below are some reserved names:
 
-    * 'edge': Style used by edges in graph.
-    * 'group': Style used when cells are grouped in graph.
-    * 'table': Style used by table cells.
+    - 'edge': Style used by edges in graph;
+    - 'group': Style used when cells are grouped in graph;
+    - 'table': Style used by table cells;
+
 
     Each style key must receive as a value other dict, which will configure
     the style. All options are optional. The available options for each style
     are:
 
-    * 'shape': Name of shape of cell. Can be any of mxGraph's default shapes
-        plus the custom ones created by additional stencil files
-    * 'end_arrow': End arrow of an edge. Possible values are found in
-        mxGraphs constants with an ARROW-prefix
-    * 'fill_color': Color used inside of cell
-    * 'fill_opacity': Opacity used inside of cell between 0 and 1
-    * 'stroke_color': Color used in border of cell
-    * 'stroke_opacity': Opacity used in border of cell between 0 and 1
-    * 'dashed': If border of cell should be dashed
-    * 'vertical_label_position': vertical label position of vertices. Possible
-        values are 'bottom', 'top' and 'middle'
-    * 'vertical_align': vertical alignment of label text of vertices. Possible
-        values are 'bottom', 'top' and 'middle'
+    - 'shape': Name of shape of cell. Can be any of mxGraph's default\
+        shapes plus the custom ones created by additional stencil files;
+    - 'end_arrow': End arrow of an edge. Possible values are found in\
+        mxGraphs constants with an ARROW-prefix;
+    - 'fill_color': Color used inside of cell;
+    - 'fill_opacity': Opacity used inside of cell between 0 and 1;
+    - 'stroke_color': Color used in border of cell;
+    - 'stroke_opacity': Opacity used in border of cell between 0 and 1;
+    - 'dashed': If border of cell should be dashed;
+    - 'vertical_label_position': vertical label position of vertices.\
+        Possible values are 'bottom', 'top' and 'middle';
+    - 'vertical_align': vertical alignment of label text of vertices.\
+        Possible values are 'bottom', 'top' and 'middle'
+
 
     Example of styles:
 
-    ```
-    GraphStyles({
-        'group': {
-            'shape': 'rectangle',
-            'fill_color': None,
-            'dashed': True,
-        },
-        'foo': {
-            'shape': 'star',
-            'fill_color': '#ffffff',
-        },
-        'bar': {
-            'fill_color': '#ff00ff',
-            'dashed': True,
-        },
-    })
-    ```
+    .. code-block::
+
+        GraphStyles({
+            'group': {
+                'shape': 'rectangle',
+                'fill_color': None,
+                'dashed': True,
+            },
+            'foo': {
+                'shape': 'star',
+                'fill_color': '#ffffff',
+            },
+            'bar': {
+                'fill_color': '#ff00ff',
+                'dashed': True,
+            },
+        })
+
     """
 
     def __init__(self, styles=None):
@@ -144,8 +147,6 @@ class GraphStyles(object):
         self.validate()
 
     def validate(self):
-        import six
-
         known_keys = {
             'dashed',
             'decoration_base_rotation',
@@ -170,8 +171,8 @@ class GraphStyles(object):
         }
 
         invalid = {}
-        for name, config in six.iteritems(self._styles):
-            for key, value in six.iteritems(config):
+        for name, config in self._styles.items():
+            for key, value in config.items():
                 if key not in known_keys:
                     invalid.setdefault(name, []).append(key)
 
@@ -179,7 +180,7 @@ class GraphStyles(object):
             raise ValueError("Invalid keys in styles {}".format(
                 ",".join(
                     "{} ({})".format(name, ", ".join(keys))
-                    for name, keys in six.iteritems(invalid))))
+                    for name, keys in invalid.items())))
 
     def as_dict(self):
         return self._styles
