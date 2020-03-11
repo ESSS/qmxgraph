@@ -7,10 +7,15 @@ QmxGraph
 
 .. image:: https://coveralls.io/repos/github/ESSS/qmxgraph/badge.svg?branch=master
         :target: https://coveralls.io/github/ESSS/qmxgraph?branch=master
-        
+
 .. image:: https://api.codacy.com/project/badge/Grade/f99a187898984854a755232cb435cf40
         :alt: Codacy Badge
         :target: https://app.codacy.com/app/ESSS/qmxgraph?utm_source=github.com&utm_medium=referral&utm_content=ESSS/qmxgraph&utm_campaign=badger
+
+.. image:: https://readthedocs.org/projects/qmxgraph/badge/?version=latest
+        :alt: Documentation Status
+        :target: https://qmxgraph.readthedocs.io/en/latest/?badge=latest
+
 
 This a Qt widget that embeds a rich and powerful graph drawing tool 
 using JavaScript's mxGraph library. 
