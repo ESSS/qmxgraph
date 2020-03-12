@@ -567,6 +567,16 @@ class EventsBridge(QObject):
         - new_terminal_id: str
         - old_terminal_id: str
 
+    :ivar pyqtSignal on_terminal_with_port_changed: JavaScript client code emits
+        this signal when a cell terminal change with port information. Arguments:
+
+        - cell_id: str
+        - terminal_type: str
+        - new_terminal_id: str
+        - new_terminal_port_id: str
+        - old_terminal_id: str
+        - old_terminal_port_id: str
+
     :ivar pyqtSignal on_view_update: JavaScript client code emits this
         signal when the view is updated. Arguments:
 
