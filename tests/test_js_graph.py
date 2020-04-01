@@ -368,6 +368,35 @@ def test_set_visible(graph_cases):
     assert len(graph.get_tables()) == 1
 
 
+def test_is_and_set_port_visible(graph_cases):
+    """
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    """
+    graph = graph_cases('1v_1p')
+    vertex_id = graph.get_id(graph.get_vertex())
+
+    assert graph.eval_js_function('api.isPortVisible', vertex_id, 'foo')
+    assert graph.get_port() is not None
+
+    graph.eval_js_function('api.setPortVisible', vertex_id, 'foo', False)
+    assert not graph.eval_js_function('api.isPortVisible', vertex_id, 'foo')
+    assert graph.get_port() is None
+
+    graph.eval_js_function('api.setPortVisible', vertex_id, 'foo', True)
+    assert graph.eval_js_function('api.isPortVisible', vertex_id, 'foo')
+    assert graph.get_port() is not None
+
+
+def test_parse_port_id(graph_cases):
+    """
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    """
+    graph = graph_cases('empty')
+    port_data = graph.eval_js_function(
+        'mxCell.parsePortId', 'qmxgraph-port-PARENT-PORT-NAME')
+    assert port_data == ['PARENT', 'PORT-NAME']
+
+
 def test_set_visible_error_not_found(graph_cases, selenium_extras):
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory

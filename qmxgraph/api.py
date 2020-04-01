@@ -362,6 +362,25 @@ class QmxGraphApi(object):
         """
         return self.call_api('isVisible', cell_id)
 
+    def set_port_visible(self, cell_id, port_name, visible):
+        """
+        Change visibility state of cell's port.
+
+        :param str cell_id: Id of a cell in graph.
+        :param str port_name: Name of a port in the cell.
+        :param bool visible: If visible or not.
+        """
+        return self.call_api('setPortVisible', cell_id, port_name, visible)
+
+    def is_port_visible(self, cell_id, port_name):
+        """
+        Indicates the cell's visibility.
+
+        :param str cell_id: Id of a cell in graph.
+        :param bool port_name: Name of a port in the cell.
+        """
+        return self.call_api('isPortVisible', cell_id, port_name)
+
     def set_connectable(self, cell_id, connectable):
         """
         Change connectable state of a cell.
@@ -573,6 +592,20 @@ class QmxGraphApi(object):
         return self.call_api(
             'onTerminalChanged', qmxgraph.js.Variable(handler))
 
+    def on_terminal_with_port_changed(self, handler):
+        """
+        Add function to handle terminal change with port info events in
+        the graph.
+
+        :param handler: Name of signal bound to JavaScript by a bridge
+            object that is going to be used as callback to event. Receives,
+            respectively, cell id, boolean indicating if the changed
+            terminal is the source (or target), id of the new terminal,
+            id of the old terminal.
+        """
+        return self.call_api(
+            'onTerminalWithPortChanged', qmxgraph.js.Variable(handler))
+
     def on_view_update(self, handler):
         """
         Add function to handle updates in the graph view.
@@ -696,7 +729,8 @@ class QmxGraphApi(object):
         """
         return self.call_api('getEdgeTerminalsWithPorts', edge_id)
 
-    def set_edge_terminal(self, edge_id, terminal_type, new_terminal_cell_id):
+    def set_edge_terminal(self, edge_id, terminal_type, new_terminal_cell_id,
+                          port_name=None):
         """
         Set an edge's terminal.
 
@@ -706,6 +740,7 @@ class QmxGraphApi(object):
             - `QmxGraphApi.SOURCE_TERMINAL_CELL`;
             - `QmxGraphApi.TARGET_TERMINAL_CELL`;
         :param new_terminal_cell_id: The if of the new terminal for the edge.
+        :param str port_name: The of the port to use in the connection.
         """
         valid_terminal_types = {
             self.SOURCE_TERMINAL_CELL,
@@ -716,7 +751,8 @@ class QmxGraphApi(object):
             raise ValueError(err_msg % (terminal_type,))
 
         return self.call_api(
-            'setEdgeTerminal', edge_id, terminal_type, new_terminal_cell_id)
+            'setEdgeTerminal', edge_id, terminal_type, new_terminal_cell_id,
+            port_name)
 
     def dump(self):
         """

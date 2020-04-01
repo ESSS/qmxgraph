@@ -73,7 +73,22 @@ graphs.createGraph = function createGraph (container, options, styles) {
     mxCell.prototype.isPort = function() {
         var cellId = this.getId();
         return cellId.indexOf(mxCell._PORT_ID_PREFIX) === 0;
+    };
 
+    mxCell.createPortId = function createPortId (vertexId, name) {
+        return mxCell._PORT_ID_PREFIX + vertexId + '-' + name;
+    };
+
+    mxCell.parsePortId = function parsePortId (portId) {
+        portId = portId || '';
+        if (portId.indexOf(mxCell._PORT_ID_PREFIX) === 0){
+            portId = portId.substr(mxCell._PORT_ID_PREFIX.length);
+            var result = portId.match(/^([^-]+)-(.*)$/);
+            if (result.length === 3) {
+                return result.slice(1);
+            }
+        }
+        return [null, null];
     };
 
     var superIsCellFoldable = graph.isCellFoldable;

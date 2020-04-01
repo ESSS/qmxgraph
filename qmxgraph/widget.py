@@ -206,6 +206,8 @@ class QmxGraph(QWidget):
                 'bridge_events_handler.on_selection_changed')
             self.api.on_terminal_changed(
                 'bridge_events_handler.on_terminal_changed')
+            self.api.on_terminal_with_port_changed(
+                'bridge_events_handler.on_terminal_with_port_changed')
             self.api.on_view_update(
                 'bridge_events_handler.on_view_update')
 
@@ -565,6 +567,16 @@ class EventsBridge(QObject):
         - new_terminal_id: str
         - old_terminal_id: str
 
+    :ivar pyqtSignal on_terminal_with_port_changed: JavaScript client code emits
+        this signal when a cell terminal change with port information. Arguments:
+
+        - cell_id: str
+        - terminal_type: str
+        - new_terminal_id: str
+        - new_terminal_port_id: str
+        - old_terminal_id: str
+        - old_terminal_port_id: str
+
     :ivar pyqtSignal on_view_update: JavaScript client code emits this
         signal when the view is updated. Arguments:
 
@@ -607,6 +619,8 @@ class EventsBridge(QObject):
         'QVariantList', name='on_selection_changed')
     on_terminal_changed = pyqtSignal(
         str, str, str, str, name='on_terminal_changed')
+    on_terminal_with_port_changed = pyqtSignal(
+        str, str, str, str, str, str, name='on_terminal_with_port_changed')
     on_view_update = pyqtSignal(str, 'QVariantList', name='on_view_update')
 
 
