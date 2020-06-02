@@ -276,6 +276,17 @@ class QmxGraphApi(object):
         """
         return self.call_api('hasCell', cell_id)
 
+    def has_port(self, cell_id, port_name):
+        """
+        Indicates if the port exists.
+
+        :param str cell_id: Id of a cell in graph.
+        :param str port_name: Name of the expected port.
+        :rtype: bool
+        :return: True if the port exists.
+        """
+        return self.call_api('hasPort', cell_id, port_name)
+
     def get_cell_type(self, cell_id):
         """
         :param str cell_id: Id of a cell in graph.

@@ -82,7 +82,9 @@ def test_events_bridge(graph, qtbot, mocker):
     bar_id = graph.api.insert_vertex(40, 140, 20, 20, 'bar')
     edge_id = graph.api.insert_edge(vertex_id, foo_id, 'edge')
     bar_port_name = 'a-port'
+    assert not graph.api.has_port(bar_id, bar_port_name)
     graph.api.insert_port(bar_id, bar_port_name, 0, 0, 5, 5)
+    assert graph.api.has_port(bar_id, bar_port_name)
 
     graph.api.set_edge_terminal(
         edge_id, QmxGraphApi.TARGET_TERMINAL_CELL, bar_id, bar_port_name)
