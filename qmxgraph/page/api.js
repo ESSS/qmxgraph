@@ -1803,6 +1803,20 @@ graphs.Api.prototype._findPort = function _findPort (model, cellId, portName, al
 };
 
 /**
+ * @param {number} cellId Id of a cell in graph.
+ * @param {string} portName The name of the port.
+ * @returns {boolean} True if the port exists.
+ */
+graphs.Api.prototype.hasPort = function hasPort (cellId, portName) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var portId = mxCell.createPortId(cellId, portName);
+    var port = graph.getModel().getCell(portId);
+    return !!port;
+};
+
+/**
  *
  * @param {number} cellId
  * @returns {mxCell} The mxGraph's cell object used to display the de3coration.
