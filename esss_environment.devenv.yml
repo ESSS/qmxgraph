@@ -1,4 +1,4 @@
-% set TEST_QMXGRAPH = os.environ.get('TEST_QMXGRAPH', '0') != '0' %}
+{% set TEST_QMXGRAPH = os.environ.get('TEST_QMXGRAPH', '0') != '0' %}
 
 name: qmxgraph
 
