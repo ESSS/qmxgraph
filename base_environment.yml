@@ -9,4 +9,4 @@ dependencies:
     - invoke
     - jinja2
     - pip
-    - pyqt =5.6
+    - pyqt =5.12
