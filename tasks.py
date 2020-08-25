@@ -275,7 +275,14 @@ def generate_qrc_py(qrc_filename, target_filename):
     # contents, so it also needs to deal with subst.
     cwd = follow_subst(cwd)
     subprocess.check_call(
-        ['pyrcc5', local_filename, '-o', target_filename], cwd=cwd)
+        [
+            sys.executable,
+            '-m', 'PyQt5.pyrcc_main',
+            local_filename,
+            '-o', target_filename,
+        ],
+        cwd=cwd,
+    )
 
 
 def generate_qrc_from_folder(
