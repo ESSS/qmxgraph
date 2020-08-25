@@ -10,7 +10,7 @@
 window.onerror = function (msg, url, lineNo, columnNo, error) {
     "use strict";
 
-    if (bridge_error_handler === undefined) {
+    if (typeof bridge_error_handler === 'undefined') {
         return;
     }
 
@@ -23,5 +23,6 @@ window.onerror = function (msg, url, lineNo, columnNo, error) {
     if (columnNo === undefined) {
         columnNo = -1;
     }
-    bridge_error_handler.on_error(msg, url, lineNo, columnNo);
+    msg = msg + '\nstack:\n' + error.stack;
+    bridge_error_handler.error_slot(msg, url, lineNo, columnNo);
 };
