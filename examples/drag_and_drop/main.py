@@ -86,6 +86,7 @@ class DragAndDropWindow(QMainWindow):
         )
 
         self.graph_widget = QmxGraph(parent=central_widget)
+        self.events_bridge = self.create_events_bridge()
         self.graph_widget.loadFinished.connect(self.graph_load_handler)
 
         main_layout = QGridLayout(self)
@@ -99,7 +100,7 @@ class DragAndDropWindow(QMainWindow):
         buttons_layout.addWidget(green_button)
         buttons_layout.addWidget(blue_button)
 
-    def graph_load_handler(self, is_loaded):
+    def create_events_bridge(self):
         ##################################
         # Based in `EventsBridge` docstring.
 
@@ -131,7 +132,9 @@ class DragAndDropWindow(QMainWindow):
 
         #
         ##################################
+        return events_bridge
 
+    def graph_load_handler(self, is_loaded):
         self.button_pane.setEnabled(is_loaded)
 
 
