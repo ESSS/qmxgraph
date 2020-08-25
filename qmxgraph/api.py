@@ -882,11 +882,16 @@ class QmxGraphApi(object):
         :rtype: object
         :return: Return of API call.
         """
-        eval_js = self._graph().inner_web_view().eval_js
+        graph = self._graph()
+        eval_js = graph.inner_web_view().eval_js
         if qmxgraph.debug.is_qmxgraph_debug_enabled():
             # Healthy check as if function didn't exist it just returns None,
             # giving the impression that might have worked
-            if eval_js("!api.{}".format(fn)):
+            if not graph.is_loaded():
+                raise qmxgraph.js.InvalidJavaScriptError(
+                    "Because graph is unloaded can't call the JavaScript API."
+                )
+            if eval_js("(typeof api === 'undefined') || !api.{}".format(fn)):
                 raise qmxgraph.js.InvalidJavaScriptError(
                     'Unable to find function "{}" in QmxGraph '
                     'JavaScript API'.format(fn))
