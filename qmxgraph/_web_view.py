@@ -1,13 +1,13 @@
 import functools
 import weakref
 
-# Dynamic dependency of QWebView that may mess freezing tools if not included
+# Dynamic dependency that may mess freezing tools if not included
 from PyQt5 import QtPrintSupport  # noqa
 from PyQt5.QtCore import QEvent, pyqtSignal
-from PyQt5.QtWebKitWidgets import QWebView
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 
-class QWebViewWithDragDrop(QWebView):
+class QWebViewWithDragDrop(QWebEngineView):
     """
     Specialization of QWebView able to handle drag&drop of objects.
     """
@@ -17,7 +17,7 @@ class QWebViewWithDragDrop(QWebView):
     on_drop_event = pyqtSignal(QEvent)
 
     def __init__(self, *args, **kwargs):
-        QWebView.__init__(self, *args, **kwargs)
+        QWebEngineView.__init__(self, *args, **kwargs)
 
         self._drag_drop_handler = None
         self._loaded = False
@@ -65,8 +65,8 @@ class QWebViewWithDragDrop(QWebView):
         Blanks web view page, effectively clearing/unloading currently
         content.
         """
-        self.setHtml('')
         self._loaded = False
+        self.setHtml('')
 
     def eval_js(self, statement):
         """
@@ -76,33 +76,12 @@ class QWebViewWithDragDrop(QWebView):
         :rtype: object
         :return: Return of statement.
         """
-        # WebKit sadly doesn't provide error object on `on_error` global event,
-        # preventing traceback from reaching Python side. To aid with that
-        # issue, every statement is surrounded by a block that explicitly
-        # includes traceback to error message.
-        traceback_block = """\
-try {{
-    {statement};
-}} catch (e) {{
-    e.message = 'message: ' + e.message + '\\nstack:\\n' + e.stack;
-    throw e;
-}}"""
-        block = traceback_block.format(statement=statement)
-        return self.page().mainFrame().evaluateJavaScript(block)
+        from qmxgraph.callback_blocker import CallbackBlocker
 
-    def add_to_js_window(self, name, bridge):
-        """
-        Bridge is an object that allows two-way communication between Python
-        and JS side.
+        with CallbackBlocker(timeout=5000) as cb:
+            self.page().runJavaScript(statement, cb)
 
-        :param str name: Name of variable in `window` object on JS side
-            that is going to keep reference to bridge object.
-        :param qt_traits.QObject bridge: A Qt object that respects Qt-JS
-            two way serialization protocol. To learn more about this
-            interaction see
-            [QtWebKit bridge](http://doc.qt.io/qt-4.8/qtwebkit-bridge.html).
-        """
-        self.page().mainFrame().addToJavaScriptWindowObject(name, bridge)
+        return cb.args[0]
 
     # Overridden Events -------------------------------------------------------
 

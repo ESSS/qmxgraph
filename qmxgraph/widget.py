@@ -3,14 +3,18 @@ from __future__ import absolute_import
 import json
 import os
 import weakref
+from contextlib import suppress
 
-from PyQt5.QtCore import QDataStream, QIODevice, QObject, Qt, pyqtSignal
+from PyQt5.QtCore import QDataStream, QIODevice, QObject, Qt, pyqtSignal, \
+    QTimer, pyqtSlot
 from PyQt5.QtGui import QPainter
+from PyQt5.QtWebChannel import QWebChannel
 from PyQt5.QtWidgets import QDialog, QGridLayout, QShortcut, QSizePolicy, \
     QWidget, QStyleOption, QStyle
 
 from qmxgraph import constants, render
 from qmxgraph.api import QmxGraphApi
+from qmxgraph.callback_blocker import silent_disconnect
 from qmxgraph.configuration import GraphOptions, GraphStyles
 
 from ._web_view import QWebViewWithDragDrop
@@ -102,16 +106,25 @@ class QmxGraph(QWidget):
         self._web_view = QWebViewWithDragDrop()
         self._web_view.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        self._error_bridge = JsPythonErrorHandlingBridge()
+        self._events_bridge = JsPythonEventsBridge()
+        self._is_events_bridge_pending_connection = True
+        self._double_click_bridge = _JsPythonDoubleClickBridge()
+        self._popup_menu_bridge = _JsPythonPopupMenuBridge()
+        self._channel = QWebChannel()
+        self._channel.registerObject('bridge_error_handler', self._error_bridge)
+        self._channel.registerObject('bridge_events_handler', self._events_bridge)
+        self._channel.registerObject('bridge_double_click_handler', self._double_click_bridge)
+        self._channel.registerObject('bridge_popup_menu_handler', self._popup_menu_bridge)
+        self._web_view.page().setWebChannel(self._channel)
+
         # Starts disabled, only enable once finished loading page (as user
         # interaction before that would be unsafe)
         # TODO: widget remain with disabled appearance even after enabled
         # self.setEnabled(False)
 
         self._layout.addWidget(self._web_view, 0, 0, 1, 1)
-
-        self._error_bridge = None
-        self._events_bridge = None
-        self._drag_drop_handler = None
 
         # Similar to a browser, QmxGraph widget is going to allow inspection by
         # typing F12
@@ -127,9 +140,6 @@ class QmxGraph(QWidget):
         self._web_view.on_drag_enter_event.connect(self._on_drag_enter)
         self._web_view.on_drag_move_event.connect(self._on_drag_move)
         self._web_view.on_drop_event.connect(self._on_drop)
-
-        self._double_click_bridge = _DoubleClickBridge()
-        self._popup_menu_bridge = _PopupMenuBridge()
 
         if auto_load:
             self._load_graph_page()
@@ -163,7 +173,7 @@ class QmxGraph(QWidget):
         # If failed in initialization of graph and it isn't running do not
         # considered it loaded, as graph and its API aren't safe for use
         return self._web_view.is_loaded() and \
-            self._web_view.eval_js('graphs.isRunning()')
+            self._web_view.eval_js('(typeof graphs !== "undefined") && graphs.isRunning()')
 
     def blank(self):
         """
@@ -183,9 +193,8 @@ class QmxGraph(QWidget):
 
         :param ErrorHandlingBridge bridge: Handler for errors.
         """
-        self._error_bridge = bridge
-        if self.is_loaded():
-            self._web_view.add_to_js_window('bridge_error_handler', bridge)
+        silent_disconnect(self._error_bridge.on_error, bridge.on_error)
+        self._error_bridge.on_error.connect(bridge.on_error)
 
     def set_events_bridge(self, bridge):
         """
@@ -194,22 +203,29 @@ class QmxGraph(QWidget):
 
         :param EventsBridge bridge: Bridge with event handlers.
         """
-        self._events_bridge = bridge
-        if self.is_loaded():
-            self._web_view.add_to_js_window('bridge_events_handler', bridge)
+        signal_name_list = (
+            'on_cells_added', 'on_cells_removed', 'on_label_changed',
+            'on_selection_changed', 'on_terminal_changed',
+            'on_terminal_with_port_changed', 'on_view_update',
+        )
+        for signal_name in signal_name_list:
+            own_signal = getattr(self._events_bridge, signal_name)
+            outside_signal = getattr(bridge, signal_name)
+            silent_disconnect(own_signal, outside_signal)
+            own_signal.connect(outside_signal)
 
-            # Bind all known Python/Qt event handlers to JavaScript events
-            self.api.on_cells_added('bridge_events_handler.on_cells_added')
-            self.api.on_cells_removed('bridge_events_handler.on_cells_removed')
-            self.api.on_label_changed('bridge_events_handler.on_label_changed')
+    def _connect_events_bridge(self):
+        if self.is_loaded():
+            self.api.on_cells_added('bridge_events_handler.cells_added_slot')
+            self.api.on_cells_removed('bridge_events_handler.cells_removed_slot')
+            self.api.on_label_changed('bridge_events_handler.label_changed_slot')
             self.api.on_selection_changed(
-                'bridge_events_handler.on_selection_changed')
+                'bridge_events_handler.selection_changed_slot')
             self.api.on_terminal_changed(
-                'bridge_events_handler.on_terminal_changed')
+                'bridge_events_handler.terminal_changed_slot')
             self.api.on_terminal_with_port_changed(
-                'bridge_events_handler.on_terminal_with_port_changed')
-            self.api.on_view_update(
-                'bridge_events_handler.on_view_update')
+                'bridge_events_handler.terminal_with_port_changed_slot')
+            self.api.on_view_update('bridge_events_handler.view_update_slot')
 
     def set_double_click_handler(self, handler):
         """
@@ -224,11 +240,15 @@ class QmxGraph(QWidget):
             cell id as only argument. If None it disconnects double click
             handler from graph.
         """
-        self._set_private_bridge_handler(
-            self._double_click_bridge.on_double_click,
-            handler=handler,
-            setter=self._set_double_click_bridge,
-        )
+        with suppress(TypeError):
+            self._double_click_bridge.on_double_click.disconnect()
+        if handler:
+            self._double_click_bridge.on_double_click.connect(handler)
+
+    def _connect_double_click_handler(self):
+        if self.is_loaded():
+            self.api.set_double_click_handler(
+                'bridge_double_click_handler.double_click_slot')
 
     def set_popup_menu_handler(self, handler):
         """
@@ -245,11 +265,15 @@ class QmxGraph(QWidget):
             and Y coordinate in screen coordinates as its three arguments. If
             None it disconnects handler from graph.
         """
-        self._set_private_bridge_handler(
-            self._popup_menu_bridge.on_popup_menu,
-            handler=handler,
-            setter=self._set_popup_menu_bridge,
-        )
+        with suppress(TypeError):
+            self._popup_menu_bridge.on_popup_menu.disconnect()
+        if handler:
+            self._popup_menu_bridge.on_popup_menu.connect(handler)
+
+    def _connect_popup_menu_handler(self):
+        if self.is_loaded():
+            self.api.set_popup_menu_handler(
+                'bridge_popup_menu_handler.popup_menu_slot')
 
     @property
     def api(self):
@@ -266,10 +290,6 @@ class QmxGraph(QWidget):
         Show web inspector bound to QmxGraph page.
         """
         if not self._inspector_dialog:
-            from PyQt5.QtWebKit import QWebSettings
-            QWebSettings.globalSettings().setAttribute(
-                QWebSettings.DeveloperExtrasEnabled, True)
-
             dialog = self._inspector_dialog = QDialog(self)
             dialog.setWindowTitle("Web Inspector")
             dialog.setWindowFlags(
@@ -278,11 +298,11 @@ class QmxGraph(QWidget):
             layout = QGridLayout(dialog)
             layout.setContentsMargins(0, 0, 0, 0)  # no margin to web view
 
-            from PyQt5.QtWebKitWidgets import QWebInspector
-            inspector = QWebInspector(dialog)
+            from PyQt5.QtWebEngineWidgets import QWebEngineView
+            inspector = QWebEngineView(dialog)
             inspector.setSizePolicy(
                 QSizePolicy.Expanding, QSizePolicy.Expanding)
-            inspector.setPage(self.inner_web_view().page())
+            self._web_view.page().setDevToolsPage(inspector.page())
             inspector.setVisible(True)
             layout.addWidget(inspector)
 
@@ -300,11 +320,10 @@ class QmxGraph(QWidget):
         """
         Toggle visibility state of web inspector bound to QmxGraph page.
         """
-        if not self._inspector_dialog or \
-                not self._inspector_dialog.isVisible():
-            self.show_inspector()
-        else:
+        if self._inspector_dialog and self._inspector_dialog.isVisible():
             self.hide_inspector()
+        else:
+            self.show_inspector()
 
     # Accessors recommended for debugging/testing only ------------------------
 
@@ -358,28 +377,21 @@ class QmxGraph(QWidget):
             self_ = self_ref()
             if not self_:
                 return
-
+            ok = bool(ok and self_.is_loaded())
             if ok:
                 # TODO: widget remain w/ disabled appearance even after enabled
                 # Allow user to interact with page again
                 # self_._web_view.setEnabled(True)
 
-                # There is a chance error handler is set before loaded. If so,
-                # register it on JS once page finishes loading.
-                if self_._error_bridge:
-                    self_.set_error_bridge(self_._error_bridge)
-
-                if self_._events_bridge:
-                    self_.set_events_bridge(self_._events_bridge)
-
-                self_._set_double_click_bridge()
-                self_._set_popup_menu_bridge()
+                self_._connect_events_bridge()
+                self_._connect_double_click_handler()
+                self_._connect_popup_menu_handler()
 
                 width = self_.width()
                 height = self_.height()
                 self_.api.resize_container(width, height)
 
-            self_.loadFinished.emit(bool(ok and self_.is_loaded()))
+            self_.loadFinished.emit(ok)
 
         self._web_view.loadFinished.connect(post_load)
 
@@ -465,52 +477,31 @@ class QmxGraph(QWidget):
         else:
             event.ignore()
 
-    def _set_double_click_bridge(self):
-        """
-        Redirects double click events fired by graph on JavaScript code to
-        Python/Qt side by using a private bridge.
-        """
-        if self.is_loaded():
-            bridge = self._double_click_bridge
-            self._web_view.add_to_js_window(
-                'bridge_double_click_handler', bridge)
-            self.api.set_double_click_handler(
-                'bridge_double_click_handler.on_double_click')
 
-    def _set_popup_menu_bridge(self):
-        """
-        Redirects popup menu (i.e. right click) events fired by graph on
-        JavaScript code to Python/Qt side by using a private bridge.
-        """
-        if self.is_loaded():
-            bridge = self._popup_menu_bridge
-            self._web_view.add_to_js_window(
-                'bridge_popup_menu_handler', bridge)
-            self.api.set_popup_menu_handler(
-                'bridge_popup_menu_handler.on_popup_menu')
+def _make_async_pyqt_slot(slot_name, signal_name, parameters):
 
-    def _set_private_bridge_handler(self, bridge_signal, handler, setter):
-        """
-        Helper method to set handler for private bridges like the ones use for
-        double click and popup menu events.
+    def async_slot(self, *args):
+        signal = getattr(self, signal_name)
+        QTimer.singleShot(1, lambda: signal.emit(*args))
 
-        :param pyqtSignal bridge_signal: A Qt signal in bridge object.
-        :param callable|None handler: Handler of signal. If None it
-            disconnects handler from graph.
-        :param callable setter: Internal setter method used to set bridge in
-            QmxGraph object, only if already loaded.
-        """
-        try:
-            bridge_signal.disconnect()
-        except TypeError:
-            # It fails if tries to disconnect without any handler connected.
-            pass
+    return pyqtSlot(*parameters, name=slot_name)(async_slot)
 
-        if handler:
-            bridge_signal.connect(handler)
 
-        if self.is_loaded():
-            setter()
+def _create_async_slots(namespace, signal_holder_class):
+    import re
+
+    for k, v in signal_holder_class.__dict__.items():
+        if isinstance(v, pyqtSignal):
+            (signature,) = v.signatures
+            m = re.match(r'^([^(]+)\(([^)]*)\)$', signature)
+            assert m is not None
+
+            signal_name = m.group(1)
+            assert signal_name.startswith('on_')
+            slot_name = signal_name[3:] + '_slot'
+            parameters = m.group(2)
+            parameters = parameters.split(',') if parameters else []
+            namespace[slot_name] = _make_async_pyqt_slot(slot_name, signal_name, parameters)
 
 
 class ErrorHandlingBridge(QObject):
@@ -530,6 +521,13 @@ class ErrorHandlingBridge(QObject):
     # line: int
     # column: int
     on_error = pyqtSignal(str, str, int, int, name='on_error')
+
+
+class JsPythonErrorHandlingBridge(ErrorHandlingBridge):
+    """
+    Javascript interface object for ErrorHandlingBridge.
+    """
+    _create_async_slots(locals(), ErrorHandlingBridge)
 
 
 class EventsBridge(QObject):
@@ -624,6 +622,13 @@ class EventsBridge(QObject):
     on_view_update = pyqtSignal(str, 'QVariantList', name='on_view_update')
 
 
+class JsPythonEventsBridge(EventsBridge):
+    """
+    Javascript interface object for EventsBridge.
+    """
+    _create_async_slots(locals(), EventsBridge)
+
+
 class _DoubleClickBridge(QObject):
     """
     A private bridge used for double click events in JavaScript graph.
@@ -636,6 +641,13 @@ class _DoubleClickBridge(QObject):
     # Arguments:
     # cell_id: str
     on_double_click = pyqtSignal(str, name='on_double_click')
+
+
+class _JsPythonDoubleClickBridge(_DoubleClickBridge):
+    """
+    Javascript interface object for _DoubleClickBridge.
+    """
+    _create_async_slots(locals(), _DoubleClickBridge)
 
 
 class _PopupMenuBridge(QObject):
@@ -652,3 +664,10 @@ class _PopupMenuBridge(QObject):
     # x: int
     # y: int
     on_popup_menu = pyqtSignal(str, int, int, name='on_popup_menu')
+
+
+class _JsPythonPopupMenuBridge(_PopupMenuBridge):
+    """
+    Javascript interface object for _PopupMenuBridge.
+    """
+    _create_async_slots(locals(), _PopupMenuBridge)
