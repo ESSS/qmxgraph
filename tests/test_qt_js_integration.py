@@ -1,7 +1,9 @@
 import json
 import textwrap
+from functools import partial
 
 import pytest
+import pytestqt.exceptions
 from PyQt5.QtCore import (QByteArray, QDataStream, QIODevice, QMimeData,
                           QPoint, Qt)
 from PyQt5.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
@@ -10,8 +12,8 @@ from _pytest.compat import nullcontext
 import qmxgraph.constants
 import qmxgraph.js
 import qmxgraph.mime
-from qmxgraph.callback_blocker import CallbackBlocker, silent_disconnect
-from qmxgraph.common_testing import wait_signals
+from qmxgraph._web_view import ViewState
+from qmxgraph.waiting import wait_callback_called, wait_signals_called
 
 
 def test_error_redirection(loaded_graph):
@@ -20,23 +22,46 @@ def test_error_redirection(loaded_graph):
 
     :type loaded_graph: qmxgraph.widget.qmxgraph
     """
-    from qmxgraph.widget import ErrorHandlingBridge
+    error_redirection = loaded_graph.error_bridge
 
-    error_redirection = ErrorHandlingBridge()
-    loaded_graph.set_error_bridge(error_redirection)
-
-    with wait_signals(error_redirection.on_error) as (cb,):
+    with wait_signals_called(error_redirection.on_error) as cb:
         eval_js(loaded_graph, """throw Error("test")""")
 
     msg, url, line, column = cb.args
-    assert msg == textwrap.dedent(
-        '''\
+    expected = textwrap.dedent('''\
         Uncaught Error: test
         stack:
         Error: test
             at <anonymous>:1:7'''
     )
     assert (url, line, column) == ('qrc:/', 1, 1)
+
+
+
+def test_events_bridge_delayed_signals(graph, qtbot, mocker):
+    from qmxgraph.widget import EventsBridge
+    events = EventsBridge()
+
+    stub = mocker.stub()
+    call = mocker.call
+    events.on_cells_added.connect(stub)
+
+    events.cells_added_slot(["1"])
+    assert stub.call_args_list == []
+
+    def check_call(expected):
+        assert stub.call_args_list == expected
+
+    qtbot.waitUntil(partial(check_call, [call(["1"])]))
+
+    with events.delaying_signals():
+        events.cells_added_slot(["2"])
+
+        with pytest.raises(pytestqt.exceptions.TimeoutError):
+            expected = [call(["1"]), call(["2"])]
+            qtbot.waitUntil(partial(check_call, expected), timeout=1000)
+
+    qtbot.waitUntil(partial(check_call, expected))
 
 
 def test_events_bridge_plain(graph, mocker):
@@ -48,10 +73,8 @@ def test_events_bridge_plain(graph, mocker):
     :type mocker: pytest_mock.MockFixture
     """
     from qmxgraph.api import QmxGraphApi
-    from qmxgraph.widget import EventsBridge
 
-    events = EventsBridge()
-    graph.set_events_bridge(events)
+    events = graph.events_bridge
 
     added_handler = mocker.Mock()
     removed_handler = mocker.Mock()
@@ -69,16 +92,16 @@ def test_events_bridge_plain(graph, mocker):
 
     wait_until_loaded(graph)
     # on_cells_added
-    with wait_signals(events.on_cells_added):
+    with wait_signals_called(events.on_cells_added):
         vertex_id = graph.api.insert_vertex(40, 40, 20, 20, 'test')
     assert added_handler.call_args_list == [mocker.call([vertex_id])]
     # on_selection_changed
     assert selections_handler.call_args_list == []
-    with wait_signals(events.on_selection_changed):
+    with wait_signals_called(events.on_selection_changed):
         eval_js(graph, "graphEditor.execute('selectVertices')")
     assert selections_handler.call_args_list == [mocker.call([vertex_id])]
     # on_label_changed
-    with wait_signals(events.on_label_changed):
+    with wait_signals_called(events.on_label_changed):
         graph.api.set_label(vertex_id, 'TOTALLY NEW LABEL')
     assert labels_handler.call_args_list == [
         mocker.call(vertex_id, 'TOTALLY NEW LABEL', 'test')]
@@ -91,12 +114,12 @@ def test_events_bridge_plain(graph, mocker):
     graph.api.insert_port(bar_id, bar_port_name, 0, 0, 5, 5)
     assert graph.api.has_port(bar_id, bar_port_name)
 
-    with wait_signals(
+    with wait_signals_called(
         events.on_terminal_changed, events.on_terminal_with_port_changed,
     ):
         graph.api.set_edge_terminal(
             edge_id, QmxGraphApi.TARGET_TERMINAL_CELL, bar_id, bar_port_name)
-    with wait_signals(
+    with wait_signals_called(
         events.on_terminal_changed, events.on_terminal_with_port_changed,
     ):
         graph.api.set_edge_terminal(
@@ -123,7 +146,7 @@ def test_events_bridge_plain(graph, mocker):
         ),
     ]
     # on_cells_removed
-    with wait_signals(events.on_cells_removed):
+    with wait_signals_called(events.on_cells_removed):
         graph.api.remove_cells([vertex_id])
     assert removed_handler.call_args_list == [mocker.call([vertex_id])]
 
@@ -137,20 +160,21 @@ def test_bridges_signal_handlers_can_call_api(loaded_graph):
 
     :type loaded_graph: qmxgraph.widget.qmxgraph
     """
-    from qmxgraph.widget import EventsBridge
+    zoom_scale_obtained = []
 
     def handler_that_call_api(*args):
         result = loaded_graph.api.get_zoom_scale()
-        assert result == 1
+        zoom_scale_obtained.append(result)
 
-    events = EventsBridge()
-    loaded_graph.set_events_bridge(events)
+    events = loaded_graph.events_bridge
     events.on_cells_added.connect(handler_that_call_api)
-    with wait_signals(events.on_cells_added):
+    with wait_signals_called(events.on_cells_added):
         loaded_graph.api.insert_vertex(40, 40, 20, 20, 'test')
 
+    assert zoom_scale_obtained == [1]
 
-def test_set_double_click_handler(graph, handler):
+
+def test_set_double_click_handler(graph, handler, qtbot):
     """
     :type graph: qmxgraph.widget.qmxgraph
     :type handler: _HandlerFixture
@@ -158,25 +182,25 @@ def test_set_double_click_handler(graph, handler):
     js_script = "graphEditor.execute('doubleClick', {vertex})"
 
     # Handler can be set even while not yet loaded
-    graph.set_double_click_handler(handler.handler_func)
+    graph.double_click_bridge.on_double_click.connect(handler.handler_func)
     handler.assert_handled(
         js_script=js_script, called=True, expected_calls=[()],
     )
 
     # It should be restored if loaded again after being blanked
-    wait_until_blanked(graph)
+    wait_until_blanked(qtbot, graph)
     handler.assert_handled(
         js_script=js_script, called=True, expected_calls=[()],
     )
 
     # Setting handler to None disconnects it from event
-    graph.set_double_click_handler(None)
+    graph.double_click_bridge.on_double_click.disconnect(handler.handler_func)
     handler.assert_handled(
         js_script=js_script, called=False, expected_calls=[],
     )
 
 
-def test_set_popup_menu_handler(graph, handler):
+def test_set_popup_menu_handler(graph, handler, qtbot):
     """
     :type graph: qmxgraph.widget.qmxgraph
     :type handler: _HandlerFixture
@@ -184,19 +208,19 @@ def test_set_popup_menu_handler(graph, handler):
     js_script = "graphEditor.execute('popupMenu', {vertex}, 15, 15)"
 
     # Handler can be set even while not yet loaded
-    graph.set_popup_menu_handler(handler.handler_func)
+    graph.popup_menu_bridge.on_popup_menu.connect(handler.handler_func)
     handler.assert_handled(
         js_script=js_script, called=True, expected_calls=[(15, 15)],
     )
 
     # It should be restored if loaded again after being blanked
-    wait_until_blanked(graph)
+    wait_until_blanked(qtbot, graph)
     handler.assert_handled(
         js_script=js_script, called=True, expected_calls=[(15, 15)],
     )
 
     # Setting handler to None disconnects it from event
-    graph.set_popup_menu_handler(None)
+    graph.popup_menu_bridge.on_popup_menu.disconnect(handler.handler_func)
     handler.assert_handled(
         js_script=js_script, called=False, expected_calls=[],
     )
@@ -253,18 +277,24 @@ def test_web_inspector(loaded_graph, mocker):
     QDialog.show.assert_called_once_with()
 
 
-def test_blank(loaded_graph):
+def test_blank(loaded_graph, qtbot):
     """
     :type loaded_graph: qmxgraph.widget.QmxGraph
     """
-    assert eval_js(loaded_graph, 'typeof api !== "undefined"')
     assert loaded_graph.is_loaded()
 
-    # Graph page that was loaded is now unloaded by `blank` call and all
-    # objects formerly available in JavaScript window object are now gone
-    wait_until_blanked(loaded_graph)
-    assert eval_js(loaded_graph, 'typeof api === "undefined"')
+    loaded_graph.blank()
+    def check():
+        assert loaded_graph.inner_web_view().view_state == ViewState.Blank
+    qtbot.waitUntil(check)
     assert not loaded_graph.is_loaded()
+
+
+def test_blank_and_load(graph, qtbot):
+    graph.load_and_wait()
+    graph.blank()
+    wait_until_blanked(qtbot, graph)
+    graph.load_and_wait(timeout_ms=5000)
 
 
 def test_drag_drop(loaded_graph, drag_drop_events):
@@ -385,7 +415,7 @@ def test_drag_drop_invalid_version(loaded_graph, drag_drop_events):
         ),
         file=sys.stderr,
     )
-    from pytestqt.plugin import capture_exceptions
+    from pytestqt.exceptions import capture_exceptions
     with capture_exceptions() as exceptions:
         loaded_graph.inner_web_view().dropEvent(drop_event)
 
@@ -396,6 +426,7 @@ def test_drag_drop_invalid_version(loaded_graph, drag_drop_events):
 
 
 @pytest.mark.parametrize('debug', (True, False))
+@pytest.mark.xfail(reason="ASIM-4287: append extra debug checks to api calls", run=False)
 def test_invalid_api_call(loaded_graph, debug):
     """
     :type loaded_graph: qmxgraph.widget.qmxgraph
@@ -583,34 +614,38 @@ def wait_until_loaded(graph):
     """
     :type graph: qmxgraph.widget.qmxgraph
     """
-    with CallbackBlocker(timeout=5000, msg='wait_until_loaded') as cb:
-        graph.loadFinished.connect(cb)
-        graph.load()
-    silent_disconnect(graph.loadFinished, cb)
+    # TODO[ASIM-4286]: inline this call.
+    graph.load_and_wait()
 
 
-def wait_until_blanked(graph):
+def wait_until_blanked(qtbot, graph):
     """
     :type graph: qmxgraph.widget.qmxgraph
     """
-    with CallbackBlocker(timeout=5000, msg='wait_until_blanked') as cb:
-        graph.loadFinished.connect(cb)
-        graph.blank()
-    silent_disconnect(graph.loadFinished, cb)
+    graph.blank()
+
+    def is_blank():
+        assert graph.inner_web_view().view_state == ViewState.Blank
+
+    qtbot.waitUntil(is_blank)
 
 
 class _HandlerFixture:
-    def __init__(self, graph):
+    def __init__(self, graph, qtbot):
         self.calls = []
         self.cb = None
         self.graph = graph
+        self.qtbot = qtbot
+
 
     def handler_func(self, *args):
-        assert self.cb and self.cb._timer
+        assert self.cb
         self.calls.append(args)
         self.cb(*args)
 
     def assert_handled(self, *, js_script, called, expected_calls=()):
+        import pytestqt.exceptions
+
         assert "{vertex}" in js_script
         wait_until_loaded(self.graph)
         vertex_id = self.graph.api.insert_vertex(
@@ -619,17 +654,16 @@ class _HandlerFixture:
         js_script = js_script.format(
             vertex=f"graphEditor.graph.model.getCell({vertex_id})",
         )
-
         if called:
             error_context = nullcontext()
         else:
-            error_context = pytest.raises(
-                TimeoutError, match="Callback wasn't called",
-            )
+            error_context = pytest.raises(TimeoutError)
 
         with error_context:
-            with CallbackBlocker() as cb:
+            #self.qtbot.stop()
+            with wait_callback_called() as cb:
                 self.cb = cb
+
                 eval_js(self.graph, js_script)
 
         assert self.calls == [
@@ -639,9 +673,9 @@ class _HandlerFixture:
 
 
 @pytest.fixture(name='handler')
-def handler_(graph):
+def handler_(graph, qtbot):
     """
     :type graph: qmxgraph.widget.qmxgraph
     :rtype: _HandlerFixture
     """
-    return _HandlerFixture(graph)
+    return _HandlerFixture(graph, qtbot)
