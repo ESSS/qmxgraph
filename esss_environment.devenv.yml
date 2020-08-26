@@ -44,7 +44,7 @@ dependencies:
     - colorama
     - invoke>=1.0.0
     - jinja2==2.10
-    - pyqt==5.12
+    - pyqt=5.12.*
     - six
 
     {% if TEST_QMXGRAPH %}
