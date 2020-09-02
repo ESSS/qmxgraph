@@ -55,20 +55,25 @@ graphs.Api.TARGET_TERMINAL_CELL = 'target';
  * @param {Object} [tags] A dict-like object, with string keys and values. Tags are basically custom
  * attributes that may be added to a cell that may be later queried (or even modified), with the
  * objective of allowing better inspection and interaction with cells in a graph.
+ * @param {number} [id] The id of the vertex. If omitted (or non unique) an id is generated.
  * @returns {number} Id of new vertex.
  */
 graphs.Api.prototype.insertVertex = function insertVertex (
-    x, y, width, height, label, style, tags) {
+    x, y, width, height, label, style, tags, id) {
     "use strict";
 
     var graph = this._graphEditor.graph;
     var coords = graphs.utils.adjustCoordinates(graph, x, y);
 
+    if (id === undefined) {
+        id = null;
+    }
+
     var value = this._prepareCellValue(label, tags);
     var parent = graph.getDefaultParent();
     var vertex = graph.insertVertex(
         parent,
-        null,
+        id,
         value,
         coords.x,
         coords.y,
@@ -143,12 +148,13 @@ graphs.Api.prototype.insertPort = function insertPort (
  * falsy value is used no port is used.
  * @param {string} [targetPortName] The name of the port used to connect on the target vertex. If a
  * falsy value is used no port is used.
+ * @param {number} [id] The id of the edge. If omitted (or non unique) an id is generated.
  * @returns {number} Id of new edge.
  * @throws {Error} If source or target aren't found in graph.
  * @throws {Error} If the source or target ports aren't found in the respective vertices.
  */
 graphs.Api.prototype.insertEdge = function insertEdge (
-    sourceId, targetId, label, style, tags, sourcePortName, targetPortName) {
+    sourceId, targetId, label, style, tags, sourcePortName, targetPortName, id) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -166,7 +172,11 @@ graphs.Api.prototype.insertEdge = function insertEdge (
         target = this._findPort(model, targetId, targetPortName, true);
     }
 
-    var edge = graph.insertEdge(parent, null, value, source, target, style);
+    if (id === undefined) {
+        id = null;
+    }
+
+    var edge = graph.insertEdge(parent, id, value, source, target, style);
 
     return edge.getId();
 };
@@ -187,10 +197,11 @@ graphs.Api.prototype.insertEdge = function insertEdge (
  * @param {Object} [tags] A dict-like object, with string keys and values. Tags are basically custom
  * attributes that may be added to a cell that may be later queried (or even modified), with the
  * objective of allowing better inspection and interaction with cells in a graph.
+ * @param {number} [id] The id of the decoration. If omitted (or non unique) an id is generated.
  * @returns {number} Id of new decoration.
  */
 graphs.Api.prototype.insertDecoration = function insertDecoration (
-    x, y, width, height, label, style, tags) {
+    x, y, width, height, label, style, tags, id) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -216,7 +227,7 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
     // Relative position in edge
     var position = current / total;
 
-    return this._insertDecorationOnEdge(edge, position, width, height, label, style, tags);
+    return this._insertDecorationOnEdge(edge, position, width, height, label, style, tags, id);
 };
 
 /**
@@ -232,18 +243,19 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
  * @param {Object} [tags] A dict-like object, with string keys and values. Tags are basically custom
  * attributes that may be added to a cell that may be later queried (or even modified), with the
  * objective of allowing better inspection and interaction with cells in a graph.
+ * @param {number} [id] The id of the decoration. If omitted (or non unique) an id is generated.
  * @returns {number} Id of new decoration.
  * @throws {Error} If edge isn't found in graph.
  */
 graphs.Api.prototype.insertDecorationOnEdge = function insertDecorationOnEdge (
-    edgeId, position, width, height, label, style, tags) {
+    edgeId, position, width, height, label, style, tags, id) {
     "use strict";
 
     var graph = this._graphEditor.graph;
     var model = graph.getModel();
     var edge = this._findCell(model, edgeId);
 
-    return this._insertDecorationOnEdge(edge, position, width, height, label, style, tags);
+    return this._insertDecorationOnEdge(edge, position, width, height, label, style, tags, id);
 };
 
 /**
@@ -259,10 +271,11 @@ graphs.Api.prototype.insertDecorationOnEdge = function insertDecorationOnEdge (
  * @param {Object} [tags] A dict-like object, with string keys and values. Tags are basically custom
  * attributes that may be added to a cell that may be later queried (or even modified), with the
  * objective of allowing better inspection and interaction with cells in a graph.
+ * @param {number} [id] The id of the decoration. If omitted (or non unique) an id is generated.
  * @returns {number} Id of new decoration.
  */
 graphs.Api.prototype._insertDecorationOnEdge = function _insertDecorationOnEdge (
-    edge, position, width, height, label, style, tags) {
+    edge, position, width, height, label, style, tags, id) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -276,12 +289,16 @@ graphs.Api.prototype._insertDecorationOnEdge = function _insertDecorationOnEdge 
     var value = this._prepareCellValue(label, tags);
     value.setAttribute('__decoration__', '1');
 
+    if (id === undefined) {
+        id = null;
+    }
+
     var model = graph.getModel();
     model.beginUpdate();
     var decoration;
     try {
         decoration = graph.insertVertex(
-            edge, null, value, position, 0, width, height, decorationStyle, true);
+            edge, id, value, position, 0, width, height, decorationStyle, true);
         decoration.geometry.offset = new mxPoint(-width / 2, -height / 2);
         decoration.connectable = false;
     } finally {
@@ -309,11 +326,12 @@ graphs.Api.prototype._insertDecorationOnEdge = function _insertDecorationOnEdge 
  * @param {string} [style] An style name or inline style. The `'table'` style is always used but
  * options defined with this value will overwrite the option defined on the `'table'` style.
  * @param {number} [parentId] If supplied this makes the table position relative to this cell
+ * @param {number} [id] The id of the table. If omitted (or non unique) an id is generated.
  * @returns {number} Id of new table.
  * @throws {Error} If parentId  is supplied but isn't found in graph.
  */
 graphs.Api.prototype.insertTable = function insertTable (
-    x, y, width, contents, title, tags, style, parentId) {
+    x, y, width, contents, title, tags, style, parentId, id) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -340,12 +358,16 @@ graphs.Api.prototype.insertTable = function insertTable (
     var value = this._prepareCellValue(label, tags);
     value.setAttribute('__table__', '1');
 
+    if (id === undefined) {
+        id = null;
+    }
+
     model.beginUpdate();
     var table = null;
     try {
         table = graph.insertVertex(
             parent,
-            null,
+            id,
             value,
             coords.x,
             coords.y,

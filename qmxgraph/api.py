@@ -29,7 +29,7 @@ class QmxGraphApi(object):
         """
         self._graph = weakref.ref(graph)
 
-    def insert_vertex(self, x, y, width, height, label, style=None, tags=None):
+    def insert_vertex(self, x, y, width, height, label, style=None, tags=None, id=None):
         """
         Inserts a new vertex in graph.
 
@@ -45,11 +45,13 @@ class QmxGraphApi(object):
             that may be added to a cell that may be later queried (or even
             modified), with the objective of allowing better inspection and
             interaction with cells in a graph.
+        :param Optional[str] id: The id of the edge. If omitted (or non
+            unique) an id is generated.
         :rtype: str
         :return: Id of new vertex.
         """
         return self.call_api(
-            'insertVertex', x, y, width, height, label, style, tags)
+            'insertVertex', x, y, width, height, label, style, tags, id)
 
     def insert_port(self, vertex_id, port_name, x, y, width, height,
                     label=None, style=None, tags=None):
@@ -78,7 +80,7 @@ class QmxGraphApi(object):
             style, tags)
 
     def insert_edge(self, source_id, target_id, label, style=None, tags=None,
-                    source_port_name=None, target_port_name=None):
+                    source_port_name=None, target_port_name=None, id=None):
         """
         Inserts a new edge between two vertices in graph.
 
@@ -96,15 +98,17 @@ class QmxGraphApi(object):
             to source vertex.
         :param str|None target_port_name: The name of the port used to connect
             to target vertex.
+        :param Optional[str] id: The id of the edge. If omitted (or non
+            unique) an id is generated.
         :rtype: str
         :return: Id of new edge.
         """
         return self.call_api(
             'insertEdge', source_id, target_id, label, style, tags,
-            source_port_name, target_port_name)
+            source_port_name, target_port_name, id)
 
     def insert_decoration(
-            self, x, y, width, height, label, style=None, tags=None):
+            self, x, y, width, height, label, style=None, tags=None, id=None):
         """
         Inserts a new decoration over an edge in graph. A decoration is
         basically an overlay object that is representing some entity over the
@@ -125,14 +129,16 @@ class QmxGraphApi(object):
             that may be added to a cell that may be later queried (or even
             modified), with the objective of allowing better inspection and
             interaction with cells in a graph.
+        :param Optional[str] id: The id of the decoration. If omitted (or non
+            unique) an id is generated.
         :rtype: str
         :return: Id of new decoration.
         """
         return self.call_api(
-            'insertDecoration', x, y, width, height, label, style, tags)
+            'insertDecoration', x, y, width, height, label, style, tags, id)
 
     def insert_decoration_on_edge(self, edge_id, position, width, height,
-                                  label, style=None, tags=None):
+                                  label, style=None, tags=None, id=None):
         """
         Inserts a new decoration over an edge in graph. A decoration is
         basically an overlay object that is representing some entity over the
@@ -153,16 +159,18 @@ class QmxGraphApi(object):
             that may be added to a cell that may be later queried (or even
             modified), with the objective of allowing better inspection and
             interaction with cells in a graph.
+        :param Optional[str] id: The id of the decoration. If omitted (or non
+            unique) an id is generated.
         :rtype: str
         :return: Id of new decoration.
         """
         return self.call_api(
             'insertDecorationOnEdge', edge_id, position, width, height, label,
-            style, tags)
+            style, tags, id)
 
     def insert_table(
             self, x, y, width, contents, title, tags=None, style=None,
-            parent_id=None):
+            parent_id=None, id=None):
         """
         Inserts a new table in graph. A table is an object that can be used
         in graph to display tabular information about other cells, for
@@ -186,6 +194,8 @@ class QmxGraphApi(object):
             initialization of this class.
         :param str|None parent_id: If not `None` the created table is placed
             in a relative position to the cell with id `parent_id`.
+        :param Optional[str] id: The id of the table. If omitted (or non
+            unique) an id is generated.
         :rtype: str
         :return: Id of new table.
         """
@@ -193,7 +203,7 @@ class QmxGraphApi(object):
         contents = decoration_contents.asdict(contents)
         return self.call_api(
             'insertTable', x, y, width, contents, title, tags, style,
-            parent_id)
+            parent_id, id)
 
     def update_table(self, table_id, contents, title):
         """
