@@ -210,6 +210,8 @@ class QmxGraph(QWidget):
                 'bridge_events_handler.on_terminal_with_port_changed')
             self.api.on_view_update(
                 'bridge_events_handler.on_view_update')
+            self.api.on_cells_bounds_changed(
+                'bridge_events_handler.on_cells_bounds_changed')
 
     def set_double_click_handler(self, handler):
         """
@@ -583,6 +585,13 @@ class EventsBridge(QObject):
         - graph_view: str
         - scale_and_translation: QVariantList
 
+    :ivar pyqtSignal on_cells_bounds_changed: JavaScript client code emits
+        this signal when some cells' bounds changes.The arguments `dict`
+        maps the affected `cell_id`s
+        to :class:`qmxgraph.cell_bounds.CellBounds` dict representations:
+
+        - changed_bounds: dict
+
 
     Using this object connecting to events from JavaScript basically becomes a
     matter of using Qt signals.
@@ -622,6 +631,7 @@ class EventsBridge(QObject):
     on_terminal_with_port_changed = pyqtSignal(
         str, str, str, str, str, str, name='on_terminal_with_port_changed')
     on_view_update = pyqtSignal(str, 'QVariantList', name='on_view_update')
+    on_cells_bounds_changed = pyqtSignal('QVariant', name='on_cells_bounds_changed')
 
 
 class _DoubleClickBridge(QObject):

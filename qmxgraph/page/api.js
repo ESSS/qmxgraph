@@ -477,6 +477,83 @@ graphs.Api.prototype.getDecorationParentCellId = function getDecorationParentCel
 };
 
 /**
+ * Return an object describing the bounds of the given cell.
+ *
+ * @param {mxCell} cell The cell.
+ * @returns {object} The bounds object.
+ */
+graphs.Api.prototype._getBoundsFromMxCell = function _getBoundsFromMxCell (cell) {
+    "use strict";
+
+    var geometry = cell.getGeometry();
+    var parent_anchor_position = null;
+    var x = geometry.x, y = geometry.y;
+
+    if (geometry.relative) {
+        parent_anchor_position = {'x': x, 'y': y};
+        x = geometry.offset ? geometry.offset.x : 0;
+        y = geometry.offset ? geometry.offset.y : 0;
+    }
+
+    return {
+        'x': x,
+        'y': y,
+        'width': geometry.width,
+        'height': geometry.height,
+        'parent_anchor_position': parent_anchor_position
+    };
+};
+
+/**
+ * Return an object describing the bounds of a cell.
+ *
+ * @param {number} cellId Id of a cell in graph.
+ * @returns {object} The bounds object.
+ * @throws {Error} Unable to find cell.
+ */
+graphs.Api.prototype.getCellBounds = function getCellBounds (cellId) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var cell = graph.getModel().getCell(cellId);
+    return this._getBoundsFromMxCell(cell);
+};
+
+/**
+ * Return an object describing the bounds of a cell.
+ *
+ * @param {number} cellId Id of a cell in graph.
+ * @param {object} cell_bounds The bounds object.
+ * @throws {Error} Unable to find cell.
+ */
+graphs.Api.prototype.setCellBounds = function setCellBounds (cellId, cell_bounds) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var cell = model.getCell(cellId);
+    var geometry = cell.getGeometry().clone();
+
+    geometry.width = cell_bounds.width;
+    geometry.height = cell_bounds.height;
+    if (cell_bounds.parent_anchor_position) {
+        geometry.relative = true;
+        geometry.offset = geometry.offset || new mxPoint(0,0);
+        geometry.offset.x = cell_bounds.x;
+        geometry.offset.y = cell_bounds.y;
+        geometry.x = cell_bounds.parent_anchor_position.x;
+        geometry.y = cell_bounds.parent_anchor_position.y;
+    } else {
+        geometry.relative = false;
+        geometry.offset = null;
+        geometry.x = cell_bounds.x;
+        geometry.y = cell_bounds.y;
+    }
+    model.setGeometry(cell, geometry);
+    graph.refresh(cell)
+};
+
+/**
  * Indicates if cell exists.
  *
  * @param {number} cellId Id of a cell in graph.
@@ -983,6 +1060,34 @@ graphs.Api.prototype.onViewUpdate = function onViewUpdate (handler) {
     // Listen to events that generate UNDO events.
     graph.getModel().addListener(mxEvent.UNDO, listener);
     graph.getView().addListener(mxEvent.UNDO, listener);
+};
+
+/**
+ * Add function to handle update events in cells geometry.
+ *
+ * @param {function} handler Callback that handles event. Receives as argument a map of cell id
+ * to a object describing the cell bounds.
+ */
+graphs.Api.prototype.onBoundsChanged = function onBoundsChanged (handler) {
+    "use strict";
+
+    var cellBoundsChangeHandler = (function cellBoundsChangeHandler (source, event) {
+        var cells = event.getProperty('cells');
+        var cell_bounds_map = {};
+
+        for (var index = 0; index < cells.length; ++index) {
+            var cell = cells[index];
+            var cell_id = cell.getId();
+            var geometry = this._getBoundsFromMxCell(cell);
+            cell_bounds_map[cell_id] = geometry;
+        }
+        handler(cell_bounds_map);
+    }).bind(this);
+
+    var graph = this._graphEditor.graph;
+    graph.addListener(mxEvent.CELLS_MOVED, cellBoundsChangeHandler);
+    graph.addListener(mxEvent.CELLS_RESIZED, cellBoundsChangeHandler);
+    graph = null;
 };
 
 /**
