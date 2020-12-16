@@ -495,13 +495,15 @@ class QmxGraphApi(object):
         """
         return self.call_api('getSelectedCells')
 
-    def remove_cells(self, cell_ids):
+    def remove_cells(self, cell_ids, ignore_missing_cells=False):
         """
         Remove cells from graph.
 
         :param list cell_ids: Ids of cells that must be removed.
+        :param bool ignore_missing_cells: Ids of non existent cells are
+            ignored instead raising an error.
         """
-        return self.call_api('removeCells', cell_ids)
+        return self.call_api('removeCells', cell_ids, ignore_missing_cells)
 
     def remove_port(self, vertex_id, port_name):
         """

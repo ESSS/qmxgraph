@@ -949,15 +949,22 @@ graphs.Api.prototype.fit = function fit () {
  * Remove cells from graph.
  *
  * @param {number[]} cellIds Ids of cells that must be removed.
+ * @param {boolean} ignoreMissingCells Ids of non existent cells are ignored instead raising
+ * an error.
  */
-graphs.Api.prototype.removeCells = function removeCells (cellIds) {
+graphs.Api.prototype.removeCells = function removeCells (cellIds, ignoreMissingCells) {
     "use strict";
 
+    ignoreMissingCells = !!ignoreMissingCells;
     var graph = this._graphEditor.graph;
     var model = graph.getModel();
-    var cells = cellIds.map(function(cellId) {
-        return this._findCell(model, cellId);
-    }, this);
+    var cells = [];
+    for (var i = cellIds.length; i--;) {
+        var cell = this._findCell(model, cellIds[i], ignoreMissingCells);
+        if (cell) {
+            cells.push(cell)
+        }
+    }
     graph.removeCells(cells);
 };
 
@@ -1891,15 +1898,17 @@ graphs.Api.prototype._checkTagValue = function _checkTagValue(tag, value) {
 /**
  * @param {mxGraphModel} model The graph's model.
  * @param {number} cellId Id of a cell in graph.
+ * @param {boolean} ignoreMissingCell Whe the cell id is not found return `null` instead raising
+ * an error.
  * @returns {mxCell} The mxGraph's cell object.
  * @private
  * @throws {Error} Unable to find cell.
  */
-graphs.Api.prototype._findCell = function _findCell(model, cellId) {
+graphs.Api.prototype._findCell = function _findCell(model, cellId, ignoreMissingCell) {
     "use strict";
 
     var cell = model.getCell(cellId);
-    if (!cell) {
+    if ((!cell) && (!ignoreMissingCell)) {
         throw Error("Unable to find cell with id " + cellId);
     }
     return cell;
