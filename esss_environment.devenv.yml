@@ -42,7 +42,6 @@ dependencies:
 
     - attrs>=17
     - colorama
-    - fix-and-check-env>=1.0.0
     - invoke>=1.0.0
     - jinja2==2.10
     - pyqt>=5.6,<5.7
