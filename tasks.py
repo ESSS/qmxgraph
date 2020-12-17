@@ -139,14 +139,14 @@ def docs(ctx, python_version=None):
 @invoke.task
 def test(ctx):
     print_message('test'.format(), color=Fore.BLUE, bright=True)
-    cmd = 'pytest --cov=qmxgraph --timeout=10'
+    cmd = 'pytest --cov=qmxgraph --timeout=10 -v --durations=10'
 
     import subprocess
     raise invoke.Exit(subprocess.call(cmd, shell=True))
 
 
 @invoke.task
-def lint(ctx):
+def linting(ctx):
     print_message('lint'.format(), color=Fore.BLUE, bright=True)
     cmd = 'flake8 -v qmxgraph'
 
@@ -495,5 +495,5 @@ ns = invoke.Collection()
 ns.add_task(qrc)
 ns.add_task(docs)
 ns.add_task(test)
-ns.add_task(lint)
+ns.add_task(linting)
 ns.add_task(svgtostencil)

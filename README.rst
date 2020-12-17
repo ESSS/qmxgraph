@@ -2,8 +2,8 @@
 QmxGraph
 ========
 
-.. image:: https://travis-ci.org/ESSS/qmxgraph.svg?branch=master
-        :target: https://travis-ci.org/ESSS/qmxgraph
+.. image:: https://github.com/ESSS/qmxgraph/workflows/build/badge.svg
+        :target: https://github.com/ESSS/qmxgraph/actions
 
 .. image:: https://coveralls.io/repos/github/ESSS/qmxgraph/badge.svg?branch=master
         :target: https://coveralls.io/github/ESSS/qmxgraph?branch=master
@@ -17,8 +17,8 @@ QmxGraph
         :target: https://qmxgraph.readthedocs.io/en/latest/?badge=latest
 
 
-This a Qt widget that embeds a rich and powerful graph drawing tool 
-using JavaScript's mxGraph library. 
+This a Qt widget that embeds a rich and powerful graph drawing tool
+using JavaScript's mxGraph library.
 
 It makes use of Qt web view features to make this possible. Since
 current Qt version supported (<= 5.6) is still using WebKit_ as its web
