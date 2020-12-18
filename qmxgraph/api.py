@@ -218,6 +218,15 @@ class QmxGraphApi(object):
         contents = decoration_contents.asdict(contents)
         return self.call_api('updateTable', table_id, contents, title)
 
+    def update_port(self, vertex_id, port_name, x=None, y=None, width=None,
+                    height=None, label=None, style=None, tags=None):
+        return self.call_api(
+            'updatePort', vertex_id, port_name, x, y, width, height, label,
+            style, tags)
+
+    def get_port_names(self, vertex_id):
+        return self.call_api('getPortNames', vertex_id)
+
     def group(self):
         """
         Create a group with currently selected cells in graph. Edges connected

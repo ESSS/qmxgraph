@@ -64,6 +64,36 @@ graphs.createGraph = function createGraph (container, options, styles) {
             userObject.hasAttribute(name) : false;
     };
 
+    mxCell.prototype.removeAttribute = function(name){
+        var userObject = this.getValue();
+
+        if (
+            (userObject !== null)
+            && (userObject.nodeType === mxConstants.NODETYPE_ELEMENT)
+            && userObject.hasAttribute(name)
+        ) {
+            userObject.removeAttribute(name);
+        } else {
+            throw Error(
+                "The cell " + this.getId()
+                + " do not have an attribute named " + name
+            )
+        }
+    };
+
+    mxCell.prototype.getAttributeNames = function(){
+        var userObject = this.getValue();
+
+        if (
+            (userObject !== null)
+            && (userObject.nodeType === mxConstants.NODETYPE_ELEMENT)
+        ) {
+            return userObject.getAttributeNames();
+        } else {
+            return [];
+        }
+    };
+
     mxCell.prototype.isDecoration = function() {
         return this.getAttribute('__decoration__', '0') === '1';
     };

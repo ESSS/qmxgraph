@@ -134,6 +134,83 @@ graphs.Api.prototype.insertPort = function insertPort (
     }
 };
 
+graphs.Api.prototype.getPortNames = function getPortNames (vertexId) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var parent = this._findCell(model, vertexId);
+    var candidates = model.getChildCells(parent, true, false);
+
+    var portNames = [];
+    var basePortId = mxCell.createPortId(vertexId, '');
+    var basePortIdLength = basePortId.length;
+    for (var i = 0; i < candidates.length; ++i) {
+        var cell = candidates[i];
+        if (cell.isPort()) {
+            var name = cell.getId().substring(basePortIdLength);
+            portNames.push(name)
+        }
+    }
+
+    return portNames;
+};
+
+graphs.Api.prototype.updatePort = function updatePort (
+    vertexId, portName, x, y, width, height, label, style, tags) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var portId = mxCell.createPortId(vertexId, portName);
+    var portCell = this._findPort(model, vertexId, portName, true);
+
+    model.beginUpdate();
+    try {
+        // x,y, width, height.
+        var geometry = portCell.getGeometry();
+        if (x !== null) {
+            geometry.x = x;
+        }
+        if (y !== null) {
+            geometry.y = y;
+        }
+        if (width !== null) {
+            geometry.width = width;
+        }
+        if (height !== null) {
+            geometry.height = height;
+        }
+        model.setGeometry(portCell, geometry);
+        portCell.geometry.offset = new mxPoint(-geometry.width / 2, -geometry.height / 2);
+        // label, style.
+        if (label !== null) {
+            this.setLabel(portId, label);
+        }
+        if (style !== null) {
+            this.setStyle(portId, style)
+        }
+        // tags.
+        if (tags !== null) {
+            var existingTags = portCell.getAttributeNames();
+            for (var i = 0; i < existingTags.length; ++i) {
+                var tagName = existingTags[i];
+                if (tags.indexOf(tagName) === -1) {
+                    portCell.removeAttribute(tagName)
+                }
+            }
+            var hop = Object.prototype.hasOwnProperty;
+            for (var tagName in tags) {
+                if (hop.call(tags, tagName)) {
+                    this._setMxCellTag(portCell, tagName, tags[tagName]);
+                }
+            }
+        }
+    } finally {
+        model.endUpdate();
+    }
+};
+
 /**
  * Inserts a new edge between two vertices in graph.
  *
@@ -1364,20 +1441,35 @@ graphs.Api.prototype.getStyle = function getStyle(cellId) {
 graphs.Api.prototype.setTag = function setTag (cellId, tagName, tagValue) {
     "use strict";
 
-    this._checkTagValue(tagName, tagValue);
-
     var graph = this._graphEditor.graph;
     var cell = graph.getModel().getCell(cellId);
     if (cell) {
-        if (!mxUtils.isNode(cell.value)) {
-            var value = this._prepareCellValue(cell.value, null);
-            cell.setValue(value);
-        }
-        var internalTagName = this._getInternalTag(tagName);
-        cell.setAttribute(internalTagName, tagValue);
+        this._setMxCellTag(cell, tagName, tagValue);
     } else {
         throw Error("Unable to find cell with id " + cellId);
     }
+};
+
+/**
+ * Sets a tag in cell.
+ *
+ * Note that tag values are always coerced to string.
+ *
+ * @param {mxCell} cell A cell in graph.
+ * @param {string} tagName Name of tag.
+ * @param {string} tagValue Value of tag.
+ * @throws {Error} Unable to find cell.
+ */
+graphs.Api.prototype._setMxCellTag = function _setMxCellTag (cell, tagName, tagValue) {
+    "use strict";
+
+    this._checkTagValue(tagName, tagValue);
+    if (!mxUtils.isNode(cell.value)) {
+        var value = this._prepareCellValue(cell.value, null);
+        cell.setValue(value);
+    }
+    var internalTagName = this._getInternalTag(tagName);
+    cell.setAttribute(internalTagName, tagValue);
 };
 
 /**
@@ -1390,6 +1482,24 @@ graphs.Api.prototype.setTag = function setTag (cellId, tagName, tagValue) {
  * @throws {Error} Unable to find tag.
  */
 graphs.Api.prototype.getTag = function getTag (cellId, tagName) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var cell = graph.getModel().getCell(cellId);
+    if (cell) {
+        if (mxUtils.isNode(cell.value)) {
+            var internalTagName = this._getInternalTag(tagName);
+            if (cell.hasAttribute(internalTagName)) {
+                return cell.getAttribute(internalTagName, '');
+            }
+        }
+        throw Error("Tag '" + tagName + "' not found in cell with id " + cellId);
+    } else {
+        throw Error("Unable to find cell with id " + cellId);
+    }
+};
+
+graphs.Api.prototype.delTag = function delTag (cellId, tagName) {
     "use strict";
 
     var graph = this._graphEditor.graph;
