@@ -27,8 +27,9 @@ dependencies:
     - pytest-rerunfailures
     - pytest-selenium >=1,<2
     - pytest-timeout
-        {% if sys.platform != 'win32' %}
+    {% if sys.platform != 'win32' %}
     - pytest-xvfb
-        {% endif %}
+    {% endif %}
+
     {% endif %}
 
