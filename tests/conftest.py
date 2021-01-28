@@ -44,7 +44,7 @@ def driver_args():
     return ['--debug=true']
 
 
-@pytest.yield_fixture(autouse=True)
+@pytest.fixture(autouse=True)
 def enable_qgraph_debug():
     """
     During tests it is healthy to have this enable to fail as early as possible
