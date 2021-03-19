@@ -784,6 +784,7 @@ graphs.Api.prototype.setPortVisible = function setPortVisible (cellId, portName,
     this._findCell(model, cellId);  // Cell missing detection.
     var port = this._findPort(model, cellId, portName, true);
     model.setVisible(port, visible);
+    graph.refresh(port);
 };
 
 /**
@@ -1687,18 +1688,18 @@ graphs.Api.prototype.setEdgeTerminal = function setEdgeTerminal (
     model.beginUpdate();
     try {
         model.setTerminal(edge, terminal, isSource);
+        var terminal_value = '';
         if (portName) {
-            var edge_style = model.getStyle(edge);
-            var terminal_key = terminalType + 'Port';
-            var terminal_value = mxCell.createPortId(cellId, portName);
-            edge_style = graphs.utils.setStyleKey(edge_style, terminal_key, terminal_value);
-            model.setStyle(edge, edge_style);
+             terminal_value = mxCell.createPortId(newTerminalCellId, portName);
         }
+        var edge_style = model.getStyle(edge);
+        var terminal_key = terminalType + 'Port';
+        console.log('setEdgeTerminal', 'edge_style', edge_style, terminal_key, terminal_value);
+        edge_style = graphs.utils.setStyleKey(edge_style, terminal_key, terminal_value);
+        model.setStyle(edge, edge_style);
     } finally {
         model.endUpdate();
     }
-
-
 };
 
 /**
