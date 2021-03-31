@@ -76,7 +76,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
         } else {
             throw Error(
                 "The cell " + this.getId()
-                + " do not have an attribute named " + name
+                + " does not have an attribute named " + name
             )
         }
     };

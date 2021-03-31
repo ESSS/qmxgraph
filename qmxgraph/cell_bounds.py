@@ -1,5 +1,5 @@
 """
-Classes to used to represent bounds in:
+Classes used to represent bounds in:
 
 - :meth:`qmxgraph.api.QmxGraphApi.on_bounds_changed`
 - :meth:`qmxgraph.api.QmxGraphApi.get_cell_bounds`
@@ -25,7 +25,7 @@ class ParentAnchorPosition:
     See :class:`CellBounds` for more details.
 
     The attributes are normalized to the parent bounds. For example, give
-    a parent with positioned at the x coordinate `50` with width `16` we
+    a parent positioned at the x coordinate `50` with width `16` we
     will have:
 
     .. list-table::
