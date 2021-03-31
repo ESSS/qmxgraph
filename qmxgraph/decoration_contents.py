@@ -29,14 +29,14 @@ def _register_decoration_class(class_):
         This class is expected to be an `attr.s` decorated class with a
         "tag" `attr.ib`.
     """
-    for attr in class_.__attrs_attrs__:
-        if attr.name == 'tag':
-            if not isinstance(attr.default, str):
+    for attr_name in class_.__attrs_attrs__:
+        if attr_name.name == 'tag':
+            if not isinstance(attr_name.default, str):
                 raise ValueError(f"{class_}'s `tag` default must be a `str`")
-            if attr.init:
+            if attr_name.init:
                 raise ValueError(f"{class_}'s `init` must be `False`")
 
-            _tag_to_class[attr.default] = class_
+            _tag_to_class[attr_name.default] = class_
             _is_preprocessed_data.cache_clear()
             break
     else:
@@ -64,7 +64,7 @@ def _convert_decoration_content_item(raw_data):
         raw_data = raw_data.copy()
         tag = raw_data.pop('tag', None)
         if tag is None:
-            raise ValueError(f'`raw_data` must have a `"tag"´ item')
+            raise ValueError('`raw_data` must have a `"tag"´ item')
         class_ = _tag_to_class.get(tag)
         if class_ is None:
             raise ValueError(f"Can't locate a class for tag \"{tag}\"")
