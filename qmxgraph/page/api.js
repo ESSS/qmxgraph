@@ -1037,7 +1037,7 @@ graphs.Api.prototype.removeCells = function removeCells (cellIds, ignoreMissingC
     var graph = this._graphEditor.graph;
     var model = graph.getModel();
     var cells = [];
-    for (var i = cellIds.length; i--;) {
+    for (var i = 0; i < cellIds.length; ++i) {
         var cell = this._findCell(model, cellIds[i], ignoreMissingCells);
         if (cell) {
             cells.push(cell)
