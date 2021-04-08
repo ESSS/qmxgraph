@@ -51,7 +51,7 @@ graphs.utils.setStyleKey = function setStyleKey (style, key, value) {
         value = '0';
     }
 
-    if (style === null || style.length === 0)
+    if (style === null || style === undefined || style.length === 0)
     {
         style = key + '=' + value;
     }

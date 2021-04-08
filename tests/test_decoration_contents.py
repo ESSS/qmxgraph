@@ -49,3 +49,19 @@ def test_contents_after():
     assert table.contents_after('Soap') == (
         TableRow(['Toothpaste', '1']),
     )
+
+
+def test_content_converter():
+    from qmxgraph.decoration_contents import Table, TableRow, TableData, Image
+
+    table = Table([
+        dict(tag='tr', contents=['1', 'Cutlery']),
+        TableRow(['', 'Spoon', dict(tag='td', contents=[dict(
+            tag='img', src='spoon.gif', height=5, width=10,
+        )])]),
+    ])
+    assert table == Table([
+        TableRow(['1', 'Cutlery']),
+        TableRow(['', 'Spoon', TableData([
+            Image(src='spoon.gif', height=5, width=10)])]),
+    ])

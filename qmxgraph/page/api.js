@@ -55,20 +55,25 @@ graphs.Api.TARGET_TERMINAL_CELL = 'target';
  * @param {Object} [tags] A dict-like object, with string keys and values. Tags are basically custom
  * attributes that may be added to a cell that may be later queried (or even modified), with the
  * objective of allowing better inspection and interaction with cells in a graph.
+ * @param {number} [id] The id of the vertex. If omitted (or non unique) an id is generated.
  * @returns {number} Id of new vertex.
  */
 graphs.Api.prototype.insertVertex = function insertVertex (
-    x, y, width, height, label, style, tags) {
+    x, y, width, height, label, style, tags, id) {
     "use strict";
 
     var graph = this._graphEditor.graph;
     var coords = graphs.utils.adjustCoordinates(graph, x, y);
 
+    if (id === undefined) {
+        id = null;
+    }
+
     var value = this._prepareCellValue(label, tags);
     var parent = graph.getDefaultParent();
     var vertex = graph.insertVertex(
         parent,
-        null,
+        id,
         value,
         coords.x,
         coords.y,
@@ -129,6 +134,83 @@ graphs.Api.prototype.insertPort = function insertPort (
     }
 };
 
+graphs.Api.prototype.getPortNames = function getPortNames (vertexId) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var parent = this._findCell(model, vertexId);
+    var candidates = model.getChildCells(parent, true, false);
+
+    var portNames = [];
+    var basePortId = mxCell.createPortId(vertexId, '');
+    var basePortIdLength = basePortId.length;
+    for (var i = 0; i < candidates.length; ++i) {
+        var cell = candidates[i];
+        if (cell.isPort()) {
+            var name = cell.getId().substring(basePortIdLength);
+            portNames.push(name)
+        }
+    }
+
+    return portNames;
+};
+
+graphs.Api.prototype.updatePort = function updatePort (
+    vertexId, portName, x, y, width, height, label, style, tags) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var portId = mxCell.createPortId(vertexId, portName);
+    var portCell = this._findPort(model, vertexId, portName, true);
+
+    model.beginUpdate();
+    try {
+        // x,y, width, height.
+        var geometry = portCell.getGeometry();
+        if (x !== null) {
+            geometry.x = x;
+        }
+        if (y !== null) {
+            geometry.y = y;
+        }
+        if (width !== null) {
+            geometry.width = width;
+        }
+        if (height !== null) {
+            geometry.height = height;
+        }
+        model.setGeometry(portCell, geometry);
+        portCell.geometry.offset = new mxPoint(-geometry.width / 2, -geometry.height / 2);
+        // label, style.
+        if (label !== null) {
+            this.setLabel(portId, label);
+        }
+        if (style !== null) {
+            this.setStyle(portId, style)
+        }
+        // tags.
+        if (tags !== null) {
+            var existingTags = portCell.getAttributeNames();
+            for (var i = 0; i < existingTags.length; ++i) {
+                var tagName = existingTags[i];
+                if (tags.indexOf(tagName) === -1) {
+                    portCell.removeAttribute(tagName)
+                }
+            }
+            var hop = Object.prototype.hasOwnProperty;
+            for (var tagName in tags) {
+                if (hop.call(tags, tagName)) {
+                    this._setMxCellTag(portCell, tagName, tags[tagName]);
+                }
+            }
+        }
+    } finally {
+        model.endUpdate();
+    }
+};
+
 /**
  * Inserts a new edge between two vertices in graph.
  *
@@ -143,12 +225,13 @@ graphs.Api.prototype.insertPort = function insertPort (
  * falsy value is used no port is used.
  * @param {string} [targetPortName] The name of the port used to connect on the target vertex. If a
  * falsy value is used no port is used.
+ * @param {number} [id] The id of the edge. If omitted (or non unique) an id is generated.
  * @returns {number} Id of new edge.
  * @throws {Error} If source or target aren't found in graph.
  * @throws {Error} If the source or target ports aren't found in the respective vertices.
  */
 graphs.Api.prototype.insertEdge = function insertEdge (
-    sourceId, targetId, label, style, tags, sourcePortName, targetPortName) {
+    sourceId, targetId, label, style, tags, sourcePortName, targetPortName, id) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -166,7 +249,11 @@ graphs.Api.prototype.insertEdge = function insertEdge (
         target = this._findPort(model, targetId, targetPortName, true);
     }
 
-    var edge = graph.insertEdge(parent, null, value, source, target, style);
+    if (id === undefined) {
+        id = null;
+    }
+
+    var edge = graph.insertEdge(parent, id, value, source, target, style);
 
     return edge.getId();
 };
@@ -187,10 +274,11 @@ graphs.Api.prototype.insertEdge = function insertEdge (
  * @param {Object} [tags] A dict-like object, with string keys and values. Tags are basically custom
  * attributes that may be added to a cell that may be later queried (or even modified), with the
  * objective of allowing better inspection and interaction with cells in a graph.
+ * @param {number} [id] The id of the decoration. If omitted (or non unique) an id is generated.
  * @returns {number} Id of new decoration.
  */
 graphs.Api.prototype.insertDecoration = function insertDecoration (
-    x, y, width, height, label, style, tags) {
+    x, y, width, height, label, style, tags, id) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -216,7 +304,7 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
     // Relative position in edge
     var position = current / total;
 
-    return this._insertDecorationOnEdge(edge, position, width, height, label, style, tags);
+    return this._insertDecorationOnEdge(edge, position, width, height, label, style, tags, id);
 };
 
 /**
@@ -232,18 +320,19 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
  * @param {Object} [tags] A dict-like object, with string keys and values. Tags are basically custom
  * attributes that may be added to a cell that may be later queried (or even modified), with the
  * objective of allowing better inspection and interaction with cells in a graph.
+ * @param {number} [id] The id of the decoration. If omitted (or non unique) an id is generated.
  * @returns {number} Id of new decoration.
  * @throws {Error} If edge isn't found in graph.
  */
 graphs.Api.prototype.insertDecorationOnEdge = function insertDecorationOnEdge (
-    edgeId, position, width, height, label, style, tags) {
+    edgeId, position, width, height, label, style, tags, id) {
     "use strict";
 
     var graph = this._graphEditor.graph;
     var model = graph.getModel();
     var edge = this._findCell(model, edgeId);
 
-    return this._insertDecorationOnEdge(edge, position, width, height, label, style, tags);
+    return this._insertDecorationOnEdge(edge, position, width, height, label, style, tags, id);
 };
 
 /**
@@ -259,10 +348,11 @@ graphs.Api.prototype.insertDecorationOnEdge = function insertDecorationOnEdge (
  * @param {Object} [tags] A dict-like object, with string keys and values. Tags are basically custom
  * attributes that may be added to a cell that may be later queried (or even modified), with the
  * objective of allowing better inspection and interaction with cells in a graph.
+ * @param {number} [id] The id of the decoration. If omitted (or non unique) an id is generated.
  * @returns {number} Id of new decoration.
  */
 graphs.Api.prototype._insertDecorationOnEdge = function _insertDecorationOnEdge (
-    edge, position, width, height, label, style, tags) {
+    edge, position, width, height, label, style, tags, id) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -276,12 +366,16 @@ graphs.Api.prototype._insertDecorationOnEdge = function _insertDecorationOnEdge 
     var value = this._prepareCellValue(label, tags);
     value.setAttribute('__decoration__', '1');
 
+    if (id === undefined) {
+        id = null;
+    }
+
     var model = graph.getModel();
     model.beginUpdate();
     var decoration;
     try {
         decoration = graph.insertVertex(
-            edge, null, value, position, 0, width, height, decorationStyle, true);
+            edge, id, value, position, 0, width, height, decorationStyle, true);
         decoration.geometry.offset = new mxPoint(-width / 2, -height / 2);
         decoration.connectable = false;
     } finally {
@@ -309,11 +403,12 @@ graphs.Api.prototype._insertDecorationOnEdge = function _insertDecorationOnEdge 
  * @param {string} [style] An style name or inline style. The `'table'` style is always used but
  * options defined with this value will overwrite the option defined on the `'table'` style.
  * @param {number} [parentId] If supplied this makes the table position relative to this cell
+ * @param {number} [id] The id of the table. If omitted (or non unique) an id is generated.
  * @returns {number} Id of new table.
  * @throws {Error} If parentId  is supplied but isn't found in graph.
  */
 graphs.Api.prototype.insertTable = function insertTable (
-    x, y, width, contents, title, tags, style, parentId) {
+    x, y, width, contents, title, tags, style, parentId, id) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -340,12 +435,16 @@ graphs.Api.prototype.insertTable = function insertTable (
     var value = this._prepareCellValue(label, tags);
     value.setAttribute('__table__', '1');
 
+    if (id === undefined) {
+        id = null;
+    }
+
     model.beginUpdate();
     var table = null;
     try {
         table = graph.insertVertex(
             parent,
-            null,
+            id,
             value,
             coords.x,
             coords.y,
@@ -474,6 +573,83 @@ graphs.Api.prototype.getDecorationParentCellId = function getDecorationParentCel
 
     var cell = this._findDecoration(cellId);
     return cell.getParent().getId();
+};
+
+/**
+ * Return an object describing the bounds of the given cell.
+ *
+ * @param {mxCell} cell The cell.
+ * @returns {object} The bounds object.
+ */
+graphs.Api.prototype._getBoundsFromMxCell = function _getBoundsFromMxCell (cell) {
+    "use strict";
+
+    var geometry = cell.getGeometry();
+    var parent_anchor_position = null;
+    var x = geometry.x, y = geometry.y;
+
+    if (geometry.relative) {
+        parent_anchor_position = {'x': x, 'y': y};
+        x = geometry.offset ? geometry.offset.x : 0;
+        y = geometry.offset ? geometry.offset.y : 0;
+    }
+
+    return {
+        'x': x,
+        'y': y,
+        'width': geometry.width,
+        'height': geometry.height,
+        'parent_anchor_position': parent_anchor_position
+    };
+};
+
+/**
+ * Return an object describing the bounds of a cell.
+ *
+ * @param {number} cellId Id of a cell in graph.
+ * @returns {object} The bounds object.
+ * @throws {Error} Unable to find cell.
+ */
+graphs.Api.prototype.getCellBounds = function getCellBounds (cellId) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var cell = graph.getModel().getCell(cellId);
+    return this._getBoundsFromMxCell(cell);
+};
+
+/**
+ * Return an object describing the bounds of a cell.
+ *
+ * @param {number} cellId Id of a cell in graph.
+ * @param {object} cell_bounds The bounds object.
+ * @throws {Error} Unable to find cell.
+ */
+graphs.Api.prototype.setCellBounds = function setCellBounds (cellId, cell_bounds) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+    var cell = model.getCell(cellId);
+    var geometry = cell.getGeometry().clone();
+
+    geometry.width = cell_bounds.width;
+    geometry.height = cell_bounds.height;
+    if (cell_bounds.parent_anchor_position) {
+        geometry.relative = true;
+        geometry.offset = geometry.offset || new mxPoint(0,0);
+        geometry.offset.x = cell_bounds.x;
+        geometry.offset.y = cell_bounds.y;
+        geometry.x = cell_bounds.parent_anchor_position.x;
+        geometry.y = cell_bounds.parent_anchor_position.y;
+    } else {
+        geometry.relative = false;
+        geometry.offset = null;
+        geometry.x = cell_bounds.x;
+        geometry.y = cell_bounds.y;
+    }
+    model.setGeometry(cell, geometry);
+    graph.refresh(cell)
 };
 
 /**
@@ -608,6 +784,7 @@ graphs.Api.prototype.setPortVisible = function setPortVisible (cellId, portName,
     this._findCell(model, cellId);  // Cell missing detection.
     var port = this._findPort(model, cellId, portName, true);
     model.setVisible(port, visible);
+    graph.refresh(port);
 };
 
 /**
@@ -850,15 +1027,22 @@ graphs.Api.prototype.fit = function fit () {
  * Remove cells from graph.
  *
  * @param {number[]} cellIds Ids of cells that must be removed.
+ * @param {boolean} ignoreMissingCells Ids of non existent cells are ignored instead raising
+ * an error.
  */
-graphs.Api.prototype.removeCells = function removeCells (cellIds) {
+graphs.Api.prototype.removeCells = function removeCells (cellIds, ignoreMissingCells) {
     "use strict";
 
+    ignoreMissingCells = !!ignoreMissingCells;
     var graph = this._graphEditor.graph;
     var model = graph.getModel();
-    var cells = cellIds.map(function(cellId) {
-        return this._findCell(model, cellId);
-    }, this);
+    var cells = [];
+    for (var i = 0; i < cellIds.length; ++i) {
+        var cell = this._findCell(model, cellIds[i], ignoreMissingCells);
+        if (cell) {
+            cells.push(cell)
+        }
+    }
     graph.removeCells(cells);
 };
 
@@ -983,6 +1167,34 @@ graphs.Api.prototype.onViewUpdate = function onViewUpdate (handler) {
     // Listen to events that generate UNDO events.
     graph.getModel().addListener(mxEvent.UNDO, listener);
     graph.getView().addListener(mxEvent.UNDO, listener);
+};
+
+/**
+ * Add function to handle update events in cells geometry.
+ *
+ * @param {function} handler Callback that handles event. Receives as argument a map of cell id
+ * to a object describing the cell bounds.
+ */
+graphs.Api.prototype.onBoundsChanged = function onBoundsChanged (handler) {
+    "use strict";
+
+    var cellBoundsChangeHandler = (function cellBoundsChangeHandler (source, event) {
+        var cells = event.getProperty('cells');
+        var cell_bounds_map = {};
+
+        for (var index = 0; index < cells.length; ++index) {
+            var cell = cells[index];
+            var cell_id = cell.getId();
+            var geometry = this._getBoundsFromMxCell(cell);
+            cell_bounds_map[cell_id] = geometry;
+        }
+        handler(cell_bounds_map);
+    }).bind(this);
+
+    var graph = this._graphEditor.graph;
+    graph.addListener(mxEvent.CELLS_MOVED, cellBoundsChangeHandler);
+    graph.addListener(mxEvent.CELLS_RESIZED, cellBoundsChangeHandler);
+    graph = null;
 };
 
 /**
@@ -1230,20 +1442,35 @@ graphs.Api.prototype.getStyle = function getStyle(cellId) {
 graphs.Api.prototype.setTag = function setTag (cellId, tagName, tagValue) {
     "use strict";
 
-    this._checkTagValue(tagName, tagValue);
-
     var graph = this._graphEditor.graph;
     var cell = graph.getModel().getCell(cellId);
     if (cell) {
-        if (!mxUtils.isNode(cell.value)) {
-            var value = this._prepareCellValue(cell.value, null);
-            cell.setValue(value);
-        }
-        var internalTagName = this._getInternalTag(tagName);
-        cell.setAttribute(internalTagName, tagValue);
+        this._setMxCellTag(cell, tagName, tagValue);
     } else {
         throw Error("Unable to find cell with id " + cellId);
     }
+};
+
+/**
+ * Sets a tag in cell.
+ *
+ * Note that tag values are always coerced to string.
+ *
+ * @param {mxCell} cell A cell in graph.
+ * @param {string} tagName Name of tag.
+ * @param {string} tagValue Value of tag.
+ * @throws {Error} Unable to find cell.
+ */
+graphs.Api.prototype._setMxCellTag = function _setMxCellTag (cell, tagName, tagValue) {
+    "use strict";
+
+    this._checkTagValue(tagName, tagValue);
+    if (!mxUtils.isNode(cell.value)) {
+        var value = this._prepareCellValue(cell.value, null);
+        cell.setValue(value);
+    }
+    var internalTagName = this._getInternalTag(tagName);
+    cell.setAttribute(internalTagName, tagValue);
 };
 
 /**
@@ -1256,6 +1483,24 @@ graphs.Api.prototype.setTag = function setTag (cellId, tagName, tagValue) {
  * @throws {Error} Unable to find tag.
  */
 graphs.Api.prototype.getTag = function getTag (cellId, tagName) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var cell = graph.getModel().getCell(cellId);
+    if (cell) {
+        if (mxUtils.isNode(cell.value)) {
+            var internalTagName = this._getInternalTag(tagName);
+            if (cell.hasAttribute(internalTagName)) {
+                return cell.getAttribute(internalTagName, '');
+            }
+        }
+        throw Error("Tag '" + tagName + "' not found in cell with id " + cellId);
+    } else {
+        throw Error("Unable to find cell with id " + cellId);
+    }
+};
+
+graphs.Api.prototype.delTag = function delTag (cellId, tagName) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -1443,18 +1688,18 @@ graphs.Api.prototype.setEdgeTerminal = function setEdgeTerminal (
     model.beginUpdate();
     try {
         model.setTerminal(edge, terminal, isSource);
+        var terminal_value = '';
         if (portName) {
-            var edge_style = model.getStyle(edge);
-            var terminal_key = terminalType + 'Port';
-            var terminal_value = mxCell.createPortId(cellId, portName);
-            edge_style = graphs.utils.setStyleKey(edge_style, terminal_key, terminal_value);
-            model.setStyle(edge, edge_style);
+             terminal_value = mxCell.createPortId(newTerminalCellId, portName);
         }
+        var edge_style = model.getStyle(edge);
+        var terminal_key = terminalType + 'Port';
+        console.log('setEdgeTerminal', 'edge_style', edge_style, terminal_key, terminal_value);
+        edge_style = graphs.utils.setStyleKey(edge_style, terminal_key, terminal_value);
+        model.setStyle(edge, edge_style);
     } finally {
         model.endUpdate();
     }
-
-
 };
 
 /**
@@ -1764,15 +2009,17 @@ graphs.Api.prototype._checkTagValue = function _checkTagValue(tag, value) {
 /**
  * @param {mxGraphModel} model The graph's model.
  * @param {number} cellId Id of a cell in graph.
+ * @param {boolean} ignoreMissingCell Whe the cell id is not found return `null` instead raising
+ * an error.
  * @returns {mxCell} The mxGraph's cell object.
  * @private
  * @throws {Error} Unable to find cell.
  */
-graphs.Api.prototype._findCell = function _findCell(model, cellId) {
+graphs.Api.prototype._findCell = function _findCell(model, cellId, ignoreMissingCell) {
     "use strict";
 
     var cell = model.getCell(cellId);
-    if (!cell) {
+    if ((!cell) && (!ignoreMissingCell)) {
         throw Error("Unable to find cell with id " + cellId);
     }
     return cell;
