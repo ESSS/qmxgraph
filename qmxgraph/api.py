@@ -891,7 +891,10 @@ class QmxGraphApi(object):
                 raise qmxgraph.js.InvalidJavaScriptError(
                     "Because graph is unloaded can't call the JavaScript API."
                 )
-            if eval_js("(typeof api === 'undefined') || !api.{}".format(fn)):
+            if eval_js("(typeof api === 'undefined')"):
+                raise qmxgraph.js.InvalidJavaScriptError(
+                    'API is undefined at this time')
+            if eval_js("!api.{}".format(fn)):
                 raise qmxgraph.js.InvalidJavaScriptError(
                     'Unable to find function "{}" in QmxGraph '
                     'JavaScript API'.format(fn))

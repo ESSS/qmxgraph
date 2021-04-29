@@ -511,7 +511,7 @@ def _create_async_slots(namespace, signal_holder_class):
 class ErrorHandlingBridge(QObject):
     """
     Error handler on JavaScript side will use `on_error` signal to communicate
-    to Python any error that may'be happened.
+    to Python any error that might have happened.
 
     Client code must connect to signal and handle messages in whatever manner
     desired.
