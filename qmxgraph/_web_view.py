@@ -5,6 +5,7 @@ import weakref
 from PyQt5 import QtPrintSupport  # noqa
 from PyQt5.QtCore import QEvent, pyqtSignal
 from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtWidgets import QApplication
 
 
 class QWebViewWithDragDrop(QWebEngineView):

@@ -224,11 +224,9 @@ class QmxGraph(QWidget):
             self.api.on_terminal_changed(
                 'bridge_events_handler.terminal_changed_slot')
             self.api.on_terminal_with_port_changed(
-                'bridge_events_handler.on_terminal_with_port_changed')
-            self.api.on_view_update(
-                'bridge_events_handler.on_view_update')
+                'bridge_events_handler.terminal_with_port_changed_slot')
             self.api.on_cells_bounds_changed(
-                'bridge_events_handler.on_cells_bounds_changed')
+                'bridge_events_handler.cells_bounds_changed_slot')
             self.api.on_view_update('bridge_events_handler.view_update_slot')
 
     def set_double_click_handler(self, handler):
