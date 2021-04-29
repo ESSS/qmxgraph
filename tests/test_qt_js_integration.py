@@ -150,7 +150,7 @@ def test_bridges_signal_handlers_can_call_api(loaded_graph):
         loaded_graph.api.insert_vertex(40, 40, 20, 20, 'test')
 
 
-def test_set_double_click_handler(graph, handler):
+def test_set_double_click_handler(graph, handler, qtbot):
     """
     :type graph: qmxgraph.widget.qmxgraph
     :type handler: _HandlerFixture
@@ -164,7 +164,7 @@ def test_set_double_click_handler(graph, handler):
     )
 
     # It should be restored if loaded again after being blanked
-    wait_until_blanked(graph)
+    wait_until_blanked(qtbot, graph)
     handler.assert_handled(
         js_script=js_script, called=True, expected_calls=[()],
     )
@@ -176,7 +176,7 @@ def test_set_double_click_handler(graph, handler):
     )
 
 
-def test_set_popup_menu_handler(graph, handler):
+def test_set_popup_menu_handler(graph, handler, qtbot):
     """
     :type graph: qmxgraph.widget.qmxgraph
     :type handler: _HandlerFixture
@@ -190,7 +190,7 @@ def test_set_popup_menu_handler(graph, handler):
     )
 
     # It should be restored if loaded again after being blanked
-    wait_until_blanked(graph)
+    wait_until_blanked(qtbot, graph)
     handler.assert_handled(
         js_script=js_script, called=True, expected_calls=[(15, 15)],
     )
@@ -253,17 +253,17 @@ def test_web_inspector(loaded_graph, mocker):
     QDialog.show.assert_called_once_with()
 
 
-def test_blank(loaded_graph):
+def test_blank(loaded_graph, qtbot):
     """
     :type loaded_graph: qmxgraph.widget.QmxGraph
     """
     assert eval_js(loaded_graph, 'typeof api !== "undefined"')
     assert loaded_graph.is_loaded()
 
-    # Graph page that was loaded is now unloaded by `blank` call and all
-    # objects formerly available in JavaScript window object are now gone
-    wait_until_blanked(loaded_graph)
-    assert eval_js(loaded_graph, 'typeof api === "undefined"')
+    loaded_graph.blank()
+    def check():
+        assert eval_js(loaded_graph, 'typeof api === "undefined"')
+    qtbot.waitUntil(check)
     assert not loaded_graph.is_loaded()
 
 
@@ -589,14 +589,16 @@ def wait_until_loaded(graph):
     silent_disconnect(graph.loadFinished, cb)
 
 
-def wait_until_blanked(graph):
+def wait_until_blanked(qtbot, graph):
     """
     :type graph: qmxgraph.widget.qmxgraph
     """
-    with CallbackBlocker(timeout=5000, msg='wait_until_blanked') as cb:
-        graph.loadFinished.connect(cb)
-        graph.blank()
-    silent_disconnect(graph.loadFinished, cb)
+    graph.blank()
+
+    def assert_api_is_undefined():
+        assert eval_js(graph, 'typeof api === "undefined"')
+
+    qtbot.waitUntil(assert_api_is_undefined)
 
 
 class _HandlerFixture:
