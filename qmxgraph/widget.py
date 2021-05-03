@@ -4,6 +4,7 @@ import json
 import os
 import weakref
 from contextlib import suppress
+from typing import Callable
 
 from PyQt5.QtCore import QDataStream, QIODevice, QObject, Qt, pyqtSignal, \
     QTimer, pyqtSlot
@@ -137,9 +138,12 @@ class QmxGraph(QWidget):
 
         self._api = QmxGraphApi(graph=self)
 
-        self._web_view.on_drag_enter_event.connect(self._on_drag_enter)
-        self._web_view.on_drag_move_event.connect(self._on_drag_move)
-        self._web_view.on_drop_event.connect(self._on_drop)
+        def connect_drag_events():
+            self._web_view.on_drag_enter_event.connect(self._on_drag_enter)
+            self._web_view.on_drag_move_event.connect(self._on_drag_move)
+            self._web_view.on_drop_event.connect(self._on_drop)
+
+        self.call_when_loaded(connect_drag_events)
 
         if auto_load:
             self._load_graph_page()
@@ -157,6 +161,22 @@ class QmxGraph(QWidget):
         opt.initFrom(self)
         p = QPainter(self)
         self.style().drawPrimitive(QStyle.PE_Widget, opt, p, self)
+
+    def call_when_loaded(self, function: Callable[[], None]) -> None:
+        """
+        Calls the given function when the graph page has finished loading successfully,
+        or calls it immediately if the graph page is already loaded.
+        """
+        def slot_load_finished(ok: bool) -> None:
+            if ok:
+                # Ignore if the signal was already disconnected
+                silent_disconnect(self.loadFinished, slot_load_finished)
+                function()
+
+        if self.is_loaded():
+            function()
+        else:
+            self.loadFinished.connect(slot_load_finished)
 
     def load(self):
         """
