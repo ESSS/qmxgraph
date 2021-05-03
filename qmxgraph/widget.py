@@ -10,11 +10,11 @@ from PyQt5.QtCore import QDataStream, QIODevice, QObject, Qt, pyqtSignal, \
 from PyQt5.QtGui import QPainter
 from PyQt5.QtWebChannel import QWebChannel
 from PyQt5.QtWidgets import QDialog, QGridLayout, QShortcut, QSizePolicy, \
-    QWidget, QStyleOption, QStyle
+    QWidget, QStyleOption, QStyle, QApplication
 
 from qmxgraph import constants, render
 from qmxgraph.api import QmxGraphApi
-from qmxgraph.callback_blocker import silent_disconnect
+from qmxgraph.callback_blocker import silent_disconnect, CallbackBlocker
 from qmxgraph.configuration import GraphOptions, GraphStyles
 
 from ._web_view import QWebViewWithDragDrop
@@ -165,6 +165,25 @@ class QmxGraph(QWidget):
         if not self.is_loaded() or not self._web_view.is_loading():
             self._load_graph_page()
 
+    def load_and_wait(self) -> None:
+        """
+        Loads the graph page if not loaded yet, and blocks until it has been fully loaded.
+
+        Noop if the page is already loaded.
+        """
+        if not self.is_loaded():
+            # loaded = False
+            #
+            # def done():
+            #     nonlocal loaded
+            #     loaded = True
+            #
+            # self.loadFinished.connect(done)
+            # TODO: use a local QEventLoop rather than a while loop.
+            self.load()
+            while not self.is_loaded():
+                QApplication.instance().processEvents()
+
     def is_loaded(self):
         """
         :rtype: bool
@@ -172,8 +191,12 @@ class QmxGraph(QWidget):
         """
         # If failed in initialization of graph and it isn't running do not
         # considered it loaded, as graph and its API aren't safe for use
-        return self._web_view.is_loaded() and \
-            self._web_view.eval_js('(typeof graphs !== "undefined") && graphs.isRunning()')
+        try:
+            return self._web_view.is_loaded() and \
+                self._web_view.eval_js('(typeof graphs !== "undefined") && graphs.isRunning()')
+        except TimeoutError:
+            # TODO: temporary to see if this is the right way to go.
+            return False
 
     def blank(self):
         """
