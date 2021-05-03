@@ -79,7 +79,7 @@ class QWebViewWithDragDrop(QWebEngineView):
         """
         from qmxgraph.callback_blocker import CallbackBlocker
 
-        with CallbackBlocker(timeout=5000) as cb:
+        with CallbackBlocker(timeout=5000, msg=statement) as cb:
             self.page().runJavaScript(statement, cb)
 
         return cb.args[0]
