@@ -358,6 +358,12 @@ graphs.Api.prototype._insertDecorationOnEdge = function _insertDecorationOnEdge 
     var graph = this._graphEditor.graph;
     position = (position * 2) - 1;  // mxGraph normalizes between [-1, 1].
 
+    if (position < -1) {
+        position = -1;
+    } else if (position > 1) {
+        position = 1;
+    }
+
     style = graphs.utils.setStyleKey(style, 'labelPosition', 'left');
     style = graphs.utils.setStyleKey(style, 'align', 'right');
 
