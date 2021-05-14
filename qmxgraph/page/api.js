@@ -308,6 +308,21 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
 };
 
 /**
+ * Maps the decoration position in the edge to mxGraph's normalized position.
+ *
+ * @param {number} position Position of the decoration.
+ * @returns {number} Position of the decoration in mxGraph coordinates (normalized between [-1, 1]).
+ */
+graphs.Api.prototype._mapDecorationPositionToMxGraph = function _mapDecorationPositionToMxGraph(position) {
+  if (position < 0) {
+    position = 0;
+  } else if (position > 1) {
+    position = 1;
+  }
+  return (position * 2) - 1;  // mxGraph normalizes between [-1, 1].
+}
+
+/**
  * Inserts a decoration over an edge in graph. A decoration is basically an
  * object used as overlay in edges, to show objects present along its path.
  *
@@ -356,13 +371,7 @@ graphs.Api.prototype._insertDecorationOnEdge = function _insertDecorationOnEdge 
     "use strict";
 
     var graph = this._graphEditor.graph;
-    position = (position * 2) - 1;  // mxGraph normalizes between [-1, 1].
-
-    if (position < -1) {
-        position = -1;
-    } else if (position > 1) {
-        position = 1;
-    }
+    position = this._mapDecorationPositionToMxGraph(position);
 
     style = graphs.utils.setStyleKey(style, 'labelPosition', 'left');
     style = graphs.utils.setStyleKey(style, 'align', 'right');
@@ -726,14 +735,10 @@ graphs.Api.prototype.setDecorationPosition = function setDecorationPosition (cel
     "use strict";
 
     var cell = this._findDecoration(cellId);
-    if (position < 0) {
-        position = 0;
-    } else if (position > 1) {
-        position = 1;
-    }
+    position = this._mapDecorationPositionToMxGraph(position);
 
     var newGeom = cell.getGeometry().clone();
-    newGeom.x = (position * 2) - 1;  // mxGraph normalizes between [-1, 1].
+    newGeom.x = position;
 
     var graph = this._graphEditor.graph;
     var model = graph.getModel();
