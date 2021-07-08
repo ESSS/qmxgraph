@@ -1175,6 +1175,10 @@ graphs.Api.prototype.registerViewUpdateHandler = function registerViewUpdateHand
     var listener = (function(sender, evt) {
         handler(this.dump(), this.getScaleAndTranslation());
     }).bind(this);
+    graph.getView().addListener(mxEvent.SCALE, listener);
+    graph.getView().addListener(mxEvent.TRANSLATE, listener);
+    graph.getView().addListener(mxEvent.SCALE_AND_TRANSLATE, listener);
+
     // Listen to events that generate UNDO events.
     graph.getModel().addListener(mxEvent.UNDO, listener);
     graph.getView().addListener(mxEvent.UNDO, listener);
