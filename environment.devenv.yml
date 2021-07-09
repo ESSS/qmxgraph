@@ -23,7 +23,7 @@ dependencies:
     - cherrypy
     - hypothesis ==3.11.0
     - pytest-mock
-    - pytest-qt==3.3.0
+    - pytest-qt
     - pytest-rerunfailures
     - pytest-selenium >=1,<2
     - pytest-timeout
