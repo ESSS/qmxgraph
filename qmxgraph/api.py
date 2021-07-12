@@ -1,4 +1,6 @@
+import functools
 import weakref
+from typing import Optional, Callable
 
 import qmxgraph.debug
 import qmxgraph.js
@@ -23,11 +25,16 @@ class QmxGraphApi(object):
     LAYOUT_RADIAL_TREE = 'radial_tree'
     LAYOUT_STACK = 'stack'
 
-    def __init__(self, graph):
+    def __init__(self, graph, call_context_manager_factory):
         """
         :param qmxgraph.widget.QmxGraph graph: A graph drawing widget.
+        :param call_context_manager_factory:
+            A function that will be called with no arguments, that should return a context manager.
+            The context manager will be entered before we call eval_js, so it can be used to do stuff before
+            and after eval_js calls.
         """
         self._graph = weakref.ref(graph)
+        self._call_context_manager_factory = call_context_manager_factory
 
     def insert_vertex(self, x, y, width, height, label, style=None, tags=None, id=None):
         """
@@ -216,13 +223,13 @@ class QmxGraphApi(object):
         """
         from . import decoration_contents
         contents = decoration_contents.asdict(contents)
-        return self.call_api('updateTable', table_id, contents, title)
+        self.call_api('updateTable', table_id, contents, title, sync=False)
 
     def update_port(self, vertex_id, port_name, x=None, y=None, width=None,
                     height=None, label=None, style=None, tags=None):
-        return self.call_api(
+        self.call_api(
             'updatePort', vertex_id, port_name, x, y, width, height, label,
-            style, tags)
+            style, tags, sync=False)
 
     def get_port_names(self, vertex_id):
         return self.call_api('getPortNames', vertex_id)
@@ -245,14 +252,14 @@ class QmxGraphApi(object):
         Outline is a small window that shows an overview of graph. It usually
         starts disabled and can be shown on demand.
         """
-        return self.call_api('toggleOutline')
+        self.call_api('toggleOutline', sync=False)
 
     def toggle_grid(self):
         """
         The grid in background of graph helps aligning cells inside graph. It
         usually starts enabled and can be hidden on demand.
         """
-        return self.call_api('toggleGrid')
+        self.call_api('toggleGrid', sync=False)
 
     def toggle_snap(self):
         """
@@ -261,7 +268,7 @@ class QmxGraphApi(object):
 
         Note that if grid is hidden this feature is also disabled.
         """
-        return self.call_api('toggleSnap')
+        self.call_api('toggleSnap', sync=False)
 
     def get_cell_id_at(self, x, y):
         """
@@ -432,25 +439,25 @@ class QmxGraphApi(object):
         """
         Zoom in the graph.
         """
-        return self.call_api('zoomIn')
+        self.call_api('zoomIn', sync=False)
 
     def zoom_out(self):
         """
         Zoom out the graph.
         """
-        return self.call_api('zoomOut')
+        self.call_api('zoomOut', sync=False)
 
     def reset_zoom(self):
         """
         Reset graph's zoom.
         """
-        return self.call_api('resetZoom')
+        self.call_api('resetZoom', sync=False)
 
     def fit(self):
         """
         Rescale the graph to fit in the container.
         """
-        return self.call_api('fit')
+        self.call_api('fit', sync=False)
 
     def get_zoom_scale(self):
         """
@@ -524,7 +531,7 @@ class QmxGraphApi(object):
         """
         return self.call_api('removePort', vertex_id, port_name)
 
-    def set_double_click_handler(self, handler):
+    def register_double_click_handler(self, handler, *, check_api=True):
         """
         Set the handler used for double click in cells of graph.
 
@@ -539,10 +546,9 @@ class QmxGraphApi(object):
             object that is going to be used as callback to event. Receives a
             str with double clicked cell id as only argument.
         """
-        return self.call_api(
-            'setDoubleClickHandler', qmxgraph.js.Variable(handler))
+        return self.call_api('registerDoubleClickHandler', qmxgraph.js.Variable(handler), check_api=check_api)
 
-    def set_popup_menu_handler(self, handler):
+    def register_popup_menu_handler(self, handler, *, check_api=True):
         """
         Set the handler used for popup menu (i.e. menu triggered by right
         click) in cells of graph.
@@ -560,10 +566,9 @@ class QmxGraphApi(object):
             screen coordinates and Y coordinate in screen coordinates as its
             three arguments.
         """
-        return self.call_api(
-            'setPopupMenuHandler', qmxgraph.js.Variable(handler))
+        return self.call_api('registerPopupMenuHandler', qmxgraph.js.Variable(handler), check_api=check_api)
 
-    def on_label_changed(self, handler):
+    def register_label_changed_handler(self, handler, *, check_api=True):
         """
         Register a handler to event when label of a cell changes in graph.
 
@@ -573,10 +578,9 @@ class QmxGraphApi(object):
             object that is going to be used as callback to event. Receives,
             respectively, cell id, new label and old label as arguments.
         """
-        return self.call_api(
-            'onLabelChanged', qmxgraph.js.Variable(handler))
+        return self.call_api('registerLabelChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api)
 
-    def on_cells_added(self, handler):
+    def register_cells_added_handler(self, handler, *, check_api=True):
         """
         Register a handler to event when cells are added from graph.
 
@@ -586,9 +590,9 @@ class QmxGraphApi(object):
             object that is going to be used as callback to event. Receives a
             `QVariantList` of added cell ids as only argument.
         """
-        return self.call_api('onCellsAdded', qmxgraph.js.Variable(handler))
+        return self.call_api('registerCellsAddedHandler', qmxgraph.js.Variable(handler), check_api=check_api)
 
-    def on_cells_removed(self, handler):
+    def register_cells_removed_handler(self, handler, *, check_api=True):
         """
         Register a handler to event when cells are removed from graph.
 
@@ -598,9 +602,9 @@ class QmxGraphApi(object):
             object that is going to be used as callback to event. Receives a
             `QVariantList` of removed cell ids as only argument.
         """
-        return self.call_api('onCellsRemoved', qmxgraph.js.Variable(handler))
+        return self.call_api('registerCellsRemovedHandler', qmxgraph.js.Variable(handler), check_api=check_api)
 
-    def on_selection_changed(self, handler):
+    def register_selection_changed_handler(self, handler, *, check_api=True):
         """
         Add function to handle selection change events in the graph.
 
@@ -608,10 +612,9 @@ class QmxGraphApi(object):
             that is going to be used as callback to event. Receives an list of
             str with selected cells ids as only argument.
         """
-        return self.call_api(
-            'onSelectionChanged', qmxgraph.js.Variable(handler))
+        return self.call_api('registerSelectionChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api)
 
-    def on_terminal_changed(self, handler):
+    def register_terminal_changed_handler(self, handler, *, check_api=True):
         """
         Add function to handle terminal change events in the graph.
 
@@ -621,10 +624,9 @@ class QmxGraphApi(object):
             is the source (or target), id of the net terminal, id of the old
             terminal.
         """
-        return self.call_api(
-            'onTerminalChanged', qmxgraph.js.Variable(handler))
+        return self.call_api('registerTerminalChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api)
 
-    def on_terminal_with_port_changed(self, handler):
+    def register_terminal_with_port_changed_handler(self, handler, *, check_api=True):
         """
         Add function to handle terminal change with port info events in
         the graph.
@@ -635,20 +637,18 @@ class QmxGraphApi(object):
             terminal is the source (or target), id of the new terminal,
             id of the old terminal.
         """
-        return self.call_api(
-            'onTerminalWithPortChanged', qmxgraph.js.Variable(handler))
+        return self.call_api('registerTerminalWithPortChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api)
 
-    def on_view_update(self, handler):
+    def register_view_update_handler(self, handler, *, check_api=True):
         """
         Add function to handle updates in the graph view.
         :param handler: Name of signal bound to JavaScript by a bridge object
             that is going to be used as callback to event. Receives,
             respectively, graph dump and graph scale and translation.
         """
-        return self.call_api(
-            'onViewUpdate', qmxgraph.js.Variable(handler))
+        return self.call_api('registerViewUpdateHandler', qmxgraph.js.Variable(handler), check_api=check_api)
 
-    def on_cells_bounds_changed(self, handler):
+    def register_cells_bounds_changed_handler(self, handler, *, check_api=True):
         """
         Add function to handle updates in the graph view.
         :param handler: Name of signal bound to JavaScript by a bridge
@@ -656,9 +656,9 @@ class QmxGraphApi(object):
             a map of cell id to a map describing the cell bounds.
 
         """
-        return self.call_api('onBoundsChanged', qmxgraph.js.Variable(handler))
+        return self.call_api('registerBoundsChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api)
 
-    def resize_container(self, width, height):
+    def resize_container(self, width, height, *, check_api=True):
         """
         Resizes the container of graph drawing widget.
 
@@ -670,7 +670,7 @@ class QmxGraphApi(object):
         :param int width: New width.
         :param int height: New height.
         """
-        return self.call_api('resizeContainer', width, height)
+        self.call_api('resizeContainer', width, height, sync=False, check_api=check_api)
 
     def get_label(self, cell_id):
         """
@@ -837,6 +837,9 @@ class QmxGraphApi(object):
         """
         return self.call_api('restore', state)
 
+    def set_interaction_enabled(self, enabled):
+        self.call_api('setInteractionEnabled', enabled)
+
     def set_cells_deletable(self, enabled):
         self.call_api('setCellsDeletable', enabled)
 
@@ -870,26 +873,40 @@ class QmxGraphApi(object):
     def run_layout(self, layout_name):
         return self.call_api('runLayout', layout_name)
 
-    def call_api(self, fn, *args):
+    def call_api(self, fn: str, *args, sync=True, check_api=True):
         """
         Call a function in underlying API provided by JavaScript graph.
 
-        :param str fn: A function call available in API.
-        :param Any args: Positional arguments passed to graph's
+        :param fn: A function call available in API.
+        :param args: Positional arguments passed to graph's
             JavaScript API call (unfortunately can't use named arguments
             with JavaScript). All object passed must be JSON encodable or
             Variable instances.
         :rtype: object
         :return: Return of API call.
         """
-        eval_js = self._graph().inner_web_view().eval_js
-        if qmxgraph.debug.is_qmxgraph_debug_enabled():
-            # Healthy check as if function didn't exist it just returns None,
-            # giving the impression that might have worked
-            if eval_js("!api.{}".format(fn)):
-                raise qmxgraph.js.InvalidJavaScriptError(
-                    'Unable to find function "{}" in QmxGraph '
-                    'JavaScript API'.format(fn))
+        with self._call_context_manager_factory():
+            return self._call_api(fn, *args, sync=sync, check_api=check_api)
+
+    def _call_api(self, fn: str, *args, sync, check_api: bool=True):
+        graph = self._graph()
+        eval_js = graph.inner_web_view().eval_js
+        # REMOVE extra checks: those were a good idea when we had the sync API, but now
+        # those calls are executing the event loop each time, which compounds errors.
+        # if sync and qmxgraph.debug.is_qmxgraph_debug_enabled() and check_api:
+        #     # Healthy check as if function didn't exist it just returns None,
+        #     # giving the impression that might have worked
+        #     if not graph.is_loaded():
+        #         raise qmxgraph.js.InvalidJavaScriptError(
+        #             "Because graph is unloaded can't call the JavaScript API."
+        #         )
+        #     if eval_js("(typeof api === 'undefined')"):
+        #         raise qmxgraph.js.InvalidJavaScriptError(
+        #             'API is undefined at this time')
+        #     if eval_js("!api.{}".format(fn)):
+        #         raise qmxgraph.js.InvalidJavaScriptError(
+        #             'Unable to find function "{}" in QmxGraph '
+        #             'JavaScript API'.format(fn))
 
         call = qmxgraph.js.prepare_js_call(fn, *args)
-        return eval_js("api.{}".format(call))
+        return eval_js("api.{}".format(call), sync=sync, check_api=check_api)

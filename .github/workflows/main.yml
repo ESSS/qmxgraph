@@ -41,11 +41,12 @@ jobs:
         conda devenv -n qmxgraph
         conda install -n qmxgraph coveralls pytest-cov
         conda init bash
-    - name: Linting
-      shell: bash -l {0}
-      run: |
-        source activate qmxgraph
-        inv linting
+     # ASIM-4290: remove linting job and add black/pre-commit support.
+#    - name: Linting
+#      shell: bash -l {0}
+#      run: |
+#        source activate qmxgraph
+#        inv linting
     - name: Tests
       shell: bash -l {0}
       run: |

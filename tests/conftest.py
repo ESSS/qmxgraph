@@ -317,7 +317,7 @@ class BaseGraphCase(object):
             '}'
         )
         self.eval_js_function(
-            'api.onCellsAdded', qmxgraph.js.Variable('callback'))
+            'api.registerCellsAddedHandler', qmxgraph.js.Variable('callback'))
 
         selenium.execute_script(
             'callback = function(cellId, newLabel, oldLabel) {'
@@ -328,7 +328,7 @@ class BaseGraphCase(object):
             '}'
         )
         self.eval_js_function(
-            'api.onLabelChanged', qmxgraph.js.Variable('callback'))
+            'api.registerLabelChangedHandler', qmxgraph.js.Variable('callback'))
 
     def get_container(self):
         """
@@ -560,7 +560,7 @@ class BaseGraphCase(object):
         """
         :rtype: list[str]
         :return: Id of every cell added to graph, captured by using
-            `onCellsAdded` event.
+            `registerCellsAddedHandler` event.
         """
         return self.selenium.execute_script('return window.__added__')
 

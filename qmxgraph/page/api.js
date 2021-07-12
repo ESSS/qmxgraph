@@ -1051,7 +1051,7 @@ graphs.Api.prototype.removeCells = function removeCells (cellIds, ignoreMissingC
     for (var i = 0; i < cellIds.length; ++i) {
         var cell = this._findCell(model, cellIds[i], ignoreMissingCells);
         if (cell) {
-            cells.push(cell)
+            cells.push(cell);
         }
     }
     graph.removeCells(cells);
@@ -1096,7 +1096,7 @@ graphs.Api.prototype.removePort = function removePort (vertexId, portName) {
  * @param {function} handler Callback that handles event. Receives an
  * {@linkCode Array} of removed cell ids as only argument.
  */
-graphs.Api.prototype.onCellsRemoved = function onCellRemoved (handler) {
+graphs.Api.prototype.registerCellsRemovedHandler = function registerCellsRemovedHandler (handler) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -1138,7 +1138,7 @@ graphs.Api.prototype.onCellsRemoved = function onCellRemoved (handler) {
  * @param {function} handler Callback that handles event. Receives an
  * {@linkCode Array} of added cell ids as only argument.
  */
-graphs.Api.prototype.onCellsAdded = function onCellsAdded (handler) {
+graphs.Api.prototype.registerCellsAddedHandler = function registerCellsAddedHandler (handler) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -1149,7 +1149,7 @@ graphs.Api.prototype.onCellsAdded = function onCellsAdded (handler) {
         for (var i = 0; i < cells.length; i++) {
             var cell = cells[i];
             if (cell.isPort()) {
-                // See comment about ports on `graphs.Api#onCellsRemoved`.
+                // See comment about ports on `graphs.Api#registerCellsRemovedHandler`.
                 continue;
             }
             cellIds.push(cell.getId());
@@ -1169,7 +1169,7 @@ graphs.Api.prototype.onCellsAdded = function onCellsAdded (handler) {
  *   1. graph dump;
  *   2. graph scale and translation;
  */
-graphs.Api.prototype.onViewUpdate = function onViewUpdate (handler) {
+graphs.Api.prototype.registerViewUpdateHandler = function registerViewUpdateHandler (handler) {
     "use strict";
     var graph = this._graphEditor.graph;
     var listener = (function(sender, evt) {
@@ -1190,7 +1190,7 @@ graphs.Api.prototype.onViewUpdate = function onViewUpdate (handler) {
  * @param {function} handler Callback that handles event. Receives as argument a map of cell id
  * to a object describing the cell bounds.
  */
-graphs.Api.prototype.onBoundsChanged = function onBoundsChanged (handler) {
+graphs.Api.prototype.registerBoundsChangedHandler = function registerBoundsChangedHandler (handler) {
     "use strict";
 
     var cellBoundsChangeHandler = (function cellBoundsChangeHandler (source, event) {
@@ -1218,7 +1218,7 @@ graphs.Api.prototype.onBoundsChanged = function onBoundsChanged (handler) {
  * @param {function} handler Callback that handles event. Receives an array with the id of cells
  * that are selected as only argument.
  */
-graphs.Api.prototype.onSelectionChanged = function onSelectionChanged (handler) {
+graphs.Api.prototype.registerSelectionChangedHandler = function registerSelectionChangedHandler (handler) {
     "use strict";
 
     var selectionHandler = function(source, event) {
@@ -1241,7 +1241,7 @@ graphs.Api.prototype.onSelectionChanged = function onSelectionChanged (handler) 
  * boolean indicating if the changed terminal is the source (or target), id of the new terminal,
  * id of the old terminal.
  */
-graphs.Api.prototype.onTerminalChanged = function onTerminalChanged (handler) {
+graphs.Api.prototype.registerTerminalChangedHandler = function registerTerminalChangedHandler (handler) {
     "use strict";
 
     var cellConnectedHandler = function(source, event) {
@@ -1277,7 +1277,7 @@ graphs.Api.prototype.onTerminalChanged = function onTerminalChanged (handler) {
  * boolean indicating if the changed terminal is the source (or target), id of the new terminal,
  * port id used in the new terminal, id of the old terminal, port id used in the old terminal.
  */
-graphs.Api.prototype.onTerminalWithPortChanged = function onTerminalWithPortChanged (handler) {
+graphs.Api.prototype.registerTerminalWithPortChangedHandler = function registerTerminalWithPortChangedHandler (handler) {
     "use strict";
 
     function getPortNameFromStyle(stylesheet, style, source) {
@@ -1357,7 +1357,7 @@ graphs.Api.prototype.onTerminalWithPortChanged = function onTerminalWithPortChan
  * @param {function} handler Callback that handles event. Receives, respectively, id of cell
  * that was renamed, its new label and its old label.
  */
-graphs.Api.prototype.onLabelChanged = function onLabelChanged (handler) {
+graphs.Api.prototype.registerLabelChangedHandler = function registerLabelChangedHandler (handler) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -1568,7 +1568,7 @@ graphs.Api.prototype.hasTag = function hasTag (cellId, tagName) {
  * @param {function} handler Callback that handles event. Receives a id of cell that was double
  * clicked as only argument.
  */
-graphs.Api.prototype.setDoubleClickHandler = function setDoubleClickHandler (handler) {
+graphs.Api.prototype.registerDoubleClickHandler = function registerDoubleClickHandler (handler) {
     "use strict";
 
     var doubleClickHandler = function(editor, cell) {
@@ -1596,7 +1596,7 @@ graphs.Api.prototype.setDoubleClickHandler = function setDoubleClickHandler (han
  * was right-clicked, X coordinate in screen coordinates and Y coordinate in screen coordinates as
  * its three arguments.
  */
-graphs.Api.prototype.setPopupMenuHandler = function setPopupMenuHandler (handler) {
+graphs.Api.prototype.registerPopupMenuHandler = function registerPopupMenuHandler (handler) {
     "use strict";
 
     var popupMenuHandler = function(editor, cell, x, y) {
@@ -1837,6 +1837,23 @@ graphs.Api.prototype.getEdgeTerminalPoints = function getEdgeTerminalPoints (edg
         [terminal_points[0].x, terminal_points[0].y],
         [terminal_points[1].x, terminal_points[1].y]
     ];
+};
+
+/**
+ * Sets various interaction-related properties (like deleting cells, moving cells, connecting
+ * cells, etc) to enable/disable.
+ *
+ * @param {boolean} enabled Enable value of this property.
+ */
+graphs.Api.prototype.setInteractionEnabled = function setInteractionEnabled(enabled) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    graph.setCellsDeletable(enabled);
+    graph.setCellsDisconnectable(enabled);
+    graph.setConnectable(enabled);
+    graph.setCellsEditable(enabled);
+    graph.setCellsMovable(enabled);
 };
 
 /**

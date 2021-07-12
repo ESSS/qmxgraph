@@ -1,6 +1,6 @@
 {% set TEST_QMXGRAPH = os.environ.get('TEST_QMXGRAPH', '0') != '0' %}
 
-name: qmxgraph
+name: qmxgraph-esss
 
 includes:
   - {{ root }}/base_environment.yml
@@ -44,10 +44,12 @@ dependencies:
     - colorama
     - invoke>=1.0.0
     - jinja2==2.10
-    - pyqt>=5.6,<5.7
+    - pyqt=5.12.*
     - six
 
     {% if TEST_QMXGRAPH %}
+    - conda-wrappers
+
     - cherrypy==7.1.0
     - phantomjs>=2.1
     - pytest-mock>=1.4.0

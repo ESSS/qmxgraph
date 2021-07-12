@@ -10,11 +10,18 @@
 	<script type="text/javascript" src="{{ own }}/namespace.js"></script>
 
 	{% if embedded %}
+	<script src="qrc:///qtwebchannel/qwebchannel.js"></script>
 	<script type="text/javascript" src="{{ own }}/error_redirect.js"></script>
 
 	<script type="text/javascript">
 		mxBasePath = '{{ mxgraph|replace("qrc:/", "") }}';
- 	</script>
+		new QWebChannel(qt.webChannelTransport, function (channel) {
+			window.bridge_error_handler = channel.objects.bridge_error_handler;
+			window.bridge_events_handler = channel.objects.bridge_events_handler;
+			window.bridge_double_click_handler = channel.objects.bridge_double_click_handler;
+			window.bridge_popup_menu_handler = channel.objects.bridge_popup_menu_handler;
+		});
+	</script>
 	{% else %}
 	<script type="text/javascript">
 		mxBasePath = '{{ mxgraph }}';
