@@ -105,6 +105,12 @@ graphs.createGraph = function createGraph (container, options, styles) {
         return cellId.indexOf(mxCell._PORT_ID_PREFIX) === 0;
     };
 
+    mxCell.prototype.isSelectable = function() {
+        var styleName = this.getStyle();
+        var style = graph.getStylesheet().getCellStyle(styleName);
+        return mxUtils.getValue(style, mxConstants.STYLE_SELECTABLE, 1);
+    };
+
     mxCell.createPortId = function createPortId (vertexId, name) {
         return mxCell._PORT_ID_PREFIX + vertexId + '-' + name;
     };
@@ -197,7 +203,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
 
     var superIsCellSelectable = mxGraph.prototype.isCellSelectable;
     mxGraph.prototype.isCellSelectable = function(cell) {
-        return superIsCellSelectable.apply(this, arguments) && !cell.isPort();
+        return superIsCellSelectable.apply(this, arguments) && !cell.isPort() && cell.isSelectable();
     };
 
     mxGraph.prototype.labelChanged = function(cell, value, evt)
@@ -539,6 +545,7 @@ graphs.parseStyles = function parseStyles (rawStyles) {
     styleMap['no_label'] = mxConstants.STYLE_NOLABEL;
     styleMap['resizable'] = mxConstants.STYLE_RESIZABLE;
     styleMap['rotatable'] = mxConstants.STYLE_ROTATABLE;
+    styleMap['selectable'] = mxConstants.STYLE_SELECTABLE;
     styleMap['shape'] = mxConstants.STYLE_SHAPE;
     styleMap['start_arrow'] = mxConstants.STYLE_STARTARROW;
     styleMap['stroke_color'] = mxConstants.STYLE_STROKECOLOR;

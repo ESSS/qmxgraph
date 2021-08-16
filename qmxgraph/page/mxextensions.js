@@ -22,6 +22,12 @@
      */
     mxConstants.STYLE_LABEL_ROTATABLE = 'labelRotatable';
 
+    /**
+     * Defines the key of a selectable state for cells in mxGraph.
+     * @type {string}
+     */
+    mxConstants.STYLE_SELECTABLE = 'selectable';
+
     var superMxTextApply = mxText.prototype.apply;
     /**
      * Override to process the {@link mxConstants.STYLE_LABEL_ROTATABLE} style option.
