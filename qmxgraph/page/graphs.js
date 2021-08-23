@@ -105,12 +105,6 @@ graphs.createGraph = function createGraph (container, options, styles) {
         return cellId.indexOf(mxCell._PORT_ID_PREFIX) === 0;
     };
 
-    mxCell.prototype.isSelectable = function() {
-        var styleName = this.getStyle();
-        var style = graph.getStylesheet().getCellStyle(styleName);
-        return mxUtils.getValue(style, mxConstants.STYLE_SELECTABLE, 1);
-    };
-
     mxCell.createPortId = function createPortId (vertexId, name) {
         return mxCell._PORT_ID_PREFIX + vertexId + '-' + name;
     };
@@ -202,8 +196,15 @@ graphs.createGraph = function createGraph (container, options, styles) {
     };
 
     var superIsCellSelectable = mxGraph.prototype.isCellSelectable;
-    mxGraph.prototype.isCellSelectable = function(cell) {
-        return superIsCellSelectable.apply(this, arguments) && !cell.isPort() && cell.isSelectable();
+    mxGraph.prototype.isCellSelectable = function isCellSelectable(cell) {
+
+        function hasSelectableStyle(cell) {
+            var styleName = cell.getStyle();
+            var style = this.getStylesheet().getCellStyle(styleName);
+            return mxUtils.getValue(style, mxConstants.STYLE_SELECTABLE, 1);
+        };
+
+        return superIsCellSelectable.apply(this, arguments) && !cell.isPort() && hasSelectableStyle.call(this, cell);
     };
 
     mxGraph.prototype.labelChanged = function(cell, value, evt)
