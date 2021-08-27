@@ -161,6 +161,7 @@ class GraphStyles(object):
             'no_label',
             'resizable',
             'rotatable',
+            'selectable',
             'shape',
             'start_arrow',
             'stroke_color',

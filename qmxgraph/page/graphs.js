@@ -196,8 +196,15 @@ graphs.createGraph = function createGraph (container, options, styles) {
     };
 
     var superIsCellSelectable = mxGraph.prototype.isCellSelectable;
-    mxGraph.prototype.isCellSelectable = function(cell) {
-        return superIsCellSelectable.apply(this, arguments) && !cell.isPort();
+    mxGraph.prototype.isCellSelectable = function isCellSelectable(cell) {
+
+        function hasSelectableStyle(cell) {
+            var styleName = cell.getStyle();
+            var style = this.getStylesheet().getCellStyle(styleName);
+            return mxUtils.getValue(style, mxConstants.STYLE_SELECTABLE, 1);
+        };
+
+        return superIsCellSelectable.apply(this, arguments) && !cell.isPort() && hasSelectableStyle.call(this, cell);
     };
 
     mxGraph.prototype.labelChanged = function(cell, value, evt)
@@ -539,6 +546,7 @@ graphs.parseStyles = function parseStyles (rawStyles) {
     styleMap['no_label'] = mxConstants.STYLE_NOLABEL;
     styleMap['resizable'] = mxConstants.STYLE_RESIZABLE;
     styleMap['rotatable'] = mxConstants.STYLE_ROTATABLE;
+    styleMap['selectable'] = mxConstants.STYLE_SELECTABLE;
     styleMap['shape'] = mxConstants.STYLE_SHAPE;
     styleMap['start_arrow'] = mxConstants.STYLE_STARTARROW;
     styleMap['stroke_color'] = mxConstants.STYLE_STROKECOLOR;
