@@ -109,7 +109,7 @@ class QWebViewWithDragDrop(QWebEngineView):
         self.page().webChannel().setBlockUpdates(False)
         self.page().webChannel().blockSignals(False)
 
-    def eval_js(self, statement, *, timeout_ms: int=5000, sync=True, check_api=True) -> Any:
+    def eval_js(self, statement, *, timeout_ms: int=10_000, sync=True, check_api=True) -> Any:
         """
         Evaluate a JavaScript statement using this web view frame as context.
 
