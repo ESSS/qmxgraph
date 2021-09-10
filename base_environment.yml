@@ -10,4 +10,5 @@ dependencies:
     - jinja2
     - oop-ext
     - pip
+    - pre-commit
     - pyqt =5.12
