@@ -90,7 +90,7 @@ def test_events_bridge_plain(graph, mocker):
     events.on_terminal_changed.connect(terminal_handler)
     events.on_terminal_with_port_changed.connect(terminal_with_port_handler)
 
-    wait_until_loaded(graph)
+    graph.load_and_wait()
     # on_cells_added
     with wait_signals_called(events.on_cells_added):
         vertex_id = graph.api.insert_vertex(40, 40, 20, 20, 'test')
@@ -565,7 +565,7 @@ def loaded_graph_(graph):
     :type graph: qmxgraph.widget.qmxgraph
     :rtype: qmxgraph.widget.qmxgraph
     """
-    wait_until_loaded(graph)
+    graph.load_and_wait()
     return graph
 
 
@@ -610,14 +610,6 @@ class DragDropEventsFactory(object):
         return dd_event
 
 
-def wait_until_loaded(graph):
-    """
-    :type graph: qmxgraph.widget.qmxgraph
-    """
-    # TODO[ASIM-4286]: inline this call.
-    graph.load_and_wait()
-
-
 def wait_until_blanked(qtbot, graph):
     """
     :type graph: qmxgraph.widget.qmxgraph
@@ -647,7 +639,7 @@ class _HandlerFixture:
         import pytestqt.exceptions
 
         assert "{vertex}" in js_script
-        wait_until_loaded(self.graph)
+        self.graph.load_and_wait()
         vertex_id = self.graph.api.insert_vertex(
             10, 10, 20, 20, 'handler fixture test',
         )
