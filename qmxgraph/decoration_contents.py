@@ -58,9 +58,7 @@ def _convert_decoration_content_item(raw_data):
         return raw_data
     else:
         if not isinstance(raw_data, dict):
-            raise TypeError(
-                f'`raw_data` must be `str` or `dict` but got {type(raw_data)}'
-            )
+            raise TypeError(f'`raw_data` must be `str` or `dict` but got {type(raw_data)}')
         raw_data = raw_data.copy()
         tag = raw_data.pop('tag', None)
         if tag is None:
@@ -82,9 +80,7 @@ def attrib_table_contents(*classes):
     """
 
     def converter(v):
-        return tuple(
-            _convert_decoration_content_item(item) for item in v
-        )
+        return tuple(_convert_decoration_content_item(item) for item in v)
 
     return attr.ib(validator=tuple_of(*classes), converter=converter)
 
@@ -106,6 +102,7 @@ class Image:
     :ivar int width: The desired width for the image.
     :ivar int height: The desired height for the image.
     """
+
     tag = attr.ib(default='img', init=False)
     src = attr.ib(validator=_is_str)
     width = attr.ib(validator=_is_int)
@@ -127,6 +124,7 @@ class TableData:
     :ivar int rowspan: The number of rows the cell should span into.
     :ivar optional[str] style: A inline style for the element.
     """
+
     tag = attr.ib(default='td', init=False)
     contents = attrib_table_contents(str, Image)
     colspan = attr.ib(default=1, validator=_is_int)
@@ -149,6 +147,7 @@ class TableRow:
         default values and it's contents equal to a tuple of one element (the
         `str` used).
     """
+
     tag = attr.ib(default='tr', init=False)
     contents = attrib_table_contents(str, TableData)
 
@@ -165,6 +164,7 @@ class Table:
     :ivar str tag:
     :ivar tuple[TableRow] contents: The table rows.
     """
+
     tag = attr.ib(default='table', init=False)
     contents = attrib_table_contents(TableRow)
 
@@ -192,7 +192,7 @@ class Table:
             __tracebackhide__ = True
             msg = '\nCould not find row with caption "{}" in\n{}'
             assert False, msg.format(caption, seen_captions)
-        return tuple(self.contents[index + 1:])
+        return tuple(self.contents[index + 1 :])
 
 
 _register_decoration_class(Table)

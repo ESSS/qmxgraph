@@ -8,6 +8,7 @@ def get_conda_env_path():
         found in Conda environment. None if Conda environment not available.
     """
     import sys
+
     conda_prefix = os.environ.get('CONDA_PREFIX', None)
     env_path = None
     if conda_prefix is not None:

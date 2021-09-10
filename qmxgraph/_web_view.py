@@ -1,18 +1,19 @@
-import functools
-import weakref
-
 # Dynamic dependency that may mess freezing tools if not included
-from enum import Enum, auto
-from typing import Any, Optional
-from PyQt5.QtCore import QUrl
+from enum import auto
+from enum import Enum
+from typing import Any
+
+from oop_ext.foundation.callback import Callback
 from PyQt5 import QtPrintSupport  # noqa
-from PyQt5.QtCore import QEvent, pyqtSignal
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QEvent
+from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtWidgets import QApplication
-from oop_ext.foundation.callback import Callback
-from qmxgraph.configuration import GraphStyles, GraphOptions
-from qmxgraph.waiting import wait_until, wait_callback_called
+
+from qmxgraph.configuration import GraphOptions
+from qmxgraph.configuration import GraphStyles
+from qmxgraph.waiting import wait_callback_called
 
 
 class ViewState(Enum):
@@ -22,6 +23,7 @@ class ViewState(Enum):
     LoadingBlank = auto()
     LoadingError = auto()
     Closing = auto()
+
 
 class QWebViewWithDragDrop(QWebEngineView):
     """
@@ -109,7 +111,7 @@ class QWebViewWithDragDrop(QWebEngineView):
         self.page().webChannel().setBlockUpdates(False)
         self.page().webChannel().blockSignals(False)
 
-    def eval_js(self, statement, *, timeout_ms: int=10_000, sync=True, check_api=True) -> Any:
+    def eval_js(self, statement, *, timeout_ms: int = 10_000, sync=True, check_api=True) -> Any:
         """
         Evaluate a JavaScript statement using this web view frame as context.
 
@@ -127,7 +129,10 @@ class QWebViewWithDragDrop(QWebEngineView):
                 self.page().runJavaScript(statement, callback)
             return callback.args[0]
         else:
-            def c(*a, **aa): pass
+
+            def c(*a, **aa):
+                pass
+
             self.page().runJavaScript(statement, c)
             return
 

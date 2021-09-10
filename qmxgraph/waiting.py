@@ -1,34 +1,37 @@
 from contextlib import contextmanager
 from enum import Enum
-from typing import Callable, Optional, Tuple, Any, Generator
+from typing import Any
+from typing import Callable
+from typing import Generator
+from typing import Optional
+from typing import Tuple
 
+from attr import define
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtTest import QTest
-from attr import define
 
 
 @contextmanager
-def wait_signals_called(*signals: pyqtSignal, timeout_ms: int=1000, check_params_cb=None) -> Generator["_Callback", None, None]:
-    """
-
-    """
+def wait_signals_called(
+    *signals: pyqtSignal, timeout_ms: int = 1000, check_params_cb=None
+) -> Generator["_Callback", None, None]:
+    """ """
     callback = _Callback()
     for signal in signals:
         signal.connect(callback)
     yield callback
 
     def success() -> bool:
-        return callback.was_called() and (check_params_cb is None or check_params_cb(*callback.args))
+        return callback.was_called() and (
+            check_params_cb is None or check_params_cb(*callback.args)
+        )
 
     wait_until(success, timeout_ms=timeout_ms)
 
 
-
 @contextmanager
 def wait_callback_called(*, timeout_ms=1000) -> Generator["_Callback", None, None]:
-    """
-
-    """
+    """ """
     callback = _Callback()
     yield callback
     wait_until(callback.was_called, timeout_ms=timeout_ms)
@@ -45,17 +48,18 @@ class _Callback:
         return self.args is not None
 
 
-
 class _Sentinel(Enum):
     value = 0
 
 
-
-
-def wait_until(predicate: Callable[[], bool], *, timeout_ms: int=1000, error_callback: Optional[Callable[[], str]]=None, wait_interval_ms: int =1) -> None:
-    """
-
-    """
+def wait_until(
+    predicate: Callable[[], bool],
+    *,
+    timeout_ms: int = 1000,
+    error_callback: Optional[Callable[[], str]] = None,
+    wait_interval_ms: int = 1,
+) -> None:
+    """ """
     __tracebackhide__ = True
     import time
 

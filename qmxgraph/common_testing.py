@@ -1,7 +1,8 @@
 """
 Those are helper tools that could help in applications' tests.
 """
-from typing import List, cast
+from typing import cast
+from typing import List
 
 from qmxgraph.widget import QmxGraph
 
@@ -38,4 +39,3 @@ def get_cell_ids(widget: QmxGraph, filter_function: str) -> List[str]:
         }})()'''
     )
     return cast(List[str], cells_ids)
-

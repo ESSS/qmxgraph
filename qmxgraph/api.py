@@ -1,6 +1,4 @@
-import functools
 import weakref
-from typing import Optional, Callable
 
 import qmxgraph.debug
 import qmxgraph.js
@@ -57,11 +55,11 @@ class QmxGraphApi(object):
         :rtype: str
         :return: Id of new vertex.
         """
-        return self.call_api(
-            'insertVertex', x, y, width, height, label, style, tags, id)
+        return self.call_api('insertVertex', x, y, width, height, label, style, tags, id)
 
-    def insert_port(self, vertex_id, port_name, x, y, width, height,
-                    label=None, style=None, tags=None):
+    def insert_port(
+        self, vertex_id, port_name, x, y, width, height, label=None, style=None, tags=None
+    ):
         """
         Inserts a new port in vertex.
 
@@ -83,11 +81,20 @@ class QmxGraphApi(object):
             interaction with cells in a graph.
         """
         return self.call_api(
-            'insertPort', vertex_id, port_name, x, y, width, height, label,
-            style, tags)
+            'insertPort', vertex_id, port_name, x, y, width, height, label, style, tags
+        )
 
-    def insert_edge(self, source_id, target_id, label, style=None, tags=None,
-                    source_port_name=None, target_port_name=None, id=None):
+    def insert_edge(
+        self,
+        source_id,
+        target_id,
+        label,
+        style=None,
+        tags=None,
+        source_port_name=None,
+        target_port_name=None,
+        id=None,
+    ):
         """
         Inserts a new edge between two vertices in graph.
 
@@ -111,11 +118,18 @@ class QmxGraphApi(object):
         :return: Id of new edge.
         """
         return self.call_api(
-            'insertEdge', source_id, target_id, label, style, tags,
-            source_port_name, target_port_name, id)
+            'insertEdge',
+            source_id,
+            target_id,
+            label,
+            style,
+            tags,
+            source_port_name,
+            target_port_name,
+            id,
+        )
 
-    def insert_decoration(
-            self, x, y, width, height, label, style=None, tags=None, id=None):
+    def insert_decoration(self, x, y, width, height, label, style=None, tags=None, id=None):
         """
         Inserts a new decoration over an edge in graph. A decoration is
         basically an overlay object that is representing some entity over the
@@ -141,11 +155,11 @@ class QmxGraphApi(object):
         :rtype: str
         :return: Id of new decoration.
         """
-        return self.call_api(
-            'insertDecoration', x, y, width, height, label, style, tags, id)
+        return self.call_api('insertDecoration', x, y, width, height, label, style, tags, id)
 
-    def insert_decoration_on_edge(self, edge_id, position, width, height,
-                                  label, style=None, tags=None, id=None):
+    def insert_decoration_on_edge(
+        self, edge_id, position, width, height, label, style=None, tags=None, id=None
+    ):
         """
         Inserts a new decoration over an edge in graph. A decoration is
         basically an overlay object that is representing some entity over the
@@ -172,12 +186,12 @@ class QmxGraphApi(object):
         :return: Id of new decoration.
         """
         return self.call_api(
-            'insertDecorationOnEdge', edge_id, position, width, height, label,
-            style, tags, id)
+            'insertDecorationOnEdge', edge_id, position, width, height, label, style, tags, id
+        )
 
     def insert_table(
-            self, x, y, width, contents, title, tags=None, style=None,
-            parent_id=None, id=None):
+        self, x, y, width, contents, title, tags=None, style=None, parent_id=None, id=None
+    ):
         """
         Inserts a new table in graph. A table is an object that can be used
         in graph to display tabular information about other cells, for
@@ -207,10 +221,11 @@ class QmxGraphApi(object):
         :return: Id of new table.
         """
         from . import decoration_contents
+
         contents = decoration_contents.asdict(contents)
         return self.call_api(
-            'insertTable', x, y, width, contents, title, tags, style,
-            parent_id, id)
+            'insertTable', x, y, width, contents, title, tags, style, parent_id, id
+        )
 
     def update_table(self, table_id, contents, title):
         """
@@ -222,14 +237,25 @@ class QmxGraphApi(object):
         :param str title: Title of table.
         """
         from . import decoration_contents
+
         contents = decoration_contents.asdict(contents)
         self.call_api('updateTable', table_id, contents, title, sync=False)
 
-    def update_port(self, vertex_id, port_name, x=None, y=None, width=None,
-                    height=None, label=None, style=None, tags=None):
+    def update_port(
+        self,
+        vertex_id,
+        port_name,
+        x=None,
+        y=None,
+        width=None,
+        height=None,
+        label=None,
+        style=None,
+        tags=None,
+    ):
         self.call_api(
-            'updatePort', vertex_id, port_name, x, y, width, height, label,
-            style, tags, sync=False)
+            'updatePort', vertex_id, port_name, x, y, width, height, label, style, tags, sync=False
+        )
 
     def get_port_names(self, vertex_id):
         return self.call_api('getPortNames', vertex_id)
@@ -546,7 +572,9 @@ class QmxGraphApi(object):
             object that is going to be used as callback to event. Receives a
             str with double clicked cell id as only argument.
         """
-        return self.call_api('registerDoubleClickHandler', qmxgraph.js.Variable(handler), check_api=check_api)
+        return self.call_api(
+            'registerDoubleClickHandler', qmxgraph.js.Variable(handler), check_api=check_api
+        )
 
     def register_popup_menu_handler(self, handler, *, check_api=True):
         """
@@ -566,7 +594,9 @@ class QmxGraphApi(object):
             screen coordinates and Y coordinate in screen coordinates as its
             three arguments.
         """
-        return self.call_api('registerPopupMenuHandler', qmxgraph.js.Variable(handler), check_api=check_api)
+        return self.call_api(
+            'registerPopupMenuHandler', qmxgraph.js.Variable(handler), check_api=check_api
+        )
 
     def register_label_changed_handler(self, handler, *, check_api=True):
         """
@@ -578,7 +608,9 @@ class QmxGraphApi(object):
             object that is going to be used as callback to event. Receives,
             respectively, cell id, new label and old label as arguments.
         """
-        return self.call_api('registerLabelChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api)
+        return self.call_api(
+            'registerLabelChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api
+        )
 
     def register_cells_added_handler(self, handler, *, check_api=True):
         """
@@ -590,7 +622,9 @@ class QmxGraphApi(object):
             object that is going to be used as callback to event. Receives a
             `QVariantList` of added cell ids as only argument.
         """
-        return self.call_api('registerCellsAddedHandler', qmxgraph.js.Variable(handler), check_api=check_api)
+        return self.call_api(
+            'registerCellsAddedHandler', qmxgraph.js.Variable(handler), check_api=check_api
+        )
 
     def register_cells_removed_handler(self, handler, *, check_api=True):
         """
@@ -602,7 +636,9 @@ class QmxGraphApi(object):
             object that is going to be used as callback to event. Receives a
             `QVariantList` of removed cell ids as only argument.
         """
-        return self.call_api('registerCellsRemovedHandler', qmxgraph.js.Variable(handler), check_api=check_api)
+        return self.call_api(
+            'registerCellsRemovedHandler', qmxgraph.js.Variable(handler), check_api=check_api
+        )
 
     def register_selection_changed_handler(self, handler, *, check_api=True):
         """
@@ -612,7 +648,9 @@ class QmxGraphApi(object):
             that is going to be used as callback to event. Receives an list of
             str with selected cells ids as only argument.
         """
-        return self.call_api('registerSelectionChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api)
+        return self.call_api(
+            'registerSelectionChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api
+        )
 
     def register_terminal_changed_handler(self, handler, *, check_api=True):
         """
@@ -624,7 +662,9 @@ class QmxGraphApi(object):
             is the source (or target), id of the net terminal, id of the old
             terminal.
         """
-        return self.call_api('registerTerminalChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api)
+        return self.call_api(
+            'registerTerminalChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api
+        )
 
     def register_terminal_with_port_changed_handler(self, handler, *, check_api=True):
         """
@@ -637,7 +677,11 @@ class QmxGraphApi(object):
             terminal is the source (or target), id of the new terminal,
             id of the old terminal.
         """
-        return self.call_api('registerTerminalWithPortChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api)
+        return self.call_api(
+            'registerTerminalWithPortChangedHandler',
+            qmxgraph.js.Variable(handler),
+            check_api=check_api,
+        )
 
     def register_view_update_handler(self, handler, *, check_api=True):
         """
@@ -646,7 +690,9 @@ class QmxGraphApi(object):
             that is going to be used as callback to event. Receives,
             respectively, graph dump and graph scale and translation.
         """
-        return self.call_api('registerViewUpdateHandler', qmxgraph.js.Variable(handler), check_api=check_api)
+        return self.call_api(
+            'registerViewUpdateHandler', qmxgraph.js.Variable(handler), check_api=check_api
+        )
 
     def register_cells_bounds_changed_handler(self, handler, *, check_api=True):
         """
@@ -656,7 +702,9 @@ class QmxGraphApi(object):
             a map of cell id to a map describing the cell bounds.
 
         """
-        return self.call_api('registerBoundsChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api)
+        return self.call_api(
+            'registerBoundsChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api
+        )
 
     def resize_container(self, width, height, *, check_api=True):
         """
@@ -771,8 +819,7 @@ class QmxGraphApi(object):
         """
         return self.call_api('getEdgeTerminalsWithPorts', edge_id)
 
-    def set_edge_terminal(self, edge_id, terminal_type, new_terminal_cell_id,
-                          port_name=None):
+    def set_edge_terminal(self, edge_id, terminal_type, new_terminal_cell_id, port_name=None):
         """
         Set an edge's terminal.
 
@@ -793,8 +840,8 @@ class QmxGraphApi(object):
             raise ValueError(err_msg % (terminal_type,))
 
         return self.call_api(
-            'setEdgeTerminal', edge_id, terminal_type, new_terminal_cell_id,
-            port_name)
+            'setEdgeTerminal', edge_id, terminal_type, new_terminal_cell_id, port_name
+        )
 
     def get_cell_bounds(self, cell_id):
         """
@@ -805,6 +852,7 @@ class QmxGraphApi(object):
         :rtype: qmxgraph.cell_bounds.CellBounds
         """
         from qmxgraph.cell_bounds import CellBounds
+
         cell_bounds = self.call_api('getCellBounds', cell_id)
         return CellBounds(**cell_bounds)
 
@@ -817,6 +865,7 @@ class QmxGraphApi(object):
         :param qmxgraph.cell_bounds.CellBounds cell_bounds: The cell bounds to apply.
         """
         from qmxgraph.cell_bounds import asdict
+
         return self.call_api('setCellBounds', cell_id, asdict(cell_bounds))
 
     def dump(self):
@@ -888,7 +937,7 @@ class QmxGraphApi(object):
         with self._call_context_manager_factory():
             return self._call_api(fn, *args, sync=sync, check_api=check_api)
 
-    def _call_api(self, fn: str, *args, sync, check_api: bool=True):
+    def _call_api(self, fn: str, *args, sync, check_api: bool = True):
         graph = self._graph()
         eval_js = graph.inner_web_view().eval_js
         # REMOVE extra checks: those were a good idea when we had the sync API, but now

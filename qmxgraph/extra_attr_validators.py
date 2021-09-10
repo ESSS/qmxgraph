@@ -14,11 +14,12 @@ def _tuple_of_impl(inst, attr, value, *, child_types):
     if isinstance(value, tuple):
         for i, v in enumerate(value):
             if not isinstance(v, child_types):
-                msg = ("'{name}' must be a tuple of {types!r} but got"
-                       " {value!r} and item in index {i} is not one of"
-                       " the expected types")
-                msg = msg.format(name=attr.name, types=child_types,
-                                 value=value, i=i)
+                msg = (
+                    "'{name}' must be a tuple of {types!r} but got"
+                    " {value!r} and item in index {i} is not one of"
+                    " the expected types"
+                )
+                msg = msg.format(name=attr.name, types=child_types, value=value, i=i)
                 raise TypeError(msg)
     else:
         msg = "'{name}' must be a tuple but got {value!r}"
@@ -37,4 +38,5 @@ def tuple_of(*child_types):
     ..see: http://www.attrs.org/en/stable/examples.html#callables
     """
     import functools
+
     return functools.partial(_tuple_of_impl, child_types=child_types)

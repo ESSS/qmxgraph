@@ -1,7 +1,6 @@
 """
 We all love "hello world" examples =)
 """
-
 import sys
 
 from PyQt5 import QtWidgets
@@ -26,12 +25,8 @@ class HelloWorldWindow(QMainWindow):
     def graph_load_handler(self, is_loaded):
         assert is_loaded
         qmx = self.graph_widget.api
-        v0_id = qmx.insert_vertex(
-            x=100, y=100, width=50, height=100, label="Qmx"
-        )
-        v1_id = qmx.insert_vertex(
-            x=400, y=300, width=100, height=50, label="World"
-        )
+        v0_id = qmx.insert_vertex(x=100, y=100, width=50, height=100, label="Qmx")
+        v1_id = qmx.insert_vertex(x=400, y=300, width=100, height=50, label="World")
         qmx.insert_edge(source_id=v0_id, target_id=v1_id, label="Hello")
 
 

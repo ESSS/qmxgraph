@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 from setuptools import setup
 
 with open('README.rst') as readme_file:
@@ -14,8 +13,7 @@ requirements = []
 setup(
     name='qmxgraph',
     version='0.1.0',
-    description="A Qt graph drawing widget using JavaScript's mxGraph "
-                "library.",
+    description="A Qt graph drawing widget using JavaScript's mxGraph " "library.",
     long_description=readme + '\n\n' + history,
     author="Rafael Bertoldi",
     author_email='tochaman@gmail.com',
@@ -23,8 +21,7 @@ setup(
     packages=[
         'qmxgraph',
     ],
-    package_dir={'qmxgraph':
-                 'qmxgraph'},
+    package_dir={'qmxgraph': 'qmxgraph'},
     include_package_data=True,
     install_requires=requirements,
     license="MIT license",

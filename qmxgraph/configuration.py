@@ -16,8 +16,12 @@ def _is_image_configuration(inst, attr, value):
     :param value: The value that is passed for it.
     :raise TypeError: If the validation fails.
     """
-    if not ((len(value) == 3) and isinstance(value[0], str)
-            and isinstance(value[1], int) and isinstance(value[2], int)):
+    if not (
+        (len(value) == 3)
+        and isinstance(value[0], str)
+        and isinstance(value[1], int)
+        and isinstance(value[2], int)
+    ):
         msg = '{} must be a tuple of `(str, int, int)` but got {}'
         raise TypeError(msg.format(attr.name, repr(value)))
 
@@ -70,8 +74,7 @@ class GraphOptions(object):
         validator=attr.validators.optional(_is_image_configuration),
     )
     enable_cloning = attr.ib(default=True, validator=_is_bool)
-    font_family = attr.ib(
-        default=None, validator=attr.validators.optional(tuple_of(str)))
+    font_family = attr.ib(default=None, validator=attr.validators.optional(tuple_of(str)))
     multigraph = attr.ib(default=False, validator=_is_bool)
     port_image = attr.ib(
         default=None,
@@ -178,10 +181,13 @@ class GraphStyles(object):
                     invalid.setdefault(name, []).append(key)
 
         if invalid:
-            raise ValueError("Invalid keys in styles {}".format(
-                ",".join(
-                    "{} ({})".format(name, ", ".join(keys))
-                    for name, keys in invalid.items())))
+            raise ValueError(
+                "Invalid keys in styles {}".format(
+                    ",".join(
+                        "{} ({})".format(name, ", ".join(keys)) for name, keys in invalid.items()
+                    )
+                )
+            )
 
     def as_dict(self):
         return self._styles

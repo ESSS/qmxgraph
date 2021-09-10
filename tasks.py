@@ -1,10 +1,9 @@
-from __future__ import absolute_import, print_function
-
 import os
-
 import sys
+
 import invoke
-from colorama import Fore, Style
+from colorama import Fore
+from colorama import Style
 
 
 @invoke.task
@@ -46,8 +45,8 @@ def qrc(
 
     def create_web_resource(resource_name, src_dir):
         print_message(
-            '{}- resource: {}'.format(indent, resource_name),
-            color=Fore.BLUE, bright=True)
+            '{}- resource: {}'.format(indent, resource_name), color=Fore.BLUE, bright=True
+        )
 
         target_dir = os.path.dirname(qmxgraph.__file__)
         qrc_file, py_file = generate_qrc_from_folder(
@@ -64,13 +63,12 @@ def qrc(
     if mxgraph is None:
         env_dir = deploy.get_conda_env_path()
         if env_dir is None:
-            raise IOError("Unable to determine MxGraph mxgraph in "
-                          "environment")
+            raise IOError("Unable to determine MxGraph mxgraph in " "environment")
         mxgraph = '{env_dir}/mxgraph'.format(env_dir=env_dir)
 
     create_web_resource(
-        resource_name='mxgraph',
-        src_dir='{folder}/javascript/src'.format(folder=mxgraph))
+        resource_name='mxgraph', src_dir='{folder}/javascript/src'.format(folder=mxgraph)
+    )
 
     qgraph_root = os.path.dirname(qmxgraph.__file__)
     create_web_resource(
@@ -79,12 +77,13 @@ def qrc(
     )
 
 
-@invoke.task(help={
-    'python-version': (
-        'Can be used to define the python version used when creating the'
-        ' work environment'
-    ),
-})
+@invoke.task(
+    help={
+        'python-version': (
+            'Can be used to define the python version used when creating the' ' work environment'
+        ),
+    }
+)
 def docs(ctx, python_version=None):
     """
     Create the documentation html locally.
@@ -135,13 +134,13 @@ def docs(ctx, python_version=None):
         script_file.unlink()
 
 
-
 @invoke.task
 def test(ctx):
     print_message('test'.format(), color=Fore.BLUE, bright=True)
     cmd = 'pytest --cov=qmxgraph --timeout=30 -v --durations=10'
 
     import subprocess
+
     raise invoke.Exit(subprocess.call(cmd, shell=True))
 
 
@@ -151,12 +150,15 @@ def linting(ctx):
     cmd = 'flake8 -v qmxgraph'
 
     import subprocess
+
     raise invoke.Exit(subprocess.call(cmd, shell=True))
 
 
-@invoke.task(help={
-    'svg_path': 'A SVG file',
-})
+@invoke.task(
+    help={
+        'svg_path': 'A SVG file',
+    }
+)
 def svgtostencil(ctx, svg_path):
     """
     Converts a SVG file to a stencil file compatible with mxGraph, output is printed in standard
@@ -165,6 +167,7 @@ def svgtostencil(ctx, svg_path):
     qmxgraph_scripts = os.path.join(os.getcwd(), 'scripts')
 
     import subprocess
+
     svg_to_stencil_script = os.path.join(qmxgraph_scripts, 'svg_to_stencil.py')
     raise invoke.Exit(subprocess.call(['python', svg_to_stencil_script, svg_path]))
 
@@ -177,7 +180,7 @@ def generate_qrc(target_filename, file_map):
     Consider call below:
 
     ```python
-    generate_qrc('resource.qrc', ['foo/bar.txt', '/home/dent/bar.txt'])
+    generate_qrc("resource.qrc", ["foo/bar.txt", "/home/dent/bar.txt"])
     ```
 
     It would generate a .qrc file with contents like:
@@ -197,7 +200,7 @@ def generate_qrc(target_filename, file_map):
     access resource like this, for instance:
 
     ```python
-    QFile(':/foo/bar.txt')
+    QFile(":/foo/bar.txt")
     ```
 
     References:
@@ -220,6 +223,7 @@ def generate_qrc(target_filename, file_map):
     # closest thing to a official documentation about this choice (
     # https://forum.qt.io/topic/42641/the-qt-resource-system-compile-error/4).
     import io
+
     with io.open(target_filename, 'w', encoding='utf8') as f:
         f.write(contents)
 
@@ -245,12 +249,7 @@ def generate_qrc_contents(file_map, target_dir):
         rel_path = os.path.relpath(path_, target_dir)
         return '    ' + QRC_ENTRY_TEMPLATE.format(alias=alias_, path=rel_path)
 
-    entries = '\n'.join(
-        [
-            create_entry(alias, path)
-            for (alias, path) in file_map
-        ]
-    )
+    entries = '\n'.join([create_entry(alias, path) for (alias, path) in file_map])
     return QRC_FILE_TEMPLATE.format(entries=entries)
 
 
@@ -277,16 +276,17 @@ def generate_qrc_py(qrc_filename, target_filename):
     subprocess.check_call(
         [
             sys.executable,
-            '-m', 'PyQt5.pyrcc_main',
+            '-m',
+            'PyQt5.pyrcc_main',
             local_filename,
-            '-o', target_filename,
+            '-o',
+            target_filename,
         ],
         cwd=cwd,
     )
 
 
-def generate_qrc_from_folder(
-        basename, alias, source_dir, target_dir, include=None):
+def generate_qrc_from_folder(basename, alias, source_dir, target_dir, include=None):
     """
     Collect files from a folder, include them in a resource collection file and
     then compiles it to a Python module.
@@ -308,7 +308,8 @@ def generate_qrc_from_folder(
 
     ```python
     generate_qrc_from_folder(
-        'resource_foo', 'rsc_foo', '/home/dent/foo/', '/home/dent/foo/')
+        "resource_foo", "rsc_foo", "/home/dent/foo/", "/home/dent/foo/"
+    )
     ```
 
     It would result in a .qrc like:
@@ -343,32 +344,33 @@ def generate_qrc_from_folder(
         raise IOError("Invalid target directory: {}".format(target_dir))
 
     if sys.platform.startswith('win'):
+
         def fix_alias(a):
             return a.replace('\\', '/')
+
     else:
+
         def fix_alias(a):
             return a
 
     files = [
         (
-            fix_alias('{alias}/{rel_file}'.format(
-                alias=alias,
-                rel_file=os.path.relpath(f, source_dir))),
-            f
+            fix_alias(
+                '{alias}/{rel_file}'.format(alias=alias, rel_file=os.path.relpath(f, source_dir))
+            ),
+            f,
         )
         for f in collect_files_in_folder(source_dir, include=include)
-        ]
+    ]
     if not files:
         raise RuntimeError(
-            "Unable to collect anything for "
-            ".qrc file in folder {}".format(source_dir))
+            "Unable to collect anything for " ".qrc file in folder {}".format(source_dir)
+        )
 
-    qrc_filename = os.path.join(
-        target_dir, '{basename}{ext}'.format(basename=basename, ext='.qrc'))
+    qrc_filename = os.path.join(target_dir, '{basename}{ext}'.format(basename=basename, ext='.qrc'))
     generate_qrc(qrc_filename, files)
 
-    py_filename = os.path.join(target_dir, '{basename}{ext}'.format(
-        basename=basename, ext='.py'))
+    py_filename = os.path.join(target_dir, '{basename}{ext}'.format(basename=basename, ext='.py'))
     generate_qrc_py(qrc_filename, py_filename)
 
     return qrc_filename, py_filename
@@ -398,6 +400,7 @@ def print_message(message, color=None, bright=True, endline='\n'):
         "new line character".
     """
     import sys
+
     if color is not None:
         style = Style.BRIGHT if bright else Style.DIM
         message = '{color}{style}{msg}{reset}'.format(
@@ -417,6 +420,7 @@ def print_message(message, color=None, bright=True, endline='\n'):
 
 
 if sys.platform.startswith('win'):
+
     def follow_subst(path, deep=True):
         """
         Windows has support for virtual drives through `subst` command (
@@ -453,7 +457,6 @@ if sys.platform.startswith('win'):
 
         return path
 
-
     def parse_subst():
         import re
         import subprocess
@@ -462,6 +465,7 @@ if sys.platform.startswith('win'):
 
         def parse_subst_line(line):
             import locale
+
             if not isinstance(line, str):
                 line = line.decode(locale.getpreferredencoding(False))
 
@@ -471,7 +475,10 @@ if sys.platform.startswith('win'):
             return drive.lower(), replace
 
         return dict([parse_subst_line(line) for line in output.splitlines()])
+
+
 else:
+
     def follow_subst(path, deep=True):
         """
         Noop, only Windows has virtual drives.

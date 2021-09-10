@@ -41,7 +41,6 @@ QmxGraph drag & drop is a JSON object. Format spec is found below:
     }
 
 """
-
 import json
 
 import qmxgraph.constants
@@ -57,6 +56,7 @@ def create_qt_mime_data(data):
     :return: MIME data in QmxGraph format.
     """
     from PyQt5.QtCore import QByteArray, QDataStream, QIODevice, QMimeData
+
     item_data = QByteArray()
     data_stream = QDataStream(item_data, QIODevice.WriteOnly)
 
