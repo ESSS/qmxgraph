@@ -19,7 +19,7 @@ from oop_ext.foundation.callback import Callback
 
 from qmxgraph import constants, render
 from qmxgraph.api import QmxGraphApi
-from qmxgraph.waiting import silent_disconnect, wait_signals_called
+from qmxgraph.waiting import wait_signals_called
 from qmxgraph.configuration import GraphOptions, GraphStyles
 import pytestqt.exceptions
 from qmxgraph.waiting import wait_until

@@ -5,20 +5,7 @@ from typing import Callable, Optional, Tuple, Any, Generator
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtTest import QTest
 from attr import define
-from pytestqt.wait_signal import SignalBlocker, CallbackBlocker
 
-
-def wait_signals(*signals: pyqtSignal, timeout: int=1000, raising: bool=True, check_params_cb=None):
-    """
-
-    """
-    # TODO[ASIM-4284]: remove this as no longer used.
-    blocker = SignalBlocker(
-        timeout=timeout, raising=raising, check_params_cb=check_params_cb
-    )
-    for signal in signals:
-        blocker.connect(signal)
-    return blocker
 
 @contextmanager
 def wait_signals_called(*signals: pyqtSignal, timeout_ms: int=1000, check_params_cb=None) -> Generator["_Callback", None, None]:
@@ -35,14 +22,6 @@ def wait_signals_called(*signals: pyqtSignal, timeout_ms: int=1000, check_params
 
     wait_until(success, timeout_ms=timeout_ms)
 
-
-def wait_callback(*, timeout_ms=1000):
-    """
-
-    """
-    # TODO[ASIM-4284]: remove this as no longer used.
-    blocker = CallbackBlocker(timeout=timeout_ms, raising=True)
-    return blocker
 
 
 @contextmanager
@@ -71,15 +50,6 @@ class _Sentinel(Enum):
     value = 0
 
 
-def silent_disconnect(signal: pyqtSignal, slot: Callable) -> None:
-    """
-    Disconnects a signal from a slot, ignoring errors. Sometimes Qt
-    might disconnect a signal automatically for unknown reasons.
-    """
-    # TODO[ASIM-4284]: remove this method.
-    from contextlib import suppress
-    with suppress(TypeError, RuntimeError):
-        signal.disconnect(slot)
 
 
 def wait_until(predicate: Callable[[], bool], *, timeout_ms: int=1000, error_callback: Optional[Callable[[], str]]=None, wait_interval_ms: int =1) -> None:
