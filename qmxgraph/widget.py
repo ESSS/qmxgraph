@@ -135,11 +135,6 @@ class QmxGraph(QWidget):
         self._channel.registerObject('bridge_popup_menu_handler', self._popup_menu_bridge)
         self._web_view.page().setWebChannel(self._channel)
 
-        # Starts disabled, only enable once finished loading page (as user
-        # interaction before that would be unsafe)
-        # TODO: widget remain with disabled appearance even after enabled
-        # self.setEnabled(False)
-
         self._layout.addWidget(self._web_view, 0, 0, 1, 1)
 
         # Similar to a browser, QmxGraph widget is going to allow inspection by
@@ -301,34 +296,6 @@ class QmxGraph(QWidget):
 
         self._web_view.blank()
 
-    # def set_error_bridge(self, bridge):
-    #     """
-    #     Redirects errors on JavaScript code from graph drawing widget to
-    #     bridge.
-    #
-    #     :param ErrorHandlingBridge bridge: Handler for errors.
-    #     """
-    #     silent_disconnect(self._error_bridge.on_error, bridge.on_error)
-    #     self._error_bridge.on_error.connect(bridge.on_error)
-    #
-    # def set_events_bridge(self, bridge):
-    #     """
-    #     Redirects events fired by graph on JavaScript code to Python/Qt side
-    #     by using a bridge.
-    #
-    #     :param EventsBridge bridge: Bridge with event handlers.
-    #     """
-    #     signal_name_list = (
-    #         'on_cells_added', 'on_cells_removed', 'on_label_changed',
-    #         'on_selection_changed', 'on_terminal_changed',
-    #         'on_terminal_with_port_changed', 'on_view_update',
-    #     )
-    #     for signal_name in signal_name_list:
-    #         own_signal = getattr(self._events_bridge, signal_name)
-    #         outside_signal = getattr(bridge, signal_name)
-    #         silent_disconnect(own_signal, outside_signal)
-    #         own_signal.connect(outside_signal)
-
     def set_enabled(self, enabled: bool) -> None:
 
         # TODO[bruno]: tests.
@@ -338,17 +305,6 @@ class QmxGraph(QWidget):
                 return
 
             api.set_interaction_enabled(enabled)
-            # api.set_cells_editable(enabled)
-            # api.set_cells_disconnectable(enabled)  # Change edge's connected nodes
-            # api.set_cells_connectable(enabled)  # Add new edges
-            #
-            # # Disabling moving cells to avoid generating Undo/Redo commands and to
-            # # be more clear that we are in "read mode"
-            # api.set_cells_movable(enabled)
-
-            # This one will probably necessary when adding this feature
-            # TODO: ASIM-2181: Duplicate any kind of network element
-            # api.set_cells_clonable('setCellsClonable', enabled=True)
 
         self._enabled = enabled
         # Call the API only if it is already loaded, or schedule it for later.
@@ -384,49 +340,10 @@ class QmxGraph(QWidget):
             'bridge_events_handler.view_update_slot', check_api=False
         )
 
-    #
-    # def set_double_click_handler(self, handler):
-    #     """
-    #     Set the handler used for double click in cells of graph.
-    #
-    #     Unlike other event handlers, double click is exclusive to a single
-    #     handler. This follows underlying mxGraph implementation that works in
-    #     this manner, with the likely intention of enforcing a single
-    #     side-effect happening when a cell is double clicked.
-    #
-    #     :param callable|None handler: Handler that receives double clicked
-    #         cell id as only argument. If None it disconnects double click
-    #         handler from graph.
-    #     """
-    #     with suppress(TypeError):
-    #         self._double_click_bridge.on_double_click.disconnect()
-    #     if handler:
-    #         self._double_click_bridge.on_double_click.connect(handler)
-
     def _connect_double_click_handler(self):
         self.api.register_double_click_handler(
             'bridge_double_click_handler.double_click_slot', check_api=False
         )
-
-    # def set_popup_menu_handler(self, handler):
-    #     """
-    #     Set the handler used for popup menu (i.e. right-click) in cells of
-    #     graph.
-    #
-    #     Unlike other event handlers, popup menu is exclusive to a single
-    #     handler. This follows underlying mxGraph implementation that works in
-    #     this manner, with the likely intention of enforcing a single
-    #     side-effect happening when a cell is right-clicked.
-    #
-    #     :param callable|None handler: Handler that receives, respectively, id
-    #         of cell that was right-clicked, X coordinate in screen coordinates
-    #         and Y coordinate in screen coordinates as its three arguments. If
-    #         None it disconnects handler from graph.
-    #     """
-    #     with suppress(TypeError):
-    #         self._popup_menu_bridge.on_popup_menu.disconnect()
-    #     if handler:
-    #         self._popup_menu_bridge.on_popup_menu.connect(handler)
 
     def _connect_popup_menu_handler(self):
         self.api.register_popup_menu_handler(
@@ -619,8 +536,6 @@ def _make_async_pyqt_slot(slot_name, signal_name, parameters):
         if self.is_delaying_signals:
             self._delayed_signals[signal_name].append(args)
         else:
-            # signal = getattr(self, signal_name)
-            # QTimer.singleShot(1, lambda: signal.emit(*args))
             QApplication.instance().postEvent(self, _AsyncSignalEvent(signal_name, args))
 
     async_slot.__name__ = slot_name
@@ -632,23 +547,6 @@ class _AsyncSignalEvent(QEvent):
         super().__init__(QEvent.User)
         self.signal_name = signal_name
         self.args = args
-
-
-# def _create_async_slots(namespace, signal_holder_class, new=False):
-#     import re
-#
-#     for k, v in signal_holder_class.__dict__.items():
-#         if isinstance(v, pyqtSignal):
-#             (signature,) = v.signatures
-#             m = re.match(r'^([^(]+)\(([^)]*)\)$', signature)
-#             assert m is not None
-#
-#             signal_name = m.group(1)
-#             assert signal_name.startswith('on_')
-#             slot_name = signal_name[len('on_'):] + '_slot'
-#             parameters = m.group(2)
-#             parameters = parameters.split(',') if parameters else []
-#             namespace[slot_name] = _make_async_pyqt_slot(slot_name, signal_name, parameters, new=new)
 
 
 class DelayedSignalsBridge(QObject):
@@ -726,18 +624,6 @@ class ErrorHandlingBridge(DelayedSignalsBridge):
     # line: int
     # column: int
     on_error = pyqtSignal(str, str, int, int, name='on_error')
-
-
-# _create_async_slots(dict(ErrorHandlingBridge.__dict__), ErrorHandlingBridge)
-
-
-#
-#
-# class JsPythonErrorHandlingBridge(ErrorHandlingBridge):
-#     """
-#     Javascript interface object for ErrorHandlingBridge.
-#     """
-#     _create_async_slots(locals(), ErrorHandlingBridge)
 
 
 class EventsBridge(DelayedSignalsBridge):
@@ -839,27 +725,6 @@ class EventsBridge(DelayedSignalsBridge):
     on_cells_bounds_changed = pyqtSignal('QVariant', name='on_cells_bounds_changed')
 
 
-#
-# class JsPythonEventsBridge(EventsBridge):
-#     """
-#     Javascript interface object for EventsBridge.
-#     """
-#     _create_async_slots(locals(), EventsBridge, new=True)
-#
-#     def __init__(self):
-#         super().__init__()
-#         self._delayed_signals: DefaultDict[str, List[Any]] = defaultdict(list)
-#
-#     def flush_delayed_signals(self) -> None:
-#         to_emit = list(self._delayed_signals.items())
-#         self._delayed_signals.clear()
-#
-#         for signal_name, all_args in to_emit:
-#             signal: pyqtSignal = getattr(self, signal_name)
-#             for args in all_args:
-#                 signal.emit(*args)
-
-
 class _DoubleClickBridge(DelayedSignalsBridge):
     """
     A private bridge used for double click events in JavaScript graph.
@@ -872,14 +737,6 @@ class _DoubleClickBridge(DelayedSignalsBridge):
     # Arguments:
     # cell_id: str
     on_double_click = pyqtSignal(str, name='on_double_click')
-
-
-#
-# class _JsPythonDoubleClickBridge(_DoubleClickBridge):
-#     """
-#     Javascript interface object for _DoubleClickBridge.
-#     """
-#     _create_async_slots(locals(), _DoubleClickBridge)
 
 
 class _PopupMenuBridge(DelayedSignalsBridge):
@@ -896,14 +753,6 @@ class _PopupMenuBridge(DelayedSignalsBridge):
     # x: int
     # y: int
     on_popup_menu = pyqtSignal(str, int, int, name='on_popup_menu')
-
-
-#
-# class _JsPythonPopupMenuBridge(_PopupMenuBridge):
-#     """
-#     Javascript interface object for _PopupMenuBridge.
-#     """
-#     _create_async_slots(locals(), _PopupMenuBridge)
 
 
 @contextmanager

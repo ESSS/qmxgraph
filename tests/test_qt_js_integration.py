@@ -675,7 +675,6 @@ class _HandlerFixture:
             error_context = pytest.raises(TimeoutError)
 
         with error_context:
-            # self.qtbot.stop()
             with wait_callback_called() as cb:
                 self.cb = cb
 

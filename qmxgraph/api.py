@@ -940,6 +940,7 @@ class QmxGraphApi(object):
     def _call_api(self, fn: str, *args, sync, check_api: bool = True):
         graph = self._graph()
         eval_js = graph.inner_web_view().eval_js
+        # TODO[ASIM-4287]: Include checks into the API call
         # REMOVE extra checks: those were a good idea when we had the sync API, but now
         # those calls are executing the event loop each time, which compounds errors.
         # if sync and qmxgraph.debug.is_qmxgraph_debug_enabled() and check_api:
