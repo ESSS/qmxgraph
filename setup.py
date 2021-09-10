@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from setuptools import find_packages
 from setuptools import setup
 
 with open('README.rst') as readme_file:
@@ -18,10 +19,8 @@ setup(
     author="Rafael Bertoldi",
     author_email='tochaman@gmail.com',
     url='https://github.com/ESSS/qmxgraph',
-    packages=[
-        'qmxgraph',
-    ],
-    package_dir={'qmxgraph': 'qmxgraph'},
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
     include_package_data=True,
     install_requires=requirements,
     license="MIT license",

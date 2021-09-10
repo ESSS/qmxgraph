@@ -6,9 +6,6 @@ includes:
   - {{ root }}/base_environment.yml
 
 environment:
-  PYTHONPATH:
-    - {{ root }}
-
 # PhantomJS
 # pros:
 # * doesn't open a browser (i.e. known as headless)
@@ -32,32 +29,35 @@ environment:
 # Tip: Use `--driver <driver_name>` to change driver for a single run
   {% if TEST_QMXGRAPH %}
   PYTEST_ADDOPTS: --driver PhantomJS
+  {% else %}
+  PYTEST_ADDOPTS: ""
   {% endif %}
 
 dependencies:
-    - python>=3.5
-    - mxgraph>=3.7.5
+  - python>=3.5
+  - mxgraph>=3.7.5
 
-    - esss-pylupdate5>=5.6.0+1
+  - esss-pylupdate5>=5.6.0+1
 
-    - attrs>=17
-    - colorama
-    - invoke>=1.0.0
-    - jinja2==2.10
-    - pyqt=5.12.*
-    - six
+  - attrs>=17
+  - colorama
+  - invoke>=1.0.0
+  - jinja2==2.10
+  - pyqt=5.12.*
+  - six
 
-    {% if TEST_QMXGRAPH %}
-    - conda-wrappers
+  {% if TEST_QMXGRAPH %}
+  - conda-wrappers
 
-    - cherrypy==7.1.0
-    - phantomjs>=2.1
-    - pytest-mock>=1.4.0
-    - pytest-qt>=2.1.0
-    - pytest-selenium>=1.2.1,<2
-    - pytest-timeout>=1.0.0
-    - pytest-xdist>=1.15
-        {% if sys.platform != 'win32' %}
-    - pytest-xvfb
-        {% endif %}
-    {% endif %}
+  - cherrypy==7.1.0
+  - phantomjs>=2.1
+  - pytest-mock>=1.4.0
+  - pytest-qt>=2.1.0
+  - pytest-selenium>=1.2.1,<2
+  - pytest-timeout>=1.0.0
+  - pytest-xdist>=1.15
+  {% if sys.platform != 'win32' %}
+  - pytest-xvfb
+  {% endif %}
+
+  {% endif %}
