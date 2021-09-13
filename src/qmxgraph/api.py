@@ -2,6 +2,7 @@ import sys
 import textwrap
 import weakref
 from contextlib import contextmanager
+from typing import Any
 from typing import Generator
 from typing import List
 
@@ -245,7 +246,7 @@ class QmxGraphApi(object):
         from . import decoration_contents
 
         contents = decoration_contents.asdict(contents)
-        self.call_api('updateTable', table_id, contents, title, sync=False)
+        self.call_api_async('updateTable', table_id, contents, title)
 
     def update_port(
         self,
@@ -259,8 +260,8 @@ class QmxGraphApi(object):
         style=None,
         tags=None,
     ):
-        self.call_api(
-            'updatePort', vertex_id, port_name, x, y, width, height, label, style, tags, sync=False
+        self.call_api_async(
+            'updatePort', vertex_id, port_name, x, y, width, height, label, style, tags
         )
 
     def get_port_names(self, vertex_id):
@@ -284,14 +285,14 @@ class QmxGraphApi(object):
         Outline is a small window that shows an overview of graph. It usually
         starts disabled and can be shown on demand.
         """
-        self.call_api('toggleOutline', sync=False)
+        self.call_api_async('toggleOutline')
 
     def toggle_grid(self):
         """
         The grid in background of graph helps aligning cells inside graph. It
         usually starts enabled and can be hidden on demand.
         """
-        self.call_api('toggleGrid', sync=False)
+        self.call_api_async('toggleGrid')
 
     def toggle_snap(self):
         """
@@ -300,7 +301,7 @@ class QmxGraphApi(object):
 
         Note that if grid is hidden this feature is also disabled.
         """
-        self.call_api('toggleSnap', sync=False)
+        self.call_api_async('toggleSnap')
 
     def get_cell_id_at(self, x, y):
         """
@@ -471,25 +472,25 @@ class QmxGraphApi(object):
         """
         Zoom in the graph.
         """
-        self.call_api('zoomIn', sync=False)
+        self.call_api_async('zoomIn')
 
     def zoom_out(self):
         """
         Zoom out the graph.
         """
-        self.call_api('zoomOut', sync=False)
+        self.call_api_async('zoomOut')
 
     def reset_zoom(self):
         """
         Reset graph's zoom.
         """
-        self.call_api('resetZoom', sync=False)
+        self.call_api_async('resetZoom')
 
     def fit(self):
         """
         Rescale the graph to fit in the container.
         """
-        self.call_api('fit', sync=False)
+        self.call_api_async('fit')
 
     def get_zoom_scale(self):
         """
@@ -705,7 +706,7 @@ class QmxGraphApi(object):
         :param int width: New width.
         :param int height: New height.
         """
-        self.call_api('resizeContainer', width, height, sync=False)
+        self.call_api_async('resizeContainer', width, height)
 
     def get_label(self, cell_id):
         """
@@ -909,24 +910,37 @@ class QmxGraphApi(object):
     def run_layout(self, layout_name):
         return self.call_api('runLayout', layout_name)
 
-    def call_api(self, fn: str, *args, sync=True):
+    def call_api(self, fn: str, *args) -> Any:
         """
-        Call a function in underlying API provided by JavaScript graph.
+        Call a function in underlying API provided by JavaScript graph synchronously,
+        returning its result.
 
         :param fn: A function call available in API.
         :param args: Positional arguments passed to graph's
-            JavaScript API call (unfortunately can't use named arguments
-            with JavaScript). All object passed must be JSON encodable or
+            JavaScript API call. All object passed must be JSON encodable or
             Variable instances.
-        :rtype: object
         :return: Return of API call.
         """
         with self._call_context_manager_factory():
-            return self._call_api(fn, *args, sync=sync)
+            return self._call_api(fn, *args, sync=True)
+
+    def call_api_async(self, fn: str, *args) -> None:
+        """
+        Call a function in underlying API provided by JavaScript graph asynchronously.
+
+        It will send the call to the JS engine and return immediately.
+
+        :param fn: A function call available in API.
+        :param args: Positional arguments passed to graph's
+            JavaScript API call. All object passed must be JSON encodable or
+            Variable instances.
+        """
+        with self._call_context_manager_factory():
+            self._call_api(fn, *args, sync=False)
 
     def _call_api(self, fn: str, *args, sync):
         graph = self._graph()
-        eval_js = graph.inner_web_view().eval_js
+        eval_func = graph.inner_web_view().eval_js if sync else graph.inner_web_view().eval_js_async
         call = f'api.{qmxgraph.js.prepare_js_call(fn, *args)}'
 
         if qmxgraph.debug.is_qmxgraph_debug_enabled():
@@ -958,7 +972,7 @@ class QmxGraphApi(object):
             capture_context = nullcontext([])
 
         with capture_context as messages:
-            result = eval_js(call, sync=sync)
+            result = eval_func(call)
 
         # Raise an error if we captured any critical messages.
         # Capturing will only happen if debugging is enabled,

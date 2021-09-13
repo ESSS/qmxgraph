@@ -116,30 +116,45 @@ class QWebViewWithDragDrop(QWebEngineView):
         self.page().webChannel().setBlockUpdates(False)
         self.page().webChannel().blockSignals(False)
 
-    def eval_js(self, statement, *, timeout_ms: int = 10_000, sync=True) -> Any:
+    def eval_js(self, script, *, timeout_ms: int = 10_000) -> Any:
         """
-        Evaluate a JavaScript statement using this web view frame as context.
+        Evaluate a JavaScript script using this web view frame as context, and
+        return the value of its last statement.
 
-        :param str statement: A JavaScript statement.
-        :rtype: object
-        :return: Return of statement.
+        :param script:
+            A JavaScript script.
+        :param timeout_ms:
+            Timeout to wait for a result, raising TimeoutError if
+            the engine doesn't respond in time.
+
+        :return:
+            The result of the last executed JS statement.
         """
+        self._check_valid_eval_state()
+        with wait_callback_called(timeout_ms=timeout_ms) as callback:
+            self.page().runJavaScript(script, callback)
+        return callback.args[0]
 
-        # TODO[ASIM-4289]: remove 'sync' argument, create 'eval_js_sync' instead.
+    def eval_js_async(self, script: str) -> None:
+        """
+        Evaluate a JavaScript statement using this web view frame as context asynchronously.
+
+        This will send the JS statement over to the Engine, which will be evaluated at some point in
+        the future, and returns immediately.
+
+        There's no way to obtain the result of the statement, use ``eval_js`` instead if that's
+        required (there's no way currently to call JS statements asynchronously and also obtain the
+        result).
+
+        :param script: A JavaScript statement.
+        """
+        self._check_valid_eval_state()
+        self.page().runJavaScript(script)
+
+    def _check_valid_eval_state(self) -> None:
+        """Check the view is in a valid state to evaluate JS commands."""
         if self.view_state is not ViewState.GraphLoaded:
             raise RuntimeError(f"Invalid view state ({self.view_state}), graph not loaded")
-
-        if sync:
-            with wait_callback_called(timeout_ms=timeout_ms) as callback:
-                self.page().runJavaScript(statement, callback)
-            return callback.args[0]
-        else:
-
-            def c(*a, **aa):
-                pass
-
-            self.page().runJavaScript(statement, c)
-            return
 
     # Overridden Events -------------------------------------------------------
 
