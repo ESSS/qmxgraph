@@ -19,7 +19,7 @@ from oop_ext.foundation.callback import Callback
 
 from qmxgraph import constants, render
 from qmxgraph.api import QmxGraphApi
-from qmxgraph.waiting import silent_disconnect, wait_signals_called
+from qmxgraph.waiting import wait_signals_called
 from qmxgraph.configuration import GraphOptions, GraphStyles
 import pytestqt.exceptions
 from qmxgraph.waiting import wait_until
@@ -256,17 +256,7 @@ class QmxGraph(QWidget):
         :return: Is graph page already loaded?
         """
         return self._web_view.view_state == ViewState.GraphLoaded
-        # TODO[ASIM-4286]: remove dead code.
-        if self._closing or self._blank:
-            return False
-        # If failed in initialization of graph and it isn't running do not
-        # considered it loaded, as graph and its API aren't safe for use
-        try:
-            return self._web_view.is_loaded() and \
-                self._web_view.eval_js('(typeof graphs !== "undefined") && graphs.isRunning()') and \
-                self._web_view.eval_js("(typeof api !== 'undefined')")
-        except (pytestqt.exceptions.TimeoutError, TimeoutError):
-            return False
+
 
     def load(self):
         """
@@ -491,24 +481,7 @@ class QmxGraph(QWidget):
         Several actions must be delayed until page finishes loading to take
         effect.
         """
-        from qmxgraph.js import InvalidJavaScriptError
         loaded = self._web_view.view_state == ViewState.GraphLoaded
-        # TODO[ASIM-4286]: remove dead code.
-        # if loaded:
-        #     # TODO: widget remain w/ disabled appearance even after enabled
-        #     # Allow user to interact with page again
-        #     # self_._web_view.setEnabled(True)
-        #     try:
-        #         self._connect_events_bridge()
-        #         self._connect_double_click_handler()
-        #         self._connect_popup_menu_handler()
-        #
-        #         width = self.width()
-        #         height = self.height()
-        #         self.api.resize_container(width, height)
-        #     except InvalidJavaScriptError:
-        #         return
-
         self.loadFinished.emit(loaded)
 
 
