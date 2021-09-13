@@ -1,7 +1,13 @@
+import sys
+import textwrap
 import weakref
+from contextlib import contextmanager
+from typing import Generator
+from typing import List
 
 import qmxgraph.debug
 import qmxgraph.js
+from qmxgraph.exceptions import InvalidJavaScriptError
 
 
 class QmxGraphApi(object):
@@ -940,23 +946,77 @@ class QmxGraphApi(object):
     def _call_api(self, fn: str, *args, sync, check_api: bool = True):
         graph = self._graph()
         eval_js = graph.inner_web_view().eval_js
-        # TODO[ASIM-4287]: Include checks into the API call
-        # REMOVE extra checks: those were a good idea when we had the sync API, but now
-        # those calls are executing the event loop each time, which compounds errors.
-        # if sync and qmxgraph.debug.is_qmxgraph_debug_enabled() and check_api:
-        #     # Healthy check as if function didn't exist it just returns None,
-        #     # giving the impression that might have worked
-        #     if not graph.is_loaded():
-        #         raise qmxgraph.js.InvalidJavaScriptError(
-        #             "Because graph is unloaded can't call the JavaScript API."
-        #         )
-        #     if eval_js("(typeof api === 'undefined')"):
-        #         raise qmxgraph.js.InvalidJavaScriptError(
-        #             'API is undefined at this time')
-        #     if eval_js("!api.{}".format(fn)):
-        #         raise qmxgraph.js.InvalidJavaScriptError(
-        #             'Unable to find function "{}" in QmxGraph '
-        #             'JavaScript API'.format(fn))
+        call = f'api.{qmxgraph.js.prepare_js_call(fn, *args)}'
 
-        call = qmxgraph.js.prepare_js_call(fn, *args)
-        return eval_js("api.{}".format(call), sync=sync, check_api=check_api)
+        if qmxgraph.debug.is_qmxgraph_debug_enabled():
+            call = textwrap.dedent(
+                f'''
+                if (
+                    (typeof graphs === "undefined")
+                    || !graphs.isRunning()
+                ) {{
+                    throw Error(
+                        '[QmxGraph] `graphs` must be loaded and running'
+                    );
+                }}
+                if (typeof api === "undefined") {{
+                    throw Error('[QmxGraph] `api` must be loaded');
+                }}
+                if (!api.{fn}) {{
+                    throw Error(
+                        '[QmxGraph] unable to find function "{fn}"'
+                        + ' in javascript api'
+                    );
+                }}
+                {call};
+                '''
+            )
+            # Capture all warning messages from Qt.
+            capture_context = _capture_critical_log_messages()
+        else:
+            capture_context = nullcontext([])
+
+        with capture_context as messages:
+            result = eval_js(call, sync=sync, check_api=check_api)
+
+        # Raise an error if we captured any critical messages.
+        # Capturing will only happen if debugging is enabled,
+        # so we don't need to check it again here.
+        if messages:
+            raise InvalidJavaScriptError("\n".join(messages))
+
+        return result
+
+
+@contextmanager
+def _capture_critical_log_messages() -> Generator[List[str], None, None]:
+    """
+    Installs a handler for the internal Qt warnings system capturing messages
+    of type QtCriticalMsg. The context manager returns a list of captured messages,
+    which can be inspected after the context manager ends.
+    """
+    from PyQt5.QtCore import QtCriticalMsg
+    from PyQt5.QtCore import qInstallMessageHandler
+
+    messages = []
+
+    def handle_message(msg_type, context, message):
+        if msg_type == QtCriticalMsg:
+            messages.append(message)
+
+    previous_handler = qInstallMessageHandler(handle_message)
+    try:
+        yield messages
+    finally:
+        qInstallMessageHandler(previous_handler)
+
+
+if sys.version_info[:] < (3, 7):
+
+    @contextmanager
+    def nullcontext(enter_result=None):
+        yield enter_result
+
+
+else:
+    from contextlib import nullcontext
