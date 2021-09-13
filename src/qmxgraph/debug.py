@@ -1,4 +1,3 @@
-
 def set_qmxgraph_debug(enabled):
     """
     Enables/disables checks and other helpful debug features globally in

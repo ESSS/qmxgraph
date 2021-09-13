@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """
 This is a tool created to help developers convert SVGs to the shapes in XML
 format used by mxGraph's stencils.
@@ -38,9 +37,6 @@ Known issues
 * it isn't feature complete, as it is evolving according new SVGs are created
  and converted to stencils.
 """
-
-from __future__ import print_function
-
 import abc
 import itertools
 import os
@@ -50,7 +46,6 @@ import xml.etree.ElementTree
 
 
 class SvgParser:
-
     def __init__(self, svg_path):
         self.svg_path = svg_path
 
@@ -94,14 +89,13 @@ class SvgParser:
                 no_parser_msg = '<!-- not known parser for tag "{}" -->'
                 drawing_cmds.append([no_parser_msg.format(tag)])
 
-
         return _SHAPE_TEMPLATE.format(
             name=name,
             width=width,
             height=height,
             drawing='\n'.join(
-                '{}{}'.format(ident * 2, c)
-                for c in itertools.chain.from_iterable(drawing_cmds)),
+                '{}{}'.format(ident * 2, c) for c in itertools.chain.from_iterable(drawing_cmds)
+            ),
         )
 
     def _parse_size(self, value, unit):
@@ -143,16 +137,14 @@ class DrawingParser:
 
                 if style_tag in tag_map:
                     el_name, attr = tag_map[style_tag]
-                    added[style_tag] = self._add_if_not_none(
-                        el_name, attr, style_value)
+                    added[style_tag] = self._add_if_not_none(el_name, attr, style_value)
 
         for style_tag, (el_name, attr) in tag_map.items():
             if added.get(style_tag):
                 continue
 
             if style_tag in value.attrib:
-                added[style_tag] = self._add_if_not_none(
-                    el_name, attr, value.attrib[style_tag])
+                added[style_tag] = self._add_if_not_none(el_name, attr, value.attrib[style_tag])
 
     def _add_fill_stroke_command(self):
         has_stroke = self.styles.get('stroke')
@@ -173,7 +165,6 @@ class DrawingParser:
 
 
 class PolygonParser(DrawingParser):
-
     def _add_drawing_commands(self, value):
         # https://www.w3.org/TR/SVG/shapes.html#PolygonElement
         # Mathematically, a 'polygon' element can be mapped to an equivalent
@@ -198,8 +189,7 @@ class PolygonParser(DrawingParser):
             if m is None:
                 break
 
-            self.cmds.append('{}<line x="{}" y="{}"/>'.format(
-                self.ident, m.group(1), m.group(2)))
+            self.cmds.append('{}<line x="{}" y="{}"/>'.format(self.ident, m.group(1), m.group(2)))
             pos += len(m.group(0))
 
         # Close polygon
@@ -208,7 +198,6 @@ class PolygonParser(DrawingParser):
 
 
 class PathParser(DrawingParser):
-
     def _add_drawing_commands(self, value):
         drawing = value.attrib['d']
         state = self.wait_command_state
@@ -238,8 +227,7 @@ class PathParser(DrawingParser):
         if m is None:
             raise ValueError("Could not parse {}".format(value[pos]))
 
-        self.cmds.append('{}<move x="{}" y="{}"/>'.format(
-            self.ident, m.group(1), m.group(3)))
+        self.cmds.append('{}<move x="{}" y="{}"/>'.format(self.ident, m.group(1), m.group(3)))
         return self.wait_command_state, pos + len(m.group(0))
 
     def curve_state(self, svg, pos):
@@ -256,8 +244,7 @@ class PathParser(DrawingParser):
             if index == 1:
                 cmd = '{}<curve'.format(self.ident)
 
-            cmd += ' x{index}="{x}" y{index}="{y}"'.format(
-                index=index, x=m.group(1), y=m.group(3))
+            cmd += ' x{index}="{x}" y{index}="{y}"'.format(index=index, x=m.group(1), y=m.group(3))
             index += 1
             if index > 3:
                 index = 1
@@ -273,7 +260,6 @@ class PathParser(DrawingParser):
 
 
 class RectParser(DrawingParser):
-
     def _add_drawing_commands(self, value):
         svg_to_stencil_attr_map = {
             'x': 'x',
@@ -312,9 +298,10 @@ _SHAPE_TEMPLATE = '''\
 
 if __name__ == '__main__':
     import argparse
+
     arg_parser = argparse.ArgumentParser(
-        description='Converts a SVG file to a stencil file '
-                    'compatible with mxGraph.')
+        description='Converts a SVG file to a stencil file ' 'compatible with mxGraph.'
+    )
     arg_parser.add_argument(
         'svg',
         metavar='SVG_FILE',

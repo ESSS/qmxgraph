@@ -33,9 +33,9 @@ class CherryPyServer(object):
 
         from multiprocessing import Queue, Process
         import queue
+
         q = Queue()
-        cherrypy_server = Process(
-            target=_do_start_server, args=(q, page, config))
+        cherrypy_server = Process(target=_do_start_server, args=(q, page, config))
         cherrypy_server.start()
 
         if sys.platform.startswith('win'):  # pragma: no cover
@@ -72,6 +72,7 @@ class CherryPyServer(object):
         """
         if self.server_pid is not None:
             import signal
+
             try:
                 os.kill(self.server_pid, signal.SIGTERM)
             except WindowsError as e:  # pragma: no cover

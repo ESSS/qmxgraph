@@ -2,22 +2,20 @@
 Display drag from the app into the graph widget and the event bridge.
 This is similar to the hello world sample.
 """
-
 import sys
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QDrag
-from PyQt5.QtWidgets import (
-    QGridLayout,
-    QMainWindow,
-    QPushButton,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt5.QtWidgets import QGridLayout
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QWidget
 
 import qmxgraph.mime
-from qmxgraph.widget import EventsBridge, QmxGraph
+from qmxgraph.widget import EventsBridge
+from qmxgraph.widget import QmxGraph
 
 
 def create_drag_button(text, qmx_style, parent=None):
@@ -75,15 +73,9 @@ class DragAndDropWindow(QMainWindow):
 
         self.button_pane = QWidget(self)
         self.button_pane.setEnabled(False)
-        red_button = create_drag_button(
-            'RED', 'fillColor=#D88', self.button_pane
-        )
-        green_button = create_drag_button(
-            'GREEN', 'fillColor=#8D8', self.button_pane
-        )
-        blue_button = create_drag_button(
-            'BLUE', 'fillColor=#88D', self.button_pane
-        )
+        red_button = create_drag_button('RED', 'fillColor=#D88', self.button_pane)
+        green_button = create_drag_button('GREEN', 'fillColor=#8D8', self.button_pane)
+        blue_button = create_drag_button('BLUE', 'fillColor=#88D', self.button_pane)
 
         self.graph_widget = QmxGraph(parent=central_widget)
         self.events_bridge = self.create_events_bridge()
@@ -111,9 +103,7 @@ class DragAndDropWindow(QMainWindow):
                 label = qmx.get_label(cid)
                 qmx.set_label(cid, f'{label} ({cid})')
 
-        def on_terminal_changed_handler(
-            cell_id, terminal_type, new_terminal_id, old_terminal_id
-        ):
+        def on_terminal_changed_handler(cell_id, terminal_type, new_terminal_id, old_terminal_id):
             print(
                 f'{terminal_type} of {cell_id} changed from'
                 f' {old_terminal_id} to {new_terminal_id}'
@@ -132,8 +122,7 @@ class DragAndDropWindow(QMainWindow):
         events_bridge.on_cells_added.connect(on_cells_added_handler)
         events_bridge.on_cells_removed.connect(on_cells_removed_handler)
         events_bridge.on_terminal_changed.connect(on_terminal_changed_handler)
-        events_bridge.on_cells_bounds_changed.connect(
-            on_cells_bounds_changed_handler)
+        events_bridge.on_cells_bounds_changed.connect(on_cells_bounds_changed_handler)
 
         #
         ##################################

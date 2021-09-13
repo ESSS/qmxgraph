@@ -1,7 +1,7 @@
 name: qmxgraph
 
 dependencies:
-    - python
+    - python >=3.6
 
     - attrs >=17
     - colorama
@@ -10,4 +10,9 @@ dependencies:
     - jinja2
     - oop-ext
     - pip
+    - pre-commit
     - pyqt =5.12
+
+environment:
+  PYTHONPATH:
+    - {{ root }}/src

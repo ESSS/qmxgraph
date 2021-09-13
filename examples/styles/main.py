@@ -1,7 +1,6 @@
 """
 Display the use of styles. This is similar to the hello world sample.
 """
-
 import sys
 
 from PyQt5 import QtWidgets
@@ -33,9 +32,7 @@ class StyleWindow(QMainWindow):
             },
         }
 
-        self.graph_widget = QmxGraph(
-            styles=GraphStyles(styles_cfg), parent=self
-        )
+        self.graph_widget = QmxGraph(styles=GraphStyles(styles_cfg), parent=self)
         # Only operate with the qmx's api after the widget has been loaded.
         self.graph_widget.loadFinished.connect(self.graph_load_handler)
         self.setCentralWidget(self.graph_widget)
@@ -43,9 +40,7 @@ class StyleWindow(QMainWindow):
     def graph_load_handler(self, is_loaded):
         assert is_loaded
         qmx = self.graph_widget.api
-        v0_id = qmx.insert_vertex(
-            x=100, y=100, width=50, height=50, label="AAA"
-        )
+        v0_id = qmx.insert_vertex(x=100, y=100, width=50, height=50, label="AAA")
         # Style by configured style name.
         v1_id = qmx.insert_vertex(
             x=400,
@@ -66,9 +61,7 @@ class StyleWindow(QMainWindow):
         )
 
         qmx.insert_edge(source_id=v0_id, target_id=v1_id, label='normal')
-        qmx.insert_edge(
-            source_id=v1_id, target_id=v2_id, label='bold', style='bold_edge'
-        )
+        qmx.insert_edge(source_id=v1_id, target_id=v2_id, label='bold', style='bold_edge')
 
 
 if __name__ == "__main__":

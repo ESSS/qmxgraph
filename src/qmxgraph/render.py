@@ -18,14 +18,17 @@ def render_embedded_html(options, styles, stencils, mxgraph_path, own_path):
     :return: HTML contents necessary to load graph drawing widget page.
     """
     from PyQt5.QtCore import QFile
+
     html_file = QFile(own_path + '/graph.html')
 
     from PyQt5.QtCore import QIODevice
+
     if not html_file.open(QIODevice.ReadOnly | QIODevice.Text):
         assert False
 
     try:
         from jinja2 import Template
+
         html_data = html_file.readAll().data()
         template = Template(html_data.decode('utf8'))
     finally:
@@ -38,13 +41,10 @@ def render_embedded_html(options, styles, stencils, mxgraph_path, own_path):
     own_path = qrc_prefixed(own_path)
     stencils = [qrc_prefixed(s) for s in stencils]
 
-    return _render(
-        template, options, styles, stencils,
-        mxgraph_path, own_path, embedded=True)
+    return _render(template, options, styles, stencils, mxgraph_path, own_path, embedded=True)
 
 
-def render_hosted_html(
-        options, styles, stencils, mxgraph_path, own_path, template_path):
+def render_hosted_html(options, styles, stencils, mxgraph_path, own_path, template_path):
     """
     Renders an HTML that is able to load graph drawing widget page in a hosted
     server.
@@ -69,13 +69,10 @@ def render_hosted_html(
     env.loader = FileSystemLoader(template_path)
     template = env.get_template('graph.html')
 
-    return _render(
-        template, options, styles, stencils,
-        mxgraph_path, own_path, embedded=False)
+    return _render(template, options, styles, stencils, mxgraph_path, own_path, embedded=False)
 
 
-def _render(
-        template, options, styles, stencils, mxgraph_path, own_path, embedded):
+def _render(template, options, styles, stencils, mxgraph_path, own_path, embedded):
     return template.render(
         mxgraph=mxgraph_path,
         own=own_path,

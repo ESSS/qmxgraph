@@ -7,8 +7,6 @@ Classes used to represent bounds in:
 - :attr:`qmxgraph.widget.EventsBridge.on_cell_geometry_changed`
 
 """
-
-
 import attr
 
 
@@ -48,6 +46,7 @@ class ParentAnchorPosition:
     :ivar float x: A normalized position relative to the parent's width.
     :ivar float y: A normalized position relative to the parent's height.
     """
+
     x = attr.ib(validator=_is_number)
     y = attr.ib(validator=_is_number)
 
@@ -80,6 +79,7 @@ class CellBounds:
     :ivar ParentAnchorPosition parent_anchor_position: When not `None`
         indicates the cell is relatively positioned to its parent.
     """
+
     x = attr.ib(validator=_is_number)
     y = attr.ib(validator=_is_number)
     width = attr.ib(validator=_is_number)

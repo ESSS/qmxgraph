@@ -18,6 +18,3 @@ extensions = [
 
 autodoc_default_flags = ['members']
 autosummary_generate = True
-import os
-import sys
-sys.path.insert(0, os.path.abspath('../qmxgraph'))

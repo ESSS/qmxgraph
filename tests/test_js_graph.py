@@ -1,16 +1,18 @@
 import math
-import sys
 
 import pytest
-from selenium.common.exceptions import NoSuchElementException, \
-    WebDriverException
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 
 import qmxgraph.constants
-from qmxgraph import constants, js, server
+from qmxgraph import constants
+from qmxgraph import js
+from qmxgraph import server
 from qmxgraph.api import QmxGraphApi
-from qmxgraph.configuration import GraphOptions, GraphStyles
+from qmxgraph.configuration import GraphOptions
+from qmxgraph.configuration import GraphStyles
 
 
 def test_resize_container(graph_cases):
@@ -22,8 +24,7 @@ def test_resize_container(graph_cases):
     width, height = graph.get_container_size()
     new_width = width + 20
     new_height = height + 20
-    graph.selenium.execute_script(
-        "api.resizeContainer({}, {})".format(new_width, new_height))
+    graph.selenium.execute_script("api.resizeContainer({}, {})".format(new_width, new_height))
 
     width, height = graph.get_container_size()
     assert width == new_width
@@ -117,18 +118,18 @@ def test_insert_edge_error_endpoint_not_found(graph_cases, selenium_extras):
     invalid_source_id = invalid_target_id = "999"
 
     with pytest.raises(WebDriverException) as e:
-        graph.eval_js_function(
-            "api.insertEdge", invalid_source_id, graph.get_id(vertex))
+        graph.eval_js_function("api.insertEdge", invalid_source_id, graph.get_id(vertex))
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Unable to find cell with id {}".format(invalid_source_id)
+    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
+        invalid_source_id
+    )
 
     with pytest.raises(WebDriverException) as e:
-        graph.eval_js_function(
-            "api.insertEdge", graph.get_id(vertex), invalid_target_id)
+        graph.eval_js_function("api.insertEdge", graph.get_id(vertex), invalid_target_id)
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Unable to find cell with id {}".format(invalid_target_id)
+    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
+        invalid_target_id
+    )
 
 
 def test_insert_decoration(graph_cases):
@@ -138,8 +139,9 @@ def test_insert_decoration(graph_cases):
     graph = graph_cases('2v_1e_1d')
     assert len(graph.get_decorations()) == 1
 
-    graph.eval_js_function('api.insertDecorationOnEdge', graph.edge_id, 0.75,
-                           10, 10, 'another decoration', 'purple')
+    graph.eval_js_function(
+        'api.insertDecorationOnEdge', graph.edge_id, 0.75, 10, 10, 'another decoration', 'purple'
+    )
     assert len(graph.get_decorations()) == 2
 
 
@@ -268,8 +270,7 @@ def test_toggle_grid(selenium, host, grid, wait_graph_page_ready):
 
     container = selenium.find_element_by_css_selector('div.graph')
     assert container.get_attribute('id') == 'graphContainer'
-    assert container.get_attribute('class') == \
-        'graph' if grid else 'graph hide-bg'
+    assert container.get_attribute('class') == 'graph' if grid else 'graph hide-bg'
 
 
 @pytest.mark.parametrize('snap', [True, False])
@@ -291,7 +292,7 @@ def test_toggle_snap(graph_cases, snap):
 
     actions = ActionChains(selenium)
     actions.move_to_element(vertex)
-    actions.move_by_offset(w / 2., h / 2.)
+    actions.move_by_offset(w / 2.0, h / 2.0)
     actions.drag_and_drop_by_offset(None, 66, 66)
     actions.perform()
 
@@ -300,7 +301,7 @@ def test_toggle_snap(graph_cases, snap):
     def expected(v):
         result = v + 66
         if snap:
-            result = math.ceil(result / 10.) * 10
+            result = math.ceil(result / 10.0) * 10
         return result
 
     assert int(vertex.get_attribute('width')) == w
@@ -327,6 +328,7 @@ def test_get_cell_id_at(graph_cases):
     class Invalid:
         def __init__(self):
             self.location = {'x': 999, 'y': 999}
+
     assert graph.get_id(Invalid()) is None
 
 
@@ -392,8 +394,7 @@ def test_parse_port_id(graph_cases):
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
     graph = graph_cases('empty')
-    port_data = graph.eval_js_function(
-        'mxCell.parsePortId', 'qmxgraph-port-PARENT-PORT-NAME')
+    port_data = graph.eval_js_function('mxCell.parsePortId', 'qmxgraph-port-PARENT-PORT-NAME')
     assert port_data == ['PARENT', 'PORT-NAME']
 
 
@@ -408,14 +409,16 @@ def test_set_visible_error_not_found(graph_cases, selenium_extras):
     with pytest.raises(WebDriverException) as e:
         graph.set_visible(cell_id, False)
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Unable to find cell with id {}".format(cell_id)
+    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
+        cell_id
+    )
 
     with pytest.raises(WebDriverException) as e:
         graph.is_visible(cell_id)
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Unable to find cell with id {}".format(cell_id)
+    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
+        cell_id
+    )
 
 
 def test_get_geometry_plain(graph_cases):
@@ -425,14 +428,12 @@ def test_get_geometry_plain(graph_cases):
     graph = graph_cases('2v_1e_1d_1t')
 
     assert graph.get_geometry(graph.get_vertices()[0]) == [10, 10, 30, 30]
-    assert graph.get_geometry(graph.get_edge(*graph.get_vertices())) == \
-        [40, 25, 50, 1]
+    assert graph.get_geometry(graph.get_edge(*graph.get_vertices())) == [40, 25, 50, 1]
     assert graph.get_geometry(graph.get_decorations()[0]) == [55, 20, 10, 10]
     # Table geometry is dependent on how the contents are rendered.
     # Using `pytest.approx` to account for platform differences.
     obtained_table_geometry = graph.get_geometry(graph.get_tables()[0])
-    assert pytest.approx(obtained_table_geometry, rel=0.1) == \
-        [20, 60, 108, 72]
+    assert pytest.approx(obtained_table_geometry, rel=0.1) == [20, 60, 108, 72]
 
 
 def test_get_geometry_error_not_found(graph_cases, selenium_extras):
@@ -446,8 +447,9 @@ def test_get_geometry_error_not_found(graph_cases, selenium_extras):
     with pytest.raises(WebDriverException) as e:
         graph.get_geometry(cell_id)
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Unable to find cell with id {}".format(cell_id)
+    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
+        cell_id
+    )
 
 
 def test_insert_table(graph_cases):
@@ -491,8 +493,8 @@ def test_insert_child_table(graph_cases, action, expected_scale):
     assert len(tables) == 1
     parent_id = graph.get_id(tables[0])
     child_id = graph.eval_js_function(
-        'api.insertTable', 0.5, 1.5, 300, {'contents': []}, 'foobar', None,
-        None, parent_id)
+        'api.insertTable', 0.5, 1.5, 300, {'contents': []}, 'foobar', None, None, parent_id
+    )
     tables = graph.get_tables()
     assert len(tables) == 2
 
@@ -504,6 +506,7 @@ def test_insert_child_table(graph_cases, action, expected_scale):
 
     def get_bounds(cell_id):
         return graph.eval_js_function('api.getGeometry', cell_id)
+
     parent_bounds = get_bounds(parent_id)
     child_bounds = get_bounds(child_id)
     assert parent_bounds[0] < child_bounds[0] < parent_bounds[2]
@@ -527,8 +530,10 @@ def test_table_with_image(graph_cases):
                         'contents': [
                             'foo ',
                             {
-                                'tag': 'img', 'src': 'some-image-path',
-                                'width': 16, 'height': 16,
+                                'tag': 'img',
+                                'src': 'some-image-path',
+                                'width': 16,
+                                'height': 16,
                             },
                         ]
                     }
@@ -538,8 +543,7 @@ def test_table_with_image(graph_cases):
     }
     graph.eval_js_function('api.updateTable', table_id, contents, '')
 
-    image_elements = graph.selenium.find_elements_by_css_selector(
-        '.table-cell-contents img')
+    image_elements = graph.selenium.find_elements_by_css_selector('.table-cell-contents img')
     assert len(image_elements) == 1
     image = image_elements[0]
     assert image.get_attribute('src').endswith('some-image-path')
@@ -560,8 +564,7 @@ def test_update_table(graph_cases):
         ]
     }
     title = 'updated'
-    graph.selenium.execute_script(
-        js.prepare_js_call('api.updateTable', table_id, contents, title))
+    graph.selenium.execute_script(js.prepare_js_call('api.updateTable', table_id, contents, title))
 
     table = graph.get_tables()[0]
     assert graph.get_table_title(table) == 'updated'
@@ -581,10 +584,12 @@ def test_update_table_error_not_found(graph_cases, selenium_extras):
 
     with pytest.raises(WebDriverException) as e:
         graph.selenium.execute_script(
-            js.prepare_js_call('api.updateTable', table_id, contents, title))
+            js.prepare_js_call('api.updateTable', table_id, contents, title)
+        )
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Unable to find cell with id {}".format(table_id)
+    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
+        table_id
+    )
 
 
 def test_update_table_error_not_table(graph_cases, selenium_extras):
@@ -600,7 +605,8 @@ def test_update_table_error_not_table(graph_cases, selenium_extras):
 
     with pytest.raises(WebDriverException) as e:
         graph.selenium.execute_script(
-            js.prepare_js_call('api.updateTable', table_id, contents, title))
+            js.prepare_js_call('api.updateTable', table_id, contents, title)
+        )
 
     assert selenium_extras.get_exception_message(e) == "Cell is not a table"
 
@@ -633,8 +639,9 @@ def test_remove_cells_error_not_found(graph_cases, selenium_extras):
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function('api.removeCells', [cell_id])
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Unable to find cell with id {}".format(cell_id)
+    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
+        cell_id
+    )
 
 
 def test_on_cells_removed(graph_cases):
@@ -643,8 +650,7 @@ def test_on_cells_removed(graph_cases):
     """
     graph = graph_cases('2v_1e')
 
-    graph.selenium.execute_script(
-        'callback = function(cellIds) {window.cellIds = cellIds;}')
+    graph.selenium.execute_script('callback = function(cellIds) {window.cellIds = cellIds;}')
     graph.eval_js_function('api.registerCellsRemovedHandler', js.Variable('callback'))
 
     cell_ids = [
@@ -687,23 +693,22 @@ def test_custom_shapes(selenium, port, tmpdir, wait_graph_page_ready):
     stencil_file.write(custom_stencil)
     stencils = [str(stencil_file)]
 
-    styles = GraphStyles({
-        'moon': {
-            'shape': 'Moon',
-            'fill_color': '#ffff00',
-        },
-    })
+    styles = GraphStyles(
+        {
+            'moon': {
+                'shape': 'Moon',
+                'fill_color': '#ffff00',
+            },
+        }
+    )
 
     def has_custom_shape():
-        return bool(selenium.find_elements_by_css_selector(
-            'g>g>path[fill="#ffff00"]'))
+        return bool(selenium.find_elements_by_css_selector('g>g>path[fill="#ffff00"]'))
 
-    with server.host(
-            port=port.get(), styles=styles, stencils=stencils) as host:
+    with server.host(port=port.get(), styles=styles, stencils=stencils) as host:
         wait_graph_page_ready(host=host)
         assert not has_custom_shape()
-        selenium.execute_script(
-            "api.insertVertex(10, 10, 20, 20, 'custom', 'moon')")
+        selenium.execute_script("api.insertVertex(10, 10, 20, 20, 'custom', 'moon')")
         assert has_custom_shape()
 
 
@@ -720,17 +725,18 @@ def test_edge_with_style(port, mode, graph_cases_factory):
     :type mode: str
     :type graph_cases_factory: callable
     """
-    styles = GraphStyles({
-        'edge': {
-            'stroke_color': '#000000',
-        },
-    })
+    styles = GraphStyles(
+        {
+            'edge': {
+                'stroke_color': '#000000',
+            },
+        }
+    )
 
     with server.host(port=port.get(), styles=styles) as host:
         cases = graph_cases_factory(host)
         graph = cases('2v_1e' if mode == 'by_code' else '2v_1eDD')
-        assert graph.get_edge(
-            *graph.get_vertices()).get_attribute('stroke') == '#000000'
+        assert graph.get_edge(*graph.get_vertices()).get_attribute('stroke') == '#000000'
 
 
 def test_get_label(graph_cases):
@@ -767,8 +773,7 @@ def test_get_label(graph_cases):
 
     parser = TableHTMLParser()
     parser.feed(table_label)
-    assert table_html_data == \
-        ['Hitchhikers', 'arthur', 'dent', 'ford', 'prefect']
+    assert table_html_data == ['Hitchhikers', 'arthur', 'dent', 'ford', 'prefect']
 
 
 def test_get_label_error_not_found(graph_cases, selenium_extras):
@@ -782,8 +787,9 @@ def test_get_label_error_not_found(graph_cases, selenium_extras):
     with pytest.raises(WebDriverException) as e:
         graph.get_label(cell_id)
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Unable to find cell with id {}".format(cell_id)
+    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
+        cell_id
+    )
 
 
 def test_has_cell(graph_cases):
@@ -808,17 +814,13 @@ def test_get_cell_type(graph_cases):
         cell_id = graph.get_id(web_element)
         return graph.eval_js_function('api.getCellType', cell_id)
 
-    assert get_cell_type(graph.get_vertices()[0]) == \
-           constants.CELL_TYPE_VERTEX
+    assert get_cell_type(graph.get_vertices()[0]) == constants.CELL_TYPE_VERTEX
 
-    assert get_cell_type(graph.get_edge(*graph.get_vertices())) == \
-           constants.CELL_TYPE_EDGE
+    assert get_cell_type(graph.get_edge(*graph.get_vertices())) == constants.CELL_TYPE_EDGE
 
-    assert get_cell_type(graph.get_decorations()[0]) == \
-           constants.CELL_TYPE_DECORATION
+    assert get_cell_type(graph.get_decorations()[0]) == constants.CELL_TYPE_DECORATION
 
-    assert get_cell_type(graph.get_tables()[0]) == \
-           constants.CELL_TYPE_TABLE
+    assert get_cell_type(graph.get_tables()[0]) == constants.CELL_TYPE_TABLE
 
 
 def test_get_cell_type_error_not_found(graph_cases, selenium_extras):
@@ -833,8 +835,9 @@ def test_get_cell_type_error_not_found(graph_cases, selenium_extras):
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function("api.getCellType", cell_id)
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Unable to find cell with id {}".format(cell_id)
+    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
+        cell_id
+    )
 
 
 @pytest.mark.parametrize(
@@ -844,7 +847,7 @@ def test_get_cell_type_error_not_found(graph_cases, selenium_extras):
         qmxgraph.constants.CELL_TYPE_EDGE,
         qmxgraph.constants.CELL_TYPE_TABLE,
         qmxgraph.constants.CELL_TYPE_DECORATION,
-    ]
+    ],
 )
 def test_insert_with_tags(graph_cases, cell_type):
     """
@@ -862,16 +865,18 @@ def test_insert_with_tags(graph_cases, cell_type):
         '           return api.hasTag(cellId, "tagTest")? api.getTag(cellId, "tagTest") : null;'  # noqa
         '       }'
         '   );'
-        '}')
+        '}'
+    )
     graph.eval_js_function('api.registerCellsAddedHandler', js.Variable('callback'))
     tags = {'tagTest': '1'}
 
     cell_id = insert_by_parametrized_type(graph, cell_type, tags=tags)
 
-    assert graph.selenium.execute_script(
-        "return api.getTag({}, 'tagTest')".format(cell_id)) == tags['tagTest']
-    assert graph.selenium.execute_script('return window.tags') == \
-        [tags['tagTest']]
+    assert (
+        graph.selenium.execute_script("return api.getTag({}, 'tagTest')".format(cell_id))
+        == tags['tagTest']
+    )
+    assert graph.selenium.execute_script('return window.tags') == [tags['tagTest']]
 
 
 @pytest.mark.parametrize(
@@ -881,10 +886,9 @@ def test_insert_with_tags(graph_cases, cell_type):
         qmxgraph.constants.CELL_TYPE_EDGE,
         qmxgraph.constants.CELL_TYPE_TABLE,
         qmxgraph.constants.CELL_TYPE_DECORATION,
-    ]
+    ],
 )
-def test_insert_with_tags_error_value_not_string(
-        graph_cases, cell_type, selenium_extras):
+def test_insert_with_tags_error_value_not_string(graph_cases, cell_type, selenium_extras):
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type cell_type: qmxgraph.constants.CELL_TYPE_*
@@ -897,8 +901,7 @@ def test_insert_with_tags_error_value_not_string(
     with pytest.raises(WebDriverException) as e:
         insert_by_parametrized_type(graph, cell_type, tags=tags)
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Tag '{}' is not a string".format("tagTest")
+    assert selenium_extras.get_exception_message(e) == "Tag '{}' is not a string".format("tagTest")
 
 
 @pytest.mark.parametrize(
@@ -908,7 +911,7 @@ def test_insert_with_tags_error_value_not_string(
         qmxgraph.constants.CELL_TYPE_EDGE,
         qmxgraph.constants.CELL_TYPE_TABLE,
         qmxgraph.constants.CELL_TYPE_DECORATION,
-    ]
+    ],
 )
 def test_set_get_tag(graph_cases, cell_type):
     """
@@ -932,10 +935,9 @@ def test_set_get_tag(graph_cases, cell_type):
         qmxgraph.constants.CELL_TYPE_EDGE,
         qmxgraph.constants.CELL_TYPE_TABLE,
         qmxgraph.constants.CELL_TYPE_DECORATION,
-    ]
+    ],
 )
-def test_set_get_tag_error_tag_not_found(
-        graph_cases, cell_type, selenium_extras):
+def test_set_get_tag_error_tag_not_found(graph_cases, cell_type, selenium_extras):
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type cell_type: qmxgraph.constants.CELL_TYPE_*
@@ -949,8 +951,9 @@ def test_set_get_tag_error_tag_not_found(
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function("api.getTag", cell_id, "test")
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Tag '{}' not found in cell with id {}".format("test", cell_id)
+    assert selenium_extras.get_exception_message(
+        e
+    ) == "Tag '{}' not found in cell with id {}".format("test", cell_id)
 
 
 @pytest.mark.parametrize(
@@ -960,10 +963,9 @@ def test_set_get_tag_error_tag_not_found(
         qmxgraph.constants.CELL_TYPE_EDGE,
         qmxgraph.constants.CELL_TYPE_TABLE,
         qmxgraph.constants.CELL_TYPE_DECORATION,
-    ]
+    ],
 )
-def test_set_get_tag_error_value_not_string(
-        graph_cases, cell_type, selenium_extras):
+def test_set_get_tag_error_value_not_string(graph_cases, cell_type, selenium_extras):
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type cell_type: qmxgraph.constants.CELL_TYPE_*
@@ -976,8 +978,7 @@ def test_set_get_tag_error_value_not_string(
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function("api.setTag", cell_id, "test", 999)
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Tag '{}' is not a string".format("test")
+    assert selenium_extras.get_exception_message(e) == "Tag '{}' is not a string".format("test")
 
 
 @pytest.mark.parametrize(
@@ -987,7 +988,7 @@ def test_set_get_tag_error_value_not_string(
         qmxgraph.constants.CELL_TYPE_EDGE,
         qmxgraph.constants.CELL_TYPE_TABLE,
         qmxgraph.constants.CELL_TYPE_DECORATION,
-    ]
+    ],
 )
 def test_set_get_tag_doesnt_overwrite_protected_tags(graph_cases, cell_type):
     """
@@ -1002,8 +1003,7 @@ def test_set_get_tag_doesnt_overwrite_protected_tags(graph_cases, cell_type):
     graph.eval_js_function("api.setTag", cell_id, "label", "test")
     assert graph.eval_js_function("api.hasTag", cell_id, "label")
     assert graph.eval_js_function("api.getTag", cell_id, "label") == "test"
-    assert graph.eval_js_function("api.getTag", cell_id, "label") != \
-        graph.get_label(cell_id)
+    assert graph.eval_js_function("api.getTag", cell_id, "label") != graph.get_label(cell_id)
 
 
 def test_set_get_tag_error_cell_not_found(graph_cases, selenium_extras):
@@ -1018,20 +1018,23 @@ def test_set_get_tag_error_cell_not_found(graph_cases, selenium_extras):
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function("api.setTag", cell_id, "test", "foo")
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Unable to find cell with id {}".format(cell_id)
+    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
+        cell_id
+    )
 
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function("api.getTag", cell_id, "test")
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Unable to find cell with id {}".format(cell_id)
+    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
+        cell_id
+    )
 
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function("api.hasTag", cell_id, "test")
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Unable to find cell with id {}".format(cell_id)
+    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
+        cell_id
+    )
 
 
 def test_set_get_tag_without_initial_tag_support(graph_cases):
@@ -1096,12 +1099,13 @@ def test_on_label_changed(graph_cases):
 
     assert graph.get_label(graph.get_vertex()) == 'foo'
     label_changes = graph.get_label_changes()
-    assert label_changes == \
-        [{
+    assert label_changes == [
+        {
             'cellId': vertex_id,
             'newLabel': 'foo',
             'oldLabel': label,
-        }]
+        }
+    ]
     assert graph.eval_js_function('api.getTag', vertex_id, 'test') == 'test'
 
 
@@ -1118,12 +1122,13 @@ def test_set_label(graph_cases):
 
     assert graph.get_label(graph.get_vertex()) == 'foo'
     label_changes = graph.get_label_changes()
-    assert label_changes == \
-        [{
+    assert label_changes == [
+        {
             'cellId': vertex_id,
             'newLabel': 'foo',
             'oldLabel': label,
-        }]
+        }
+    ]
 
 
 def test_set_label_error_not_found(graph_cases, selenium_extras):
@@ -1137,8 +1142,9 @@ def test_set_label_error_not_found(graph_cases, selenium_extras):
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function('api.setLabel', cell_id, 'foo')
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Unable to find cell with id {}".format(cell_id)
+    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
+        cell_id
+    )
 
 
 def test_set_double_click_handler(graph_cases):
@@ -1154,16 +1160,15 @@ def test_set_double_click_handler(graph_cases):
         '        window.__dblClick__ = [];'
         '    }'
         '    window.__dblClick__.push(cellId);'
-        '}')
-    graph.eval_js_function(
-        'api.registerDoubleClickHandler', qmxgraph.js.Variable('callback'))
+        '}'
+    )
+    graph.eval_js_function('api.registerDoubleClickHandler', qmxgraph.js.Variable('callback'))
 
     actions = ActionChains(graph.selenium)
     actions.double_click(graph.get_vertex())
     actions.perform()
 
-    assert graph.selenium.execute_script('return window.__dblClick__') == \
-        [vertex_id]
+    assert graph.selenium.execute_script('return window.__dblClick__') == [vertex_id]
 
 
 def test_add_selection_change_handler(graph_cases):
@@ -1181,9 +1186,9 @@ def test_add_selection_change_handler(graph_cases):
         '        window.__selectionChange__ = [];'
         '    }'
         '    window.__selectionChange__.push(cellIds);'
-        '}')
-    graph.eval_js_function(
-        'api.registerSelectionChangedHandler', qmxgraph.js.Variable('callback'))
+        '}'
+    )
+    graph.eval_js_function('api.registerSelectionChangedHandler', qmxgraph.js.Variable('callback'))
 
     # Select all cells.
     actions = ActionChains(graph.selenium)
@@ -1194,8 +1199,7 @@ def test_add_selection_change_handler(graph_cases):
     actions.key_up(Keys.CONTROL)
     actions.perform()
 
-    fired_selection_events = graph.selenium.execute_script(
-        'return window.__selectionChange__')
+    fired_selection_events = graph.selenium.execute_script('return window.__selectionChange__')
     assert fired_selection_events == [
         ['2'],
         ['3', '2'],
@@ -1209,8 +1213,7 @@ def test_add_selection_change_handler(graph_cases):
     # Clear selection.
     graph.eval_js_function('api.setSelectedCells', [])
 
-    fired_selection_events = graph.selenium.execute_script(
-        'return window.__selectionChange__')
+    fired_selection_events = graph.selenium.execute_script('return window.__selectionChange__')
     assert fired_selection_events == [
         ['2'],
         ['3', '2'],
@@ -1234,9 +1237,9 @@ def test_set_popup_menu_handler(graph_cases):
         '        window.__popupMenu__ = [];'
         '    }'
         '    window.__popupMenu__.push([cellId, x, y]);'
-        '}')
-    graph.eval_js_function(
-        'api.registerPopupMenuHandler', qmxgraph.js.Variable('callback'))
+        '}'
+    )
+    graph.eval_js_function('api.registerPopupMenuHandler', qmxgraph.js.Variable('callback'))
 
     vertex_label_el = graph.get_label_element(graph.get_vertex())
     actions = ActionChains(graph.selenium)
@@ -1245,8 +1248,7 @@ def test_set_popup_menu_handler(graph_cases):
 
     x = vertex_label_el.location['x'] + vertex_label_el.size['width'] // 2
     y = vertex_label_el.location['y'] + vertex_label_el.size['height'] // 2
-    assert graph.selenium.execute_script('return window.__popupMenu__') == \
-        [[vertex_id, x, y]]
+    assert graph.selenium.execute_script('return window.__popupMenu__') == [[vertex_id, x, y]]
 
 
 @pytest.mark.parametrize(
@@ -1282,8 +1284,7 @@ def test_set_scale_and_translation(graph_cases):
     """
     graph = graph_cases('1v')
 
-    ini_scale, ini_x, ini_y = graph.eval_js_function(
-        'api.getScaleAndTranslation')
+    ini_scale, ini_x, ini_y = graph.eval_js_function('api.getScaleAndTranslation')
     assert (ini_scale, ini_x, ini_y) == (1, 0, 0)
 
     from selenium.webdriver.common.actions.mouse_button import MouseButton
@@ -1294,16 +1295,16 @@ def test_set_scale_and_translation(graph_cases):
             if self._driver.w3c:
                 if on_element:
                     self.w3c_actions.pointer_action.move_to(on_element)
-                self.w3c_actions.pointer_action.pointer_down(
-                    MouseButton.RIGHT)
+                self.w3c_actions.pointer_action.pointer_down(MouseButton.RIGHT)
                 self.w3c_actions.key_action.pause()
                 if on_element:
                     self.w3c_actions.key_action.pause()
             else:
                 if on_element:
                     self.move_to_element(on_element)
-                self._actions.append(lambda: self._driver.execute(
-                    Command.MOUSE_DOWN, {'button': 2}))
+                self._actions.append(
+                    lambda: self._driver.execute(Command.MOUSE_DOWN, {'button': 2})
+                )
             return self
 
         def release_right(self, on_element=None):
@@ -1313,8 +1314,7 @@ def test_set_scale_and_translation(graph_cases):
                 self.w3c_actions.pointer_action.pointer_up(MouseButton.RIGHT)
                 self.w3c_actions.key_action.pause()
             else:
-                self._actions.append(lambda: self._driver.execute(
-                    Command.MOUSE_UP, {'button': 2}))
+                self._actions.append(lambda: self._driver.execute(Command.MOUSE_UP, {'button': 2}))
             return self
 
     vertex = graph.get_vertex()
@@ -1333,21 +1333,18 @@ def test_set_scale_and_translation(graph_cases):
         graph.eval_js_function('api.zoomIn')
 
     ScaleAndTranslateGraph()
-    saved_scale, saved_x, saved_y = graph.eval_js_function(
-        'api.getScaleAndTranslation')
+    saved_scale, saved_x, saved_y = graph.eval_js_function('api.getScaleAndTranslation')
     assert saved_scale == pytest.approx(1.44, abs=2)
     assert saved_x == pytest.approx(-36.11, abs=2)
     assert saved_y == pytest.approx(60.42, abs=2)
 
     ScaleAndTranslateGraph()
-    new_scale, new_x, new_y = graph.eval_js_function(
-        'api.getScaleAndTranslation')
+    new_scale, new_x, new_y = graph.eval_js_function('api.getScaleAndTranslation')
     assert new_scale == pytest.approx(2.08, abs=2)
     assert new_x == pytest.approx(-61.50, abs=2)
     assert new_y == pytest.approx(97.28, abs=2)
 
-    graph.eval_js_function(
-        'api.setScaleAndTranslation', saved_scale, saved_x, saved_y)
+    graph.eval_js_function('api.setScaleAndTranslation', saved_scale, saved_x, saved_y)
     scale, x, y = graph.eval_js_function('api.getScaleAndTranslation')
     assert (scale, x, y) == (saved_scale, saved_x, saved_y)
 
@@ -1377,8 +1374,7 @@ def test_get_edge_terminals(graph_cases):
     source, target = graph.get_vertices()
     edge = graph.get_edge(source, target)
 
-    source_id, target_id = graph.eval_js_function(
-        'api.getEdgeTerminals', graph.get_id(edge))
+    source_id, target_id = graph.eval_js_function('api.getEdgeTerminals', graph.get_id(edge))
     assert source_id == graph.get_id(source)
     assert target_id == graph.get_id(target)
 
@@ -1390,11 +1386,9 @@ def test_set_edge_terminals(graph_cases, terminal_type):
     :type terminal_type: str
     """
     graph = graph_cases('3v_1e')
-    graph.eval_js_function(
-        'api.setEdgeTerminal', graph.edge_id, terminal_type, graph.vertex3_id)
+    graph.eval_js_function('api.setEdgeTerminal', graph.edge_id, terminal_type, graph.vertex3_id)
 
-    source_id, target_id = graph.eval_js_function(
-        'api.getEdgeTerminals', graph.edge_id)
+    source_id, target_id = graph.eval_js_function('api.getEdgeTerminals', graph.edge_id)
     if terminal_type == 'source':
         assert source_id == graph.vertex3_id
         assert target_id == graph.target_id
@@ -1459,8 +1453,9 @@ def test_get_edge_terminals_error_edge_not_found(graph_cases, selenium_extras):
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function('api.getEdgeTerminals', edge_id)
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Unable to find edge with id {}".format(edge_id)
+    assert selenium_extras.get_exception_message(e) == "Unable to find edge with id {}".format(
+        edge_id
+    )
 
 
 def test_get_edge_terminals_error_not_an_edge(graph_cases, selenium_extras):
@@ -1474,8 +1469,9 @@ def test_get_edge_terminals_error_not_an_edge(graph_cases, selenium_extras):
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function('api.getEdgeTerminals', graph.get_id(vertex))
 
-    assert selenium_extras.get_exception_message(e) == \
-        "Cell with id {} is not an edge".format(graph.get_id(vertex))
+    assert selenium_extras.get_exception_message(e) == "Cell with id {} is not an edge".format(
+        graph.get_id(vertex)
+    )
 
 
 def test_custom_font_family(graph_cases_factory, port):
@@ -1492,7 +1488,8 @@ def test_custom_font_family(graph_cases_factory, port):
         graph = cases("1v")
 
         match = graph.selenium.find_elements_by_css_selector(
-            'div[style*="font-family:"][style*="Helvetica"]')
+            'div[style*="font-family:"][style*="Helvetica"]'
+        )
         assert len(match) == 1
 
 
@@ -1521,17 +1518,15 @@ def test_ports(graph_cases):
     graph.eval_js_function('api.insertPort', vertex_a_id, port_x_name, 0, 0, 9, 9)
     graph.eval_js_function('api.insertPort', vertex_b_id, port_y_name, 0, 0, 9, 9)
     edge_id = graph.eval_js_function(
-        'api.insertEdge', vertex_a_id, vertex_b_id, None, None, None, port_x_name, port_y_name)
+        'api.insertEdge', vertex_a_id, vertex_b_id, None, None, None, port_x_name, port_y_name
+    )
 
     # When removing a port remove edges connected through it.
     assert graph.eval_js_function('api.hasCell', edge_id)
-    assert (
-        [vertex_a_id, vertex_b_id]
-        == graph.eval_js_function('api.getEdgeTerminals', edge_id)
+    assert [vertex_a_id, vertex_b_id] == graph.eval_js_function('api.getEdgeTerminals', edge_id)
+    assert [[vertex_a_id, port_x_name], [vertex_b_id, port_y_name]] == graph.eval_js_function(
+        'api.getEdgeTerminalsWithPorts', edge_id
     )
-    assert [
-        [vertex_a_id, port_x_name], [vertex_b_id, port_y_name]
-    ] == graph.eval_js_function('api.getEdgeTerminalsWithPorts', edge_id)
     graph.eval_js_function('api.removePort', vertex_b_id, port_y_name)
     assert not graph.eval_js_function('api.hasCell', edge_id)
 
@@ -1541,9 +1536,7 @@ def insert_by_parametrized_type(graph, cell_type, tags=None):
         cell_id = graph.insert_vertex(tags=tags)
     elif cell_type == qmxgraph.constants.CELL_TYPE_TABLE:
         cell_id = graph.insert_table(tags=tags)
-    elif cell_type in (
-            qmxgraph.constants.CELL_TYPE_EDGE,
-            qmxgraph.constants.CELL_TYPE_DECORATION):
+    elif cell_type in (qmxgraph.constants.CELL_TYPE_EDGE, qmxgraph.constants.CELL_TYPE_DECORATION):
         graph.insert_vertex(x=10, y=10)
         graph.insert_vertex(x=90, y=10)
         cell_id = graph.insert_edge(*graph.get_vertices(), tags=tags)
@@ -1594,8 +1587,12 @@ def test_run_organic_layout(graph_cases):
     for position_data in nodes_positions.values():
         # We do not have the exact expected position to check - But we do know that the positions
         # should at least change.
-        assert not pytest.approx(position_data['before']) == position_data['after'], \
-            "Expected position different from %s, but got %s" % ({position_data['before']}, {position_data['after']})
+        assert (
+            not pytest.approx(position_data['before']) == position_data['after']
+        ), "Expected position different from %s, but got %s" % (
+            {position_data['before']},
+            {position_data['after']},
+        )
 
 
 def test_run_invalid_layout(graph_cases):

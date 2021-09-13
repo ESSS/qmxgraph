@@ -1,30 +1,41 @@
-from __future__ import absolute_import
-
 import json
 import os
 import weakref
 from collections import defaultdict
-from contextlib import suppress, contextmanager, ExitStack
+from contextlib import contextmanager
 from functools import partial
-from typing import Callable, DefaultDict, List, Any
+from typing import Any
+from typing import Callable
+from typing import DefaultDict
+from typing import List
 
-from PyQt5.QtCore import QDataStream, QIODevice, QObject, Qt, pyqtSignal, \
-    QTimer, pyqtSlot, QEvent
-from PyQt5.QtGui import QPainter, QCloseEvent
-from PyQt5.QtWebChannel import QWebChannel
-from PyQt5.QtWidgets import QDialog, QGridLayout, QShortcut, QSizePolicy, \
-    QWidget, QStyleOption, QStyle, QApplication
-from attr import define
 from oop_ext.foundation.callback import Callback
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtCore import QDataStream
+from PyQt5.QtCore import QEvent
+from PyQt5.QtCore import QIODevice
+from PyQt5.QtCore import QObject
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPainter
+from PyQt5.QtWebChannel import QWebChannel
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QGridLayout
+from PyQt5.QtWidgets import QShortcut
+from PyQt5.QtWidgets import QSizePolicy
+from PyQt5.QtWidgets import QStyle
+from PyQt5.QtWidgets import QStyleOption
+from PyQt5.QtWidgets import QWidget
 
-from qmxgraph import constants, render
+from ._web_view import QWebViewWithDragDrop
+from ._web_view import ViewState
+from qmxgraph import constants
 from qmxgraph.api import QmxGraphApi
+from qmxgraph.configuration import GraphOptions
+from qmxgraph.configuration import GraphStyles
 from qmxgraph.waiting import wait_signals_called
-from qmxgraph.configuration import GraphOptions, GraphStyles
-import pytestqt.exceptions
 from qmxgraph.waiting import wait_until
-
-from ._web_view import QWebViewWithDragDrop, ViewState
 
 # Some ugliness to successfully build the doc on ReadTheDocs...
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
@@ -110,8 +121,7 @@ class QmxGraph(QWidget):
 
         self._web_view = QWebViewWithDragDrop()
         self._web_view.on_finalize_graph_load.Register(self._finalize_graph)
-        self._web_view.setSizePolicy(
-            QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self._web_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self._error_bridge = ErrorHandlingBridge()
         self._events_bridge = EventsBridge()
@@ -125,11 +135,6 @@ class QmxGraph(QWidget):
         self._channel.registerObject('bridge_popup_menu_handler', self._popup_menu_bridge)
         self._web_view.page().setWebChannel(self._channel)
 
-        # Starts disabled, only enable once finished loading page (as user
-        # interaction before that would be unsafe)
-        # TODO: widget remain with disabled appearance even after enabled
-        # self.setEnabled(False)
-
         self._layout.addWidget(self._web_view, 0, 0, 1, 1)
 
         # Similar to a browser, QmxGraph widget is going to allow inspection by
@@ -139,20 +144,31 @@ class QmxGraph(QWidget):
         inspector_shortcut.setKey("F12")
         inspector_shortcut.activated.connect(self.toggle_inspector)
 
-        self._api = QmxGraphApi(graph=self, call_context_manager_factory=partial(delayed_bridges_context,
-                                                                                 error_bridge=self._error_bridge,
-                                                                                 events_bridge=self._events_bridge,
-                                                                                 popup_menu_bridge=self._popup_menu_bridge,
-                                                                                 double_click_bridge=self._double_click_bridge))
+        self._api = QmxGraphApi(
+            graph=self,
+            call_context_manager_factory=partial(
+                delayed_bridges_context,
+                error_bridge=self._error_bridge,
+                events_bridge=self._events_bridge,
+                popup_menu_bridge=self._popup_menu_bridge,
+                double_click_bridge=self._double_click_bridge,
+            ),
+        )
 
         self._call_once_loaded_callback = Callback()
         self.loadFinished.connect(self._trigger_call_once_loaded_callback)
 
         self._web_view.loadFinished.connect(self._on_load_finished)
 
-
-        self.call_once_when_loaded(partial(connect_drag_events, self._web_view, on_drag_enter=self._on_drag_enter,
-                                           on_drag_move=self._on_drag_move, on_drop=self._on_drop))
+        self.call_once_when_loaded(
+            partial(
+                connect_drag_events,
+                self._web_view,
+                on_drag_enter=self._on_drag_enter,
+                on_drag_move=self._on_drag_move,
+                on_drop=self._on_drop,
+            )
+        )
 
         if auto_load:
             self.load()
@@ -206,7 +222,7 @@ class QmxGraph(QWidget):
             self._call_once_loaded_callback()
             self._call_once_loaded_callback.UnregisterAll()
 
-    def load_and_wait(self, *, timeout_ms: int=60_000) -> None:
+    def load_and_wait(self, *, timeout_ms: int = 60_000) -> None:
         """
         Loads the graph page if not loaded yet, and blocks until it has been fully loaded.
 
@@ -224,9 +240,14 @@ class QmxGraph(QWidget):
 
         if not self.is_loaded():
             self.load()
-        wait_until(self.is_loaded, timeout_ms=timeout_ms, error_callback=lambda: f"view_state = {self._web_view.view_state}", wait_interval_ms=50)
+        wait_until(
+            self.is_loaded,
+            timeout_ms=timeout_ms,
+            error_callback=lambda: f"view_state = {self._web_view.view_state}",
+            wait_interval_ms=50,
+        )
 
-    def blank_and_wait(self, *, timeout_ms: int=60_000) -> None:
+    def blank_and_wait(self, *, timeout_ms: int = 60_000) -> None:
         """
         Blanks the page, and blocks until it has finished blanking.
 
@@ -249,7 +270,6 @@ class QmxGraph(QWidget):
                 wait_interval_ms=50,
             )
 
-
     def is_loaded(self):
         """
         :rtype: bool
@@ -257,12 +277,13 @@ class QmxGraph(QWidget):
         """
         return self._web_view.view_state == ViewState.GraphLoaded
 
-
     def load(self):
         """
         Load graph drawing page, if not yet loaded.
         """
-        self._web_view.load_graph(options=self._options, styles=self._styles, stencils=self._stencils)
+        self._web_view.load_graph(
+            options=self._options, styles=self._styles, stencils=self._stencils
+        )
 
     def blank(self):
         """
@@ -275,34 +296,6 @@ class QmxGraph(QWidget):
 
         self._web_view.blank()
 
-    # def set_error_bridge(self, bridge):
-    #     """
-    #     Redirects errors on JavaScript code from graph drawing widget to
-    #     bridge.
-    #
-    #     :param ErrorHandlingBridge bridge: Handler for errors.
-    #     """
-    #     silent_disconnect(self._error_bridge.on_error, bridge.on_error)
-    #     self._error_bridge.on_error.connect(bridge.on_error)
-    #
-    # def set_events_bridge(self, bridge):
-    #     """
-    #     Redirects events fired by graph on JavaScript code to Python/Qt side
-    #     by using a bridge.
-    #
-    #     :param EventsBridge bridge: Bridge with event handlers.
-    #     """
-    #     signal_name_list = (
-    #         'on_cells_added', 'on_cells_removed', 'on_label_changed',
-    #         'on_selection_changed', 'on_terminal_changed',
-    #         'on_terminal_with_port_changed', 'on_view_update',
-    #     )
-    #     for signal_name in signal_name_list:
-    #         own_signal = getattr(self._events_bridge, signal_name)
-    #         outside_signal = getattr(bridge, signal_name)
-    #         silent_disconnect(own_signal, outside_signal)
-    #         own_signal.connect(outside_signal)
-
     def set_enabled(self, enabled: bool) -> None:
 
         # TODO[bruno]: tests.
@@ -312,17 +305,6 @@ class QmxGraph(QWidget):
                 return
 
             api.set_interaction_enabled(enabled)
-            # api.set_cells_editable(enabled)
-            # api.set_cells_disconnectable(enabled)  # Change edge's connected nodes
-            # api.set_cells_connectable(enabled)  # Add new edges
-            #
-            # # Disabling moving cells to avoid generating Undo/Redo commands and to
-            # # be more clear that we are in "read mode"
-            # api.set_cells_movable(enabled)
-
-            # This one will probably necessary when adding this feature
-            # TODO: ASIM-2181: Duplicate any kind of network element
-            # api.set_cells_clonable('setCellsClonable', enabled=True)
 
         self._enabled = enabled
         # Call the API only if it is already loaded, or schedule it for later.
@@ -333,64 +315,40 @@ class QmxGraph(QWidget):
 
     def _connect_events_bridge(self):
 
-        self.api.register_cells_added_handler('bridge_events_handler.cells_added_slot', check_api=False)
-        self.api.register_cells_removed_handler('bridge_events_handler.cells_removed_slot', check_api=False)
-        self.api.register_label_changed_handler('bridge_events_handler.label_changed_slot', check_api=False)
+        self.api.register_cells_added_handler(
+            'bridge_events_handler.cells_added_slot', check_api=False
+        )
+        self.api.register_cells_removed_handler(
+            'bridge_events_handler.cells_removed_slot', check_api=False
+        )
+        self.api.register_label_changed_handler(
+            'bridge_events_handler.label_changed_slot', check_api=False
+        )
         self.api.register_selection_changed_handler(
-            'bridge_events_handler.selection_changed_slot', check_api=False)
+            'bridge_events_handler.selection_changed_slot', check_api=False
+        )
         self.api.register_terminal_changed_handler(
-            'bridge_events_handler.terminal_changed_slot', check_api=False)
+            'bridge_events_handler.terminal_changed_slot', check_api=False
+        )
         self.api.register_terminal_with_port_changed_handler(
-            'bridge_events_handler.terminal_with_port_changed_slot', check_api=False)
+            'bridge_events_handler.terminal_with_port_changed_slot', check_api=False
+        )
         self.api.register_cells_bounds_changed_handler(
-            'bridge_events_handler.cells_bounds_changed_slot', check_api=False)
-        self.api.register_view_update_handler('bridge_events_handler.view_update_slot', check_api=False)
-    #
-    # def set_double_click_handler(self, handler):
-    #     """
-    #     Set the handler used for double click in cells of graph.
-    #
-    #     Unlike other event handlers, double click is exclusive to a single
-    #     handler. This follows underlying mxGraph implementation that works in
-    #     this manner, with the likely intention of enforcing a single
-    #     side-effect happening when a cell is double clicked.
-    #
-    #     :param callable|None handler: Handler that receives double clicked
-    #         cell id as only argument. If None it disconnects double click
-    #         handler from graph.
-    #     """
-    #     with suppress(TypeError):
-    #         self._double_click_bridge.on_double_click.disconnect()
-    #     if handler:
-    #         self._double_click_bridge.on_double_click.connect(handler)
+            'bridge_events_handler.cells_bounds_changed_slot', check_api=False
+        )
+        self.api.register_view_update_handler(
+            'bridge_events_handler.view_update_slot', check_api=False
+        )
 
     def _connect_double_click_handler(self):
         self.api.register_double_click_handler(
-                'bridge_double_click_handler.double_click_slot', check_api=False)
-
-    # def set_popup_menu_handler(self, handler):
-    #     """
-    #     Set the handler used for popup menu (i.e. right-click) in cells of
-    #     graph.
-    #
-    #     Unlike other event handlers, popup menu is exclusive to a single
-    #     handler. This follows underlying mxGraph implementation that works in
-    #     this manner, with the likely intention of enforcing a single
-    #     side-effect happening when a cell is right-clicked.
-    #
-    #     :param callable|None handler: Handler that receives, respectively, id
-    #         of cell that was right-clicked, X coordinate in screen coordinates
-    #         and Y coordinate in screen coordinates as its three arguments. If
-    #         None it disconnects handler from graph.
-    #     """
-    #     with suppress(TypeError):
-    #         self._popup_menu_bridge.on_popup_menu.disconnect()
-    #     if handler:
-    #         self._popup_menu_bridge.on_popup_menu.connect(handler)
+            'bridge_double_click_handler.double_click_slot', check_api=False
+        )
 
     def _connect_popup_menu_handler(self):
         self.api.register_popup_menu_handler(
-                'bridge_popup_menu_handler.popup_menu_slot', check_api=False)
+            'bridge_popup_menu_handler.popup_menu_slot', check_api=False
+        )
 
     @property
     def api(self):
@@ -409,16 +367,15 @@ class QmxGraph(QWidget):
         if not self._inspector_dialog:
             dialog = self._inspector_dialog = QDialog(self)
             dialog.setWindowTitle("Web Inspector")
-            dialog.setWindowFlags(
-                dialog.windowFlags() | Qt.WindowMaximizeButtonHint)
+            dialog.setWindowFlags(dialog.windowFlags() | Qt.WindowMaximizeButtonHint)
             dialog.resize(800, 600)
             layout = QGridLayout(dialog)
             layout.setContentsMargins(0, 0, 0, 0)  # no margin to web view
 
             from PyQt5.QtWebEngineWidgets import QWebEngineView
+
             inspector = QWebEngineView(dialog)
-            inspector.setSizePolicy(
-                QSizePolicy.Expanding, QSizePolicy.Expanding)
+            inspector.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             self._web_view.page().setDevToolsPage(inspector.page())
             inspector.setVisible(True)
             layout.addWidget(inspector)
@@ -484,7 +441,6 @@ class QmxGraph(QWidget):
         loaded = self._web_view.view_state == ViewState.GraphLoaded
         self.loadFinished.emit(loaded)
 
-
     def _finalize_graph(self) -> None:
         self._connect_events_bridge()
         self._connect_double_click_handler()
@@ -534,9 +490,7 @@ class QmxGraph(QWidget):
             # Refer to `mime.py` for docs about format
             version = parsed['version']
             if version not in (1, 2):
-                raise ValueError(
-                    "Unsupported version of QmxGraph MIME data: {}".format(
-                        version))
+                raise ValueError("Unsupported version of QmxGraph MIME data: {}".format(version))
 
             x = event.pos().x()
             y = event.pos().y()
@@ -578,13 +532,10 @@ class QmxGraph(QWidget):
 
 
 def _make_async_pyqt_slot(slot_name, signal_name, parameters):
-
     def async_slot(self, *args):
         if self.is_delaying_signals:
             self._delayed_signals[signal_name].append(args)
         else:
-            #signal = getattr(self, signal_name)
-            #QTimer.singleShot(1, lambda: signal.emit(*args))
             QApplication.instance().postEvent(self, _AsyncSignalEvent(signal_name, args))
 
     async_slot.__name__ = slot_name
@@ -592,32 +543,13 @@ def _make_async_pyqt_slot(slot_name, signal_name, parameters):
 
 
 class _AsyncSignalEvent(QEvent):
-
     def __init__(self, signal_name: str, args: Any):
         super().__init__(QEvent.User)
         self.signal_name = signal_name
         self.args = args
 
 
-# def _create_async_slots(namespace, signal_holder_class, new=False):
-#     import re
-#
-#     for k, v in signal_holder_class.__dict__.items():
-#         if isinstance(v, pyqtSignal):
-#             (signature,) = v.signatures
-#             m = re.match(r'^([^(]+)\(([^)]*)\)$', signature)
-#             assert m is not None
-#
-#             signal_name = m.group(1)
-#             assert signal_name.startswith('on_')
-#             slot_name = signal_name[len('on_'):] + '_slot'
-#             parameters = m.group(2)
-#             parameters = parameters.split(',') if parameters else []
-#             namespace[slot_name] = _make_async_pyqt_slot(slot_name, signal_name, parameters, new=new)
-
-
 class DelayedSignalsBridge(QObject):
-
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         import re
@@ -630,7 +562,7 @@ class DelayedSignalsBridge(QObject):
 
                 signal_name = m.group(1)
                 assert signal_name.startswith('on_')
-                slot_name = signal_name[len('on_'):] + '_slot'
+                slot_name = signal_name[len('on_') :] + '_slot'
                 parameters = m.group(2)
                 parameters = parameters.split(',') if parameters else []
                 slot_method = _make_async_pyqt_slot(slot_name, signal_name, parameters)
@@ -667,6 +599,7 @@ class DelayedSignalsBridge(QObject):
     def event(self, event: QEvent) -> bool:
         if isinstance(event, _AsyncSignalEvent):
             from PyQt5 import sip
+
             assert not sip.isdeleted(self), f"{self} is deleted!"
             signal = getattr(self, event.signal_name)
             signal.emit(*event.args)
@@ -691,17 +624,6 @@ class ErrorHandlingBridge(DelayedSignalsBridge):
     # line: int
     # column: int
     on_error = pyqtSignal(str, str, int, int, name='on_error')
-
-#_create_async_slots(dict(ErrorHandlingBridge.__dict__), ErrorHandlingBridge)
-
-
-#
-#
-# class JsPythonErrorHandlingBridge(ErrorHandlingBridge):
-#     """
-#     Javascript interface object for ErrorHandlingBridge.
-#     """
-#     _create_async_slots(locals(), ErrorHandlingBridge)
 
 
 class EventsBridge(DelayedSignalsBridge):
@@ -794,35 +716,13 @@ class EventsBridge(DelayedSignalsBridge):
     on_cells_removed = pyqtSignal('QVariantList', name='on_cells_removed')
     on_cells_added = pyqtSignal('QVariantList', name='on_cells_added')
     on_label_changed = pyqtSignal(str, str, str, name='on_label_changed')
-    on_selection_changed = pyqtSignal(
-        'QVariantList', name='on_selection_changed')
-    on_terminal_changed = pyqtSignal(
-        str, str, str, str, name='on_terminal_changed')
+    on_selection_changed = pyqtSignal('QVariantList', name='on_selection_changed')
+    on_terminal_changed = pyqtSignal(str, str, str, str, name='on_terminal_changed')
     on_terminal_with_port_changed = pyqtSignal(
-        str, str, str, str, str, str, name='on_terminal_with_port_changed')
+        str, str, str, str, str, str, name='on_terminal_with_port_changed'
+    )
     on_view_update = pyqtSignal(str, 'QVariantList', name='on_view_update')
     on_cells_bounds_changed = pyqtSignal('QVariant', name='on_cells_bounds_changed')
-
-#
-# class JsPythonEventsBridge(EventsBridge):
-#     """
-#     Javascript interface object for EventsBridge.
-#     """
-#     _create_async_slots(locals(), EventsBridge, new=True)
-#
-#     def __init__(self):
-#         super().__init__()
-#         self._delayed_signals: DefaultDict[str, List[Any]] = defaultdict(list)
-#
-#     def flush_delayed_signals(self) -> None:
-#         to_emit = list(self._delayed_signals.items())
-#         self._delayed_signals.clear()
-#
-#         for signal_name, all_args in to_emit:
-#             signal: pyqtSignal = getattr(self, signal_name)
-#             for args in all_args:
-#                 signal.emit(*args)
-
 
 
 class _DoubleClickBridge(DelayedSignalsBridge):
@@ -837,13 +737,6 @@ class _DoubleClickBridge(DelayedSignalsBridge):
     # Arguments:
     # cell_id: str
     on_double_click = pyqtSignal(str, name='on_double_click')
-
-#
-# class _JsPythonDoubleClickBridge(_DoubleClickBridge):
-#     """
-#     Javascript interface object for _DoubleClickBridge.
-#     """
-#     _create_async_slots(locals(), _DoubleClickBridge)
 
 
 class _PopupMenuBridge(DelayedSignalsBridge):
@@ -861,18 +754,12 @@ class _PopupMenuBridge(DelayedSignalsBridge):
     # y: int
     on_popup_menu = pyqtSignal(str, int, int, name='on_popup_menu')
 
-#
-# class _JsPythonPopupMenuBridge(_PopupMenuBridge):
-#     """
-#     Javascript interface object for _PopupMenuBridge.
-#     """
-#     _create_async_slots(locals(), _PopupMenuBridge)
-
 
 @contextmanager
 def delayed_bridges_context(error_bridge, events_bridge, popup_menu_bridge, double_click_bridge):
     with error_bridge.delaying_signals(), events_bridge.delaying_signals(), popup_menu_bridge.delaying_signals(), double_click_bridge.delaying_signals():
         yield
+
 
 def connect_drag_events(web_view, on_drag_enter, on_drag_move, on_drop):
     web_view.on_drag_enter_event.connect(on_drag_enter)
