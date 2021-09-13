@@ -5,7 +5,7 @@
 name: qmxgraph
 
 includes:
-  - {{ root }}/base_environment.yml
+  - {{ root }}/_base_environment.devenv.yml
 
 environment:
   # Tip: Use `--driver <driver_name>` to change driver for a single run

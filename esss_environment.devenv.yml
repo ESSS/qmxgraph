@@ -3,7 +3,7 @@
 name: qmxgraph-esss
 
 includes:
-  - {{ root }}/base_environment.yml
+  - {{ root }}/_base_environment.devenv.yml
 
 environment:
 # PhantomJS
