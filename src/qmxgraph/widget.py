@@ -34,6 +34,7 @@ from qmxgraph import constants
 from qmxgraph.api import QmxGraphApi
 from qmxgraph.configuration import GraphOptions
 from qmxgraph.configuration import GraphStyles
+from qmxgraph.exceptions import ViewStateError
 from qmxgraph.waiting import wait_signals_called
 from qmxgraph.waiting import wait_until
 
@@ -173,6 +174,10 @@ class QmxGraph(QWidget):
         if auto_load:
             self.load()
 
+    def close(self) -> None:
+        self._web_view.close()
+        super().close()
+
     @property
     def error_bridge(self) -> "ErrorHandlingBridge":
         return self._error_bridge
@@ -227,13 +232,10 @@ class QmxGraph(QWidget):
 
         Noop if the page is already loaded.
         """
-        # TODO[ASIM-4282]: add tests for this method.
-        # TODO[ASIM-4282]: rename to something more sensible, perhaps "ensure_loaded".
-        # TODO[ASIM-4282]: check if we can reduce that timeout.
         if self._web_view.view_state == ViewState.GraphLoaded:
             return
         elif self._web_view.view_state == ViewState.Closing:
-            raise RuntimeError("view is closing, cannot load")
+            raise ViewStateError("view is closing, cannot load")
 
         self.show()
 
@@ -252,13 +254,10 @@ class QmxGraph(QWidget):
 
         Noop if the page is already blanked.
         """
-        # TODO[ASIM-4282]: add tests for this method.
-        # TODO[ASIM-4282]: rename to something more sensible, perhaps "ensure_blanked".
-        # TODO[ASIM-4282]: check if we can reduce that timeout.
         if self._web_view.view_state == ViewState.Blank:
             return
         elif self._web_view.view_state == ViewState.Closing:
-            raise RuntimeError("view is closing, cannot blank")
+            raise ViewStateError("view is closing, cannot blank")
         else:
             if self._web_view.view_state != ViewState.Blank:
                 self.blank()

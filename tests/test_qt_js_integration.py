@@ -20,6 +20,7 @@ import qmxgraph.constants
 import qmxgraph.js
 import qmxgraph.mime
 from qmxgraph._web_view import ViewState
+from qmxgraph.exceptions import ViewStateError
 from qmxgraph.waiting import wait_callback_called
 from qmxgraph.waiting import wait_signals_called
 from qmxgraph.widget import QmxGraph
@@ -357,6 +358,14 @@ def test_call_once_when_loaded(graph: QmxGraph, mocker: MockFixture) -> None:
     assert stubA.call_count == 1
     assert stubB.call_count == 1
     assert stubC.call_count == 1
+
+
+def test_state_errors_after_closing(graph: QmxGraph) -> None:
+    graph.close()
+    with pytest.raises(ViewStateError):
+        graph.load_and_wait()
+    with pytest.raises(ViewStateError):
+        graph.blank_and_wait()
 
 
 def test_drag_drop(loaded_graph, drag_drop_events):
