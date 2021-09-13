@@ -211,7 +211,6 @@ class QmxGraph(QWidget):
         Calls the given function when the graph page has finished loading successfully,
         or calls it immediately if the graph page is already loaded.
         """
-        # TODO[ASIM-4285]: add tests.
         if self.is_loaded():
             function()
         else:

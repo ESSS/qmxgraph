@@ -14,6 +14,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDragEnterEvent
 from PyQt5.QtGui import QDragMoveEvent
 from PyQt5.QtGui import QDropEvent
+from pytest_mock import MockFixture
 
 import qmxgraph.constants
 import qmxgraph.js
@@ -21,6 +22,7 @@ import qmxgraph.mime
 from qmxgraph._web_view import ViewState
 from qmxgraph.waiting import wait_callback_called
 from qmxgraph.waiting import wait_signals_called
+from qmxgraph.widget import QmxGraph
 
 
 def test_error_redirection(loaded_graph):
@@ -334,6 +336,29 @@ def test_web_channel_blocking(graph, qtbot):
     assert is_web_channel_blocked() is False
 
 
+def test_call_once_when_loaded(graph: QmxGraph, mocker: MockFixture) -> None:
+    stubA = mocker.stub()
+    graph.call_once_when_loaded(stubA)
+
+    graph.load_and_wait()
+    assert stubA.call_count == 1
+
+    stubB = mocker.stub()
+    graph.call_once_when_loaded(stubB)
+
+    assert stubA.call_count == 1
+    assert stubB.call_count == 1
+
+    graph.blank_and_wait()
+    stubC = mocker.stub()
+    graph.call_once_when_loaded(stubC)
+
+    graph.load_and_wait()
+    assert stubA.call_count == 1
+    assert stubB.call_count == 1
+    assert stubC.call_count == 1
+
+
 def test_drag_drop(loaded_graph, drag_drop_events):
     """
     Dragging and dropping data with valid qmxgraph MIME data in qmxgraph should
@@ -585,13 +610,11 @@ def eval_js(graph_widget, statement):
 
 
 @pytest.fixture(name='graph')
-def graph_(qtbot):
+def graph_(qtbot) -> QmxGraph:
     """
     :type qtbot: pytestqt.plugin.QtBot
     :rtype: qmxgraph.widget.qmxgraph
     """
-    from qmxgraph.widget import QmxGraph
-
     graph_ = QmxGraph(auto_load=False)
     graph_.show()
     qtbot.addWidget(graph_)
