@@ -5,30 +5,27 @@
 name: qmxgraph
 
 includes:
-  - {{ root }}/base_environment.yml
+  - {{ root }}/_base_environment.devenv.yml
 
 environment:
-    PYTHONPATH:
-        - {{ root }}
-
-    # Tip: Use `--driver <driver_name>` to change driver for a single run
-    {% if TEST_QMXGRAPH %}
-    PYTEST_ADDOPTS: --driver PhantomJS
-    {% endif %}
+  # Tip: Use `--driver <driver_name>` to change driver for a single run
+  {% if TEST_QMXGRAPH %}
+  PYTEST_ADDOPTS: --driver PhantomJS
+  {% endif %}
 
 dependencies:
-    - python ={{ PYTHON_VERSION }}
+  - python ={{ PYTHON_VERSION }}
 
-    {% if TEST_QMXGRAPH %}
-    - cherrypy
-    - hypothesis ==3.11.0
-    - pytest-mock
-    - pytest-qt
-    - pytest-rerunfailures
-    - pytest-selenium >=1,<2
-    - pytest-timeout
-    {% if sys.platform != 'win32' %}
-    - pytest-xvfb
-    {% endif %}
+  {% if TEST_QMXGRAPH %}
+  - cherrypy
+  - hypothesis ==3.11.0
+  - pytest-mock
+  - pytest-qt
+  - pytest-rerunfailures
+  - pytest-selenium >=1,<2
+  - pytest-timeout
+  {% if sys.platform != 'win32' %}
+  - pytest-xvfb
+  {% endif %}
 
-    {% endif %}
+  {% endif %}
