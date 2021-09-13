@@ -62,13 +62,13 @@ class QWebViewWithDragDrop(QWebEngineView):
         if not ok:
             self._view_state = ViewState.LoadingError
         elif self._view_state is ViewState.LoadingBlank:
+            self._view_state = ViewState.Blank
             self._block_web_channel()
             self.on_finalize_blank()
-            self._view_state = ViewState.Blank
         elif self._view_state is ViewState.LoadingGraph:
+            self._view_state = ViewState.GraphLoaded
             self._unblock_web_channel()
             self.on_finalize_graph_load()
-            self._view_state = ViewState.GraphLoaded
         # We ignore other view states as they don't interest us after
         # a successful loadFinished signal (for example
         # ViewState.LoadingError should remain a loading error).
@@ -116,7 +116,7 @@ class QWebViewWithDragDrop(QWebEngineView):
         self.page().webChannel().setBlockUpdates(False)
         self.page().webChannel().blockSignals(False)
 
-    def eval_js(self, statement, *, timeout_ms: int = 10_000, sync=True, check_api=True) -> Any:
+    def eval_js(self, statement, *, timeout_ms: int = 10_000, sync=True) -> Any:
         """
         Evaluate a JavaScript statement using this web view frame as context.
 
@@ -126,7 +126,7 @@ class QWebViewWithDragDrop(QWebEngineView):
         """
 
         # TODO[ASIM-4289]: remove 'sync' argument, create 'eval_js_sync' instead.
-        if check_api and self.view_state is not ViewState.GraphLoaded:
+        if self.view_state is not ViewState.GraphLoaded:
             raise RuntimeError(f"Invalid view state ({self.view_state}), graph not loaded")
 
         if sync:

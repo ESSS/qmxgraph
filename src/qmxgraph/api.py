@@ -563,7 +563,7 @@ class QmxGraphApi(object):
         """
         return self.call_api('removePort', vertex_id, port_name)
 
-    def register_double_click_handler(self, handler, *, check_api=True):
+    def register_double_click_handler(self, handler):
         """
         Set the handler used for double click in cells of graph.
 
@@ -578,11 +578,9 @@ class QmxGraphApi(object):
             object that is going to be used as callback to event. Receives a
             str with double clicked cell id as only argument.
         """
-        return self.call_api(
-            'registerDoubleClickHandler', qmxgraph.js.Variable(handler), check_api=check_api
-        )
+        return self.call_api('registerDoubleClickHandler', qmxgraph.js.Variable(handler))
 
-    def register_popup_menu_handler(self, handler, *, check_api=True):
+    def register_popup_menu_handler(self, handler):
         """
         Set the handler used for popup menu (i.e. menu triggered by right
         click) in cells of graph.
@@ -600,11 +598,9 @@ class QmxGraphApi(object):
             screen coordinates and Y coordinate in screen coordinates as its
             three arguments.
         """
-        return self.call_api(
-            'registerPopupMenuHandler', qmxgraph.js.Variable(handler), check_api=check_api
-        )
+        return self.call_api('registerPopupMenuHandler', qmxgraph.js.Variable(handler))
 
-    def register_label_changed_handler(self, handler, *, check_api=True):
+    def register_label_changed_handler(self, handler):
         """
         Register a handler to event when label of a cell changes in graph.
 
@@ -614,11 +610,9 @@ class QmxGraphApi(object):
             object that is going to be used as callback to event. Receives,
             respectively, cell id, new label and old label as arguments.
         """
-        return self.call_api(
-            'registerLabelChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api
-        )
+        return self.call_api('registerLabelChangedHandler', qmxgraph.js.Variable(handler))
 
-    def register_cells_added_handler(self, handler, *, check_api=True):
+    def register_cells_added_handler(self, handler):
         """
         Register a handler to event when cells are added from graph.
 
@@ -628,11 +622,9 @@ class QmxGraphApi(object):
             object that is going to be used as callback to event. Receives a
             `QVariantList` of added cell ids as only argument.
         """
-        return self.call_api(
-            'registerCellsAddedHandler', qmxgraph.js.Variable(handler), check_api=check_api
-        )
+        return self.call_api('registerCellsAddedHandler', qmxgraph.js.Variable(handler))
 
-    def register_cells_removed_handler(self, handler, *, check_api=True):
+    def register_cells_removed_handler(self, handler):
         """
         Register a handler to event when cells are removed from graph.
 
@@ -642,11 +634,9 @@ class QmxGraphApi(object):
             object that is going to be used as callback to event. Receives a
             `QVariantList` of removed cell ids as only argument.
         """
-        return self.call_api(
-            'registerCellsRemovedHandler', qmxgraph.js.Variable(handler), check_api=check_api
-        )
+        return self.call_api('registerCellsRemovedHandler', qmxgraph.js.Variable(handler))
 
-    def register_selection_changed_handler(self, handler, *, check_api=True):
+    def register_selection_changed_handler(self, handler):
         """
         Add function to handle selection change events in the graph.
 
@@ -654,11 +644,9 @@ class QmxGraphApi(object):
             that is going to be used as callback to event. Receives an list of
             str with selected cells ids as only argument.
         """
-        return self.call_api(
-            'registerSelectionChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api
-        )
+        return self.call_api('registerSelectionChangedHandler', qmxgraph.js.Variable(handler))
 
-    def register_terminal_changed_handler(self, handler, *, check_api=True):
+    def register_terminal_changed_handler(self, handler):
         """
         Add function to handle terminal change events in the graph.
 
@@ -668,11 +656,9 @@ class QmxGraphApi(object):
             is the source (or target), id of the net terminal, id of the old
             terminal.
         """
-        return self.call_api(
-            'registerTerminalChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api
-        )
+        return self.call_api('registerTerminalChangedHandler', qmxgraph.js.Variable(handler))
 
-    def register_terminal_with_port_changed_handler(self, handler, *, check_api=True):
+    def register_terminal_with_port_changed_handler(self, handler):
         """
         Add function to handle terminal change with port info events in
         the graph.
@@ -686,21 +672,18 @@ class QmxGraphApi(object):
         return self.call_api(
             'registerTerminalWithPortChangedHandler',
             qmxgraph.js.Variable(handler),
-            check_api=check_api,
         )
 
-    def register_view_update_handler(self, handler, *, check_api=True):
+    def register_view_update_handler(self, handler):
         """
         Add function to handle updates in the graph view.
         :param handler: Name of signal bound to JavaScript by a bridge object
             that is going to be used as callback to event. Receives,
             respectively, graph dump and graph scale and translation.
         """
-        return self.call_api(
-            'registerViewUpdateHandler', qmxgraph.js.Variable(handler), check_api=check_api
-        )
+        return self.call_api('registerViewUpdateHandler', qmxgraph.js.Variable(handler))
 
-    def register_cells_bounds_changed_handler(self, handler, *, check_api=True):
+    def register_cells_bounds_changed_handler(self, handler):
         """
         Add function to handle updates in the graph view.
         :param handler: Name of signal bound to JavaScript by a bridge
@@ -708,11 +691,9 @@ class QmxGraphApi(object):
             a map of cell id to a map describing the cell bounds.
 
         """
-        return self.call_api(
-            'registerBoundsChangedHandler', qmxgraph.js.Variable(handler), check_api=check_api
-        )
+        return self.call_api('registerBoundsChangedHandler', qmxgraph.js.Variable(handler))
 
-    def resize_container(self, width, height, *, check_api=True):
+    def resize_container(self, width, height):
         """
         Resizes the container of graph drawing widget.
 
@@ -724,7 +705,7 @@ class QmxGraphApi(object):
         :param int width: New width.
         :param int height: New height.
         """
-        self.call_api('resizeContainer', width, height, sync=False, check_api=check_api)
+        self.call_api('resizeContainer', width, height, sync=False)
 
     def get_label(self, cell_id):
         """
@@ -928,7 +909,7 @@ class QmxGraphApi(object):
     def run_layout(self, layout_name):
         return self.call_api('runLayout', layout_name)
 
-    def call_api(self, fn: str, *args, sync=True, check_api=True):
+    def call_api(self, fn: str, *args, sync=True):
         """
         Call a function in underlying API provided by JavaScript graph.
 
@@ -941,9 +922,9 @@ class QmxGraphApi(object):
         :return: Return of API call.
         """
         with self._call_context_manager_factory():
-            return self._call_api(fn, *args, sync=sync, check_api=check_api)
+            return self._call_api(fn, *args, sync=sync)
 
-    def _call_api(self, fn: str, *args, sync, check_api: bool = True):
+    def _call_api(self, fn: str, *args, sync):
         graph = self._graph()
         eval_js = graph.inner_web_view().eval_js
         call = f'api.{qmxgraph.js.prepare_js_call(fn, *args)}'
@@ -977,7 +958,7 @@ class QmxGraphApi(object):
             capture_context = nullcontext([])
 
         with capture_context as messages:
-            result = eval_js(call, sync=sync, check_api=check_api)
+            result = eval_js(call, sync=sync)
 
         # Raise an error if we captured any critical messages.
         # Capturing will only happen if debugging is enabled,

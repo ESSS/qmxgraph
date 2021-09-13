@@ -313,40 +313,24 @@ class QmxGraph(QWidget):
 
     def _connect_events_bridge(self):
 
-        self.api.register_cells_added_handler(
-            'bridge_events_handler.cells_added_slot', check_api=False
-        )
-        self.api.register_cells_removed_handler(
-            'bridge_events_handler.cells_removed_slot', check_api=False
-        )
-        self.api.register_label_changed_handler(
-            'bridge_events_handler.label_changed_slot', check_api=False
-        )
-        self.api.register_selection_changed_handler(
-            'bridge_events_handler.selection_changed_slot', check_api=False
-        )
-        self.api.register_terminal_changed_handler(
-            'bridge_events_handler.terminal_changed_slot', check_api=False
-        )
+        self.api.register_cells_added_handler('bridge_events_handler.cells_added_slot')
+        self.api.register_cells_removed_handler('bridge_events_handler.cells_removed_slot')
+        self.api.register_label_changed_handler('bridge_events_handler.label_changed_slot')
+        self.api.register_selection_changed_handler('bridge_events_handler.selection_changed_slot')
+        self.api.register_terminal_changed_handler('bridge_events_handler.terminal_changed_slot')
         self.api.register_terminal_with_port_changed_handler(
-            'bridge_events_handler.terminal_with_port_changed_slot', check_api=False
+            'bridge_events_handler.terminal_with_port_changed_slot'
         )
         self.api.register_cells_bounds_changed_handler(
-            'bridge_events_handler.cells_bounds_changed_slot', check_api=False
+            'bridge_events_handler.cells_bounds_changed_slot'
         )
-        self.api.register_view_update_handler(
-            'bridge_events_handler.view_update_slot', check_api=False
-        )
+        self.api.register_view_update_handler('bridge_events_handler.view_update_slot')
 
     def _connect_double_click_handler(self):
-        self.api.register_double_click_handler(
-            'bridge_double_click_handler.double_click_slot', check_api=False
-        )
+        self.api.register_double_click_handler('bridge_double_click_handler.double_click_slot')
 
     def _connect_popup_menu_handler(self):
-        self.api.register_popup_menu_handler(
-            'bridge_popup_menu_handler.popup_menu_slot', check_api=False
-        )
+        self.api.register_popup_menu_handler('bridge_popup_menu_handler.popup_menu_slot')
 
     @property
     def api(self):
@@ -446,7 +430,7 @@ class QmxGraph(QWidget):
 
         width = self.width()
         height = self.height()
-        self.api.resize_container(width, height, check_api=False)
+        self.api.resize_container(width, height)
 
     def _on_drag_enter(self, event):
         """
