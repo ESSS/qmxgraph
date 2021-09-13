@@ -9,6 +9,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QEvent
 from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QCloseEvent
+from PyQt5.QtWebChannel import QWebChannel
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 from qmxgraph.configuration import GraphOptions
@@ -53,15 +54,19 @@ class QWebViewWithDragDrop(QWebEngineView):
     def view_state(self) -> ViewState:
         return self._view_state
 
+    def setWebChannel(self, web_channel: QWebChannel) -> None:
+        self.page().setWebChannel(web_channel)
+        self._block_web_channel()
+
     def _on_load_finished(self, ok):
         if not ok:
             self._view_state = ViewState.LoadingError
         elif self._view_state is ViewState.LoadingBlank:
-            self._block_updates()
+            self._block_web_channel()
             self.on_finalize_blank()
             self._view_state = ViewState.Blank
         elif self._view_state is ViewState.LoadingGraph:
-            self._unblock_updates()
+            self._unblock_web_channel()
             self.on_finalize_graph_load()
             self._view_state = ViewState.GraphLoaded
         # We ignore other view states as they don't interest us after
@@ -98,16 +103,16 @@ class QWebViewWithDragDrop(QWebEngineView):
     def closeEvent(self, event: QCloseEvent) -> None:
         self.stop()
         self._view_state = ViewState.Closing
-        self._block_updates()
+        self._block_web_channel()
         super().closeEvent(event)
 
-    def _block_updates(self) -> None:
-        # TODO[ASIM-4283]: Add tests.
+    def _block_web_channel(self) -> None:
+        """Blocks updates and signals from the webchannel."""
         self.page().webChannel().setBlockUpdates(True)
         self.page().webChannel().blockSignals(True)
 
-    def _unblock_updates(self) -> None:
-        # TODO[ASIM-4283]: Add tests.
+    def _unblock_web_channel(self) -> None:
+        """Unblocks updates and signals from the webchannel."""
         self.page().webChannel().setBlockUpdates(False)
         self.page().webChannel().blockSignals(False)
 

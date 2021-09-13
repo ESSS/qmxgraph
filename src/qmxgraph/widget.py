@@ -133,7 +133,7 @@ class QmxGraph(QWidget):
         self._channel.registerObject('bridge_events_handler', self._events_bridge)
         self._channel.registerObject('bridge_double_click_handler', self._double_click_bridge)
         self._channel.registerObject('bridge_popup_menu_handler', self._popup_menu_bridge)
-        self._web_view.page().setWebChannel(self._channel)
+        self._web_view.setWebChannel(self._channel)
 
         self._layout.addWidget(self._web_view, 0, 0, 1, 1)
 

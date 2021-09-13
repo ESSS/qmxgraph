@@ -318,6 +318,22 @@ def test_blank_and_load(graph, qtbot):
     graph.load_and_wait(timeout_ms=5000)
 
 
+def test_web_channel_blocking(graph, qtbot):
+    def is_web_channel_blocked() -> bool:
+        # Both updates and signals should be blocked/unblocked. at the same time.
+        result = graph.inner_web_view().page().webChannel().blockUpdates()
+        assert graph.inner_web_view().page().webChannel().signalsBlocked() is result
+        return result
+
+    assert is_web_channel_blocked() is True
+    graph.load_and_wait()
+    assert is_web_channel_blocked() is False
+    graph.blank_and_wait()
+    assert is_web_channel_blocked() is True
+    graph.load_and_wait()
+    assert is_web_channel_blocked() is False
+
+
 def test_drag_drop(loaded_graph, drag_drop_events):
     """
     Dragging and dropping data with valid qmxgraph MIME data in qmxgraph should
