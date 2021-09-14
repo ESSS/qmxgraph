@@ -59,13 +59,6 @@ class Variable(object):
         self.name = name
 
 
-class InvalidJavaScriptError(RuntimeError):
-    """
-    Raised when call to invalid JavaScript (for instance, non-existing
-    function) is made by Python code.
-    """
-
-
 class _JavaScriptEncoder(json.JSONEncoder):
     """
     A JSON encoder tailored to generate JavaScript statements.

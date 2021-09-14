@@ -34,6 +34,7 @@ from qmxgraph import constants
 from qmxgraph.api import QmxGraphApi
 from qmxgraph.configuration import GraphOptions
 from qmxgraph.configuration import GraphStyles
+from qmxgraph.exceptions import ViewStateError
 from qmxgraph.waiting import wait_signals_called
 from qmxgraph.waiting import wait_until
 
@@ -133,7 +134,7 @@ class QmxGraph(QWidget):
         self._channel.registerObject('bridge_events_handler', self._events_bridge)
         self._channel.registerObject('bridge_double_click_handler', self._double_click_bridge)
         self._channel.registerObject('bridge_popup_menu_handler', self._popup_menu_bridge)
-        self._web_view.page().setWebChannel(self._channel)
+        self._web_view.setWebChannel(self._channel)
 
         self._layout.addWidget(self._web_view, 0, 0, 1, 1)
 
@@ -173,6 +174,10 @@ class QmxGraph(QWidget):
         if auto_load:
             self.load()
 
+    def close(self) -> None:
+        self._web_view.close()
+        super().close()
+
     @property
     def error_bridge(self) -> "ErrorHandlingBridge":
         return self._error_bridge
@@ -211,7 +216,6 @@ class QmxGraph(QWidget):
         Calls the given function when the graph page has finished loading successfully,
         or calls it immediately if the graph page is already loaded.
         """
-        # TODO[ASIM-4285]: add tests.
         if self.is_loaded():
             function()
         else:
@@ -228,13 +232,10 @@ class QmxGraph(QWidget):
 
         Noop if the page is already loaded.
         """
-        # TODO[ASIM-4282]: add tests for this method.
-        # TODO[ASIM-4282]: rename to something more sensible, perhaps "ensure_loaded".
-        # TODO[ASIM-4282]: check if we can reduce that timeout.
         if self._web_view.view_state == ViewState.GraphLoaded:
             return
         elif self._web_view.view_state == ViewState.Closing:
-            raise RuntimeError("view is closing, cannot load")
+            raise ViewStateError("view is closing, cannot load")
 
         self.show()
 
@@ -253,13 +254,10 @@ class QmxGraph(QWidget):
 
         Noop if the page is already blanked.
         """
-        # TODO[ASIM-4282]: add tests for this method.
-        # TODO[ASIM-4282]: rename to something more sensible, perhaps "ensure_blanked".
-        # TODO[ASIM-4282]: check if we can reduce that timeout.
         if self._web_view.view_state == ViewState.Blank:
             return
         elif self._web_view.view_state == ViewState.Closing:
-            raise RuntimeError("view is closing, cannot blank")
+            raise ViewStateError("view is closing, cannot blank")
         else:
             if self._web_view.view_state != ViewState.Blank:
                 self.blank()
@@ -315,40 +313,24 @@ class QmxGraph(QWidget):
 
     def _connect_events_bridge(self):
 
-        self.api.register_cells_added_handler(
-            'bridge_events_handler.cells_added_slot', check_api=False
-        )
-        self.api.register_cells_removed_handler(
-            'bridge_events_handler.cells_removed_slot', check_api=False
-        )
-        self.api.register_label_changed_handler(
-            'bridge_events_handler.label_changed_slot', check_api=False
-        )
-        self.api.register_selection_changed_handler(
-            'bridge_events_handler.selection_changed_slot', check_api=False
-        )
-        self.api.register_terminal_changed_handler(
-            'bridge_events_handler.terminal_changed_slot', check_api=False
-        )
+        self.api.register_cells_added_handler('bridge_events_handler.cells_added_slot')
+        self.api.register_cells_removed_handler('bridge_events_handler.cells_removed_slot')
+        self.api.register_label_changed_handler('bridge_events_handler.label_changed_slot')
+        self.api.register_selection_changed_handler('bridge_events_handler.selection_changed_slot')
+        self.api.register_terminal_changed_handler('bridge_events_handler.terminal_changed_slot')
         self.api.register_terminal_with_port_changed_handler(
-            'bridge_events_handler.terminal_with_port_changed_slot', check_api=False
+            'bridge_events_handler.terminal_with_port_changed_slot'
         )
         self.api.register_cells_bounds_changed_handler(
-            'bridge_events_handler.cells_bounds_changed_slot', check_api=False
+            'bridge_events_handler.cells_bounds_changed_slot'
         )
-        self.api.register_view_update_handler(
-            'bridge_events_handler.view_update_slot', check_api=False
-        )
+        self.api.register_view_update_handler('bridge_events_handler.view_update_slot')
 
     def _connect_double_click_handler(self):
-        self.api.register_double_click_handler(
-            'bridge_double_click_handler.double_click_slot', check_api=False
-        )
+        self.api.register_double_click_handler('bridge_double_click_handler.double_click_slot')
 
     def _connect_popup_menu_handler(self):
-        self.api.register_popup_menu_handler(
-            'bridge_popup_menu_handler.popup_menu_slot', check_api=False
-        )
+        self.api.register_popup_menu_handler('bridge_popup_menu_handler.popup_menu_slot')
 
     @property
     def api(self):
@@ -448,7 +430,7 @@ class QmxGraph(QWidget):
 
         width = self.width()
         height = self.height()
-        self.api.resize_container(width, height, check_api=False)
+        self.api.resize_container(width, height)
 
     def _on_drag_enter(self, event):
         """
