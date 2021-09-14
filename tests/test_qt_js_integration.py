@@ -1,4 +1,5 @@
 import json
+import re
 import textwrap
 from functools import partial
 
@@ -20,6 +21,7 @@ import qmxgraph.constants
 import qmxgraph.js
 import qmxgraph.mime
 from qmxgraph._web_view import ViewState
+from qmxgraph.exceptions import InvalidJavaScriptError
 from qmxgraph.exceptions import ViewStateError
 from qmxgraph.waiting import wait_callback_called
 from qmxgraph.waiting import wait_signals_called
@@ -495,7 +497,6 @@ def test_drag_drop_invalid_version(loaded_graph, drag_drop_events):
 
 
 @pytest.mark.parametrize('debug', (True, False))
-@pytest.mark.xfail(reason="ASIM-4287: append extra debug checks to api calls", run=False)
 def test_invalid_api_call(loaded_graph, debug):
     """
     :type loaded_graph: qmxgraph.widget.qmxgraph
@@ -507,19 +508,17 @@ def test_invalid_api_call(loaded_graph, debug):
     qmxgraph.debug.set_qmxgraph_debug(debug)
     try:
         if debug:
-            # When debug feature is enabled, it fails as soon as call is made
-            with pytest.raises(qmxgraph.js.InvalidJavaScriptError) as api_exception:
-                loaded_graph.api.call_api('BOOM')
-
-            assert (
-                str(api_exception.value)
-                == 'Unable to find function "BOOM" in QmxGraph JavaScript API'
+            # When debug feature is enabled, it fails as soon as call is made.
+            expected_message = re.escape(
+                'Uncaught Error: [QmxGraph] unable to find function "BOOM" in javascript api'
             )
+            with pytest.raises(InvalidJavaScriptError, match=expected_message):
+                loaded_graph.api.call_api('BOOM')
         else:
             # When debug feature is disabled, code will raise on JavaScript
             # side, but unless an error bridge is configured that could go
             # unnoticed, as call would return None and could easily be
-            # mistaken by an OK call
+            # mistaken by an OK call.
             assert loaded_graph.api.call_api('BOOM') is None
     finally:
         qmxgraph.debug.set_qmxgraph_debug(old_debug)
