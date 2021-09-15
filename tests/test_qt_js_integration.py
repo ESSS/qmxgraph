@@ -21,6 +21,7 @@ import qmxgraph.constants
 import qmxgraph.js
 import qmxgraph.mime
 from qmxgraph._web_view import ViewState
+from qmxgraph.cell_bounds import CellBounds
 from qmxgraph.exceptions import InvalidJavaScriptError
 from qmxgraph.exceptions import ViewStateError
 from qmxgraph.waiting import wait_callback_called
@@ -598,6 +599,17 @@ def test_get_cell_ids(loaded_graph) -> None:
     assert get_cell_ids(loaded_graph, 'function(cell){ return false }') == []
     assert get_cell_ids(loaded_graph, 'function(cell){ return cell.isEdge() }') == ['4']
     assert get_cell_ids(loaded_graph, 'function(cell){ return cell.isVertex() }') == ['2', '3']
+
+
+def test_cell_bounds(loaded_graph) -> None:
+    node_a = loaded_graph.api.insert_vertex(10, 10, 50, 50, 'A')
+
+    bounds = loaded_graph.api.get_cell_bounds(node_a)
+    assert bounds == CellBounds(x=10, y=10, width=50, height=50)
+
+    new_bounds = CellBounds(x=100, y=100, width=75, height=75)
+    loaded_graph.api.set_cell_bounds(node_a, new_bounds)
+    assert loaded_graph.api.get_cell_bounds(node_a) == new_bounds
 
 
 def test_last_index_of(loaded_graph) -> None:
