@@ -57,7 +57,7 @@ def test_contents_after() -> None:
     assert table.contents_after('Soap') == (TableRow(['Toothpaste', '1']),)
 
 
-def test_content_converter():
+def test_content_converter() -> None:
     from qmxgraph.decoration_contents import Table, TableRow, TableData, Image
 
     table = Table(

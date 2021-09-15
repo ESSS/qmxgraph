@@ -1,4 +1,6 @@
 import math
+from typing import Any
+from typing import List
 
 import pytest
 from selenium.common.exceptions import NoSuchElementException
@@ -15,7 +17,7 @@ from qmxgraph.configuration import GraphOptions
 from qmxgraph.configuration import GraphStyles
 
 
-def test_resize_container(graph_cases):
+def test_resize_container(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -31,7 +33,7 @@ def test_resize_container(graph_cases):
     assert height == new_height
 
 
-def test_insert_vertex(graph_cases):
+def test_insert_vertex(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -40,7 +42,7 @@ def test_insert_vertex(graph_cases):
 
 
 @pytest.mark.parametrize('dumped,restored', [('1v', '2v'), ('2v', '1v')])
-def test_dump_restore(dumped, restored, graph_cases):
+def test_dump_restore(dumped, restored, graph_cases) -> None:
     """
     :type dumped: str
     :type restored: str
@@ -56,7 +58,7 @@ def test_dump_restore(dumped, restored, graph_cases):
     assert dumped_vertices_count == len(graph.get_vertices())
 
 
-def test_insert_vertex_with_style(graph_cases):
+def test_insert_vertex_with_style(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -79,7 +81,7 @@ def test_insert_vertex_with_style(graph_cases):
         'by_drag_drop',
     ],
 )
-def test_insert_edge(graph_cases, mode):
+def test_insert_edge(graph_cases, mode) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -92,7 +94,7 @@ def test_insert_edge(graph_cases, mode):
     assert graph.get_edge(*graph.get_vertices()) is not None
 
 
-def test_get_terminal_points(graph_cases):
+def test_get_terminal_points(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -107,7 +109,7 @@ def test_get_terminal_points(graph_cases):
     assert target_y == pytest.approx(25.0)
 
 
-def test_insert_edge_error_endpoint_not_found(graph_cases, selenium_extras):
+def test_insert_edge_error_endpoint_not_found(graph_cases, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type selenium_extras: qmxgraph.tests.conftest.SeleniumExtras
@@ -132,7 +134,7 @@ def test_insert_edge_error_endpoint_not_found(graph_cases, selenium_extras):
     )
 
 
-def test_insert_decoration(graph_cases):
+def test_insert_decoration(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -145,7 +147,7 @@ def test_insert_decoration(graph_cases):
     assert len(graph.get_decorations()) == 2
 
 
-def test_decoration_position(graph_cases):
+def test_decoration_position(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -160,7 +162,7 @@ def test_decoration_position(graph_cases):
     assert position == pytest.approx(0.8)
 
 
-def test_get_decoration_parent_cell_id(graph_cases):
+def test_get_decoration_parent_cell_id(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -170,7 +172,7 @@ def test_get_decoration_parent_cell_id(graph_cases):
     assert parent_id == '4'
 
 
-def test_delete_vertex(graph_cases):
+def test_delete_vertex(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -185,7 +187,7 @@ def test_delete_vertex(graph_cases):
     assert not graph.get_vertex()
 
 
-def test_delete_edge(graph_cases):
+def test_delete_edge(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -200,7 +202,7 @@ def test_delete_edge(graph_cases):
     assert not graph.get_edge(*graph.get_vertices())
 
 
-def test_group(graph_cases):
+def test_group(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -232,7 +234,7 @@ def test_group(graph_cases):
     assert not group
 
 
-def test_toggle_outline(selenium, host, wait_graph_page_ready):
+def test_toggle_outline(selenium, host, wait_graph_page_ready) -> None:
     """
     :type selenium: selenium.webdriver.remote.webdriver.WebDriver
     :type host: qmxgraph.server.Host
@@ -256,7 +258,7 @@ def test_toggle_outline(selenium, host, wait_graph_page_ready):
 
 
 @pytest.mark.parametrize('grid', [True, False])
-def test_toggle_grid(selenium, host, grid, wait_graph_page_ready):
+def test_toggle_grid(selenium, host, grid, wait_graph_page_ready) -> None:
     """
     :type selenium: selenium.webdriver.remote.webdriver.WebDriver
     :type host: qmxgraph.server.Host
@@ -274,7 +276,7 @@ def test_toggle_grid(selenium, host, grid, wait_graph_page_ready):
 
 
 @pytest.mark.parametrize('snap', [True, False])
-def test_toggle_snap(graph_cases, snap):
+def test_toggle_snap(graph_cases, snap) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -310,7 +312,7 @@ def test_toggle_snap(graph_cases, snap):
     assert int(vertex.get_attribute('y')) == expected(y)
 
 
-def test_get_cell_id_at(graph_cases):
+def test_get_cell_id_at(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -332,7 +334,7 @@ def test_get_cell_id_at(graph_cases):
     assert graph.get_id(Invalid()) is None
 
 
-def test_set_visible(graph_cases):
+def test_set_visible(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -370,7 +372,7 @@ def test_set_visible(graph_cases):
     assert len(graph.get_tables()) == 1
 
 
-def test_is_and_set_port_visible(graph_cases):
+def test_is_and_set_port_visible(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -389,7 +391,7 @@ def test_is_and_set_port_visible(graph_cases):
     assert graph.get_port() is not None
 
 
-def test_parse_port_id(graph_cases):
+def test_parse_port_id(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -398,7 +400,7 @@ def test_parse_port_id(graph_cases):
     assert port_data == ['PARENT', 'PORT-NAME']
 
 
-def test_set_visible_error_not_found(graph_cases, selenium_extras):
+def test_set_visible_error_not_found(graph_cases, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type selenium_extras: qmxgraph.tests.conftest.SeleniumExtras
@@ -421,7 +423,7 @@ def test_set_visible_error_not_found(graph_cases, selenium_extras):
     )
 
 
-def test_get_geometry_plain(graph_cases):
+def test_get_geometry_plain(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -436,7 +438,7 @@ def test_get_geometry_plain(graph_cases):
     assert pytest.approx(obtained_table_geometry, rel=0.1) == [20, 60, 108, 72]
 
 
-def test_get_geometry_error_not_found(graph_cases, selenium_extras):
+def test_get_geometry_error_not_found(graph_cases, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type selenium_extras: qmxgraph.tests.conftest.SeleniumExtras
@@ -452,7 +454,7 @@ def test_get_geometry_error_not_found(graph_cases, selenium_extras):
     )
 
 
-def test_insert_table(graph_cases):
+def test_insert_table(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -464,7 +466,7 @@ def test_insert_table(graph_cases):
     'action, expected_scale',
     [(None, 1.0), ('zoomIn', 1.2), ('zoomOut', 0.83)],
 )
-def test_insert_child_table(graph_cases, action, expected_scale):
+def test_insert_child_table(graph_cases, action, expected_scale) -> None:
     """
     When supplying `parent_id` the origin (the x and y coordinates) are
     normalized and relative to the parent bounds. Here is used another table
@@ -513,7 +515,7 @@ def test_insert_child_table(graph_cases, action, expected_scale):
     assert parent_bounds[3] < child_bounds[1]
 
 
-def test_table_with_image(graph_cases):
+def test_table_with_image(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -549,7 +551,7 @@ def test_table_with_image(graph_cases):
     assert image.get_attribute('src').endswith('some-image-path')
 
 
-def test_update_table(graph_cases):
+def test_update_table(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -571,7 +573,7 @@ def test_update_table(graph_cases):
     assert graph.get_table_contents(table) == ['a', '1', 'b', '2']
 
 
-def test_update_table_error_not_found(graph_cases, selenium_extras):
+def test_update_table_error_not_found(graph_cases, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type selenium_extras: qmxgraph.tests.conftest.SeleniumExtras
@@ -579,7 +581,7 @@ def test_update_table_error_not_found(graph_cases, selenium_extras):
     graph = graph_cases('1t')
 
     table_id = "999"
-    contents = []
+    contents: List[Any] = []
     title = 'will not matter'
 
     with pytest.raises(WebDriverException) as e:
@@ -592,7 +594,7 @@ def test_update_table_error_not_found(graph_cases, selenium_extras):
     )
 
 
-def test_update_table_error_not_table(graph_cases, selenium_extras):
+def test_update_table_error_not_table(graph_cases, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type selenium_extras: qmxgraph.tests.conftest.SeleniumExtras
@@ -600,7 +602,7 @@ def test_update_table_error_not_table(graph_cases, selenium_extras):
     graph = graph_cases('2v_1e_1d_1t')
 
     table_id = graph.get_id(graph.get_edge(*graph.get_vertices()))
-    contents = []
+    contents: List[Any] = []
     title = 'will not matter'
 
     with pytest.raises(WebDriverException) as e:
@@ -611,7 +613,7 @@ def test_update_table_error_not_table(graph_cases, selenium_extras):
     assert selenium_extras.get_exception_message(e) == "Cell is not a table"
 
 
-def test_remove_cells(graph_cases):
+def test_remove_cells(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -628,7 +630,7 @@ def test_remove_cells(graph_cases):
     assert graph.get_edge(*vertices) is None
 
 
-def test_remove_cells_error_not_found(graph_cases, selenium_extras):
+def test_remove_cells_error_not_found(graph_cases, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type selenium_extras: qmxgraph.tests.conftest.SeleniumExtras
@@ -644,7 +646,7 @@ def test_remove_cells_error_not_found(graph_cases, selenium_extras):
     )
 
 
-def test_on_cells_removed(graph_cases):
+def test_on_cells_removed(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -662,7 +664,7 @@ def test_on_cells_removed(graph_cases):
     assert graph.selenium.execute_script('return window.cellIds') == cell_ids
 
 
-def test_custom_shapes(selenium, port, tmpdir, wait_graph_page_ready):
+def test_custom_shapes(selenium, port, tmpdir, wait_graph_page_ready) -> None:
     """
     :type selenium: selenium.webdriver.remote.webdriver.WebDriver
     :type port: qmxgraph.tests.conftest.Port
@@ -719,7 +721,7 @@ def test_custom_shapes(selenium, port, tmpdir, wait_graph_page_ready):
         'by_drag_drop',
     ],
 )
-def test_edge_with_style(port, mode, graph_cases_factory):
+def test_edge_with_style(port, mode, graph_cases_factory) -> None:
     """
     :type port: qmxgraph.tests.conftest.Port
     :type mode: str
@@ -739,7 +741,7 @@ def test_edge_with_style(port, mode, graph_cases_factory):
         assert graph.get_edge(*graph.get_vertices()).get_attribute('stroke') == '#000000'
 
 
-def test_get_label(graph_cases):
+def test_get_label(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -776,7 +778,7 @@ def test_get_label(graph_cases):
     assert table_html_data == ['Hitchhikers', 'arthur', 'dent', 'ford', 'prefect']
 
 
-def test_get_label_error_not_found(graph_cases, selenium_extras):
+def test_get_label_error_not_found(graph_cases, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type selenium_extras: qmxgraph.tests.conftest.SeleniumExtras
@@ -792,7 +794,7 @@ def test_get_label_error_not_found(graph_cases, selenium_extras):
     )
 
 
-def test_has_cell(graph_cases):
+def test_has_cell(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -804,7 +806,7 @@ def test_has_cell(graph_cases):
     assert not graph.eval_js_function("api.hasCell", cell_id)
 
 
-def test_get_cell_type(graph_cases):
+def test_get_cell_type(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -823,7 +825,7 @@ def test_get_cell_type(graph_cases):
     assert get_cell_type(graph.get_tables()[0]) == constants.CELL_TYPE_TABLE
 
 
-def test_get_cell_type_error_not_found(graph_cases, selenium_extras):
+def test_get_cell_type_error_not_found(graph_cases, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type selenium_extras: qmxgraph.tests.conftest.SeleniumExtras
@@ -849,7 +851,7 @@ def test_get_cell_type_error_not_found(graph_cases, selenium_extras):
         qmxgraph.constants.CELL_TYPE_DECORATION,
     ],
 )
-def test_insert_with_tags(graph_cases, cell_type):
+def test_insert_with_tags(graph_cases, cell_type) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type cell_type: qmxgraph.constants.CELL_TYPE_*
@@ -888,7 +890,7 @@ def test_insert_with_tags(graph_cases, cell_type):
         qmxgraph.constants.CELL_TYPE_DECORATION,
     ],
 )
-def test_insert_with_tags_error_value_not_string(graph_cases, cell_type, selenium_extras):
+def test_insert_with_tags_error_value_not_string(graph_cases, cell_type, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type cell_type: qmxgraph.constants.CELL_TYPE_*
@@ -913,7 +915,7 @@ def test_insert_with_tags_error_value_not_string(graph_cases, cell_type, seleniu
         qmxgraph.constants.CELL_TYPE_DECORATION,
     ],
 )
-def test_set_get_tag(graph_cases, cell_type):
+def test_set_get_tag(graph_cases, cell_type) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type cell_type: qmxgraph.constants.CELL_TYPE_*
@@ -937,7 +939,7 @@ def test_set_get_tag(graph_cases, cell_type):
         qmxgraph.constants.CELL_TYPE_DECORATION,
     ],
 )
-def test_set_get_tag_error_tag_not_found(graph_cases, cell_type, selenium_extras):
+def test_set_get_tag_error_tag_not_found(graph_cases, cell_type, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type cell_type: qmxgraph.constants.CELL_TYPE_*
@@ -965,7 +967,7 @@ def test_set_get_tag_error_tag_not_found(graph_cases, cell_type, selenium_extras
         qmxgraph.constants.CELL_TYPE_DECORATION,
     ],
 )
-def test_set_get_tag_error_value_not_string(graph_cases, cell_type, selenium_extras):
+def test_set_get_tag_error_value_not_string(graph_cases, cell_type, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type cell_type: qmxgraph.constants.CELL_TYPE_*
@@ -990,7 +992,7 @@ def test_set_get_tag_error_value_not_string(graph_cases, cell_type, selenium_ext
         qmxgraph.constants.CELL_TYPE_DECORATION,
     ],
 )
-def test_set_get_tag_doesnt_overwrite_protected_tags(graph_cases, cell_type):
+def test_set_get_tag_doesnt_overwrite_protected_tags(graph_cases, cell_type) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type cell_type: qmxgraph.constants.CELL_TYPE_*
@@ -1006,7 +1008,7 @@ def test_set_get_tag_doesnt_overwrite_protected_tags(graph_cases, cell_type):
     assert graph.eval_js_function("api.getTag", cell_id, "label") != graph.get_label(cell_id)
 
 
-def test_set_get_tag_error_cell_not_found(graph_cases, selenium_extras):
+def test_set_get_tag_error_cell_not_found(graph_cases, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type selenium_extras: qmxgraph.tests.conftest.SeleniumExtras
@@ -1037,7 +1039,7 @@ def test_set_get_tag_error_cell_not_found(graph_cases, selenium_extras):
     )
 
 
-def test_set_get_tag_without_initial_tag_support(graph_cases):
+def test_set_get_tag_without_initial_tag_support(graph_cases) -> None:
     """
     For instance, edges created by drag&drop in a graph won't have tags in a
     first moment, as they are created directly by mxGraph code and don't have
@@ -1059,7 +1061,7 @@ def test_set_get_tag_without_initial_tag_support(graph_cases):
     assert graph.eval_js_function("api.getTag", edge_id, "test") == "foo"
 
 
-def test_on_cells_added(graph_cases):
+def test_on_cells_added(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -1076,7 +1078,7 @@ def test_on_cells_added(graph_cases):
     assert graph.get_added_cell_ids() == added
 
 
-def test_on_label_changed(graph_cases):
+def test_on_label_changed(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -1109,7 +1111,7 @@ def test_on_label_changed(graph_cases):
     assert graph.eval_js_function('api.getTag', vertex_id, 'test') == 'test'
 
 
-def test_set_label(graph_cases):
+def test_set_label(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -1131,7 +1133,7 @@ def test_set_label(graph_cases):
     ]
 
 
-def test_set_label_error_not_found(graph_cases, selenium_extras):
+def test_set_label_error_not_found(graph_cases, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type selenium_extras: qmxgraph.tests.conftest.SeleniumExtras
@@ -1147,7 +1149,7 @@ def test_set_label_error_not_found(graph_cases, selenium_extras):
     )
 
 
-def test_set_double_click_handler(graph_cases):
+def test_set_double_click_handler(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -1171,7 +1173,7 @@ def test_set_double_click_handler(graph_cases):
     assert graph.selenium.execute_script('return window.__dblClick__') == [vertex_id]
 
 
-def test_add_selection_change_handler(graph_cases):
+def test_add_selection_change_handler(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -1223,7 +1225,7 @@ def test_add_selection_change_handler(graph_cases):
     ]
 
 
-def test_set_popup_menu_handler(graph_cases):
+def test_set_popup_menu_handler(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -1255,7 +1257,7 @@ def test_set_popup_menu_handler(graph_cases):
     'action, expected_scale',
     [('zoomIn', 1.2), ('zoomOut', 0.83)],
 )
-def test_zoom(graph_cases, action, expected_scale):
+def test_zoom(graph_cases, action, expected_scale) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type action: str
@@ -1278,7 +1280,7 @@ def test_zoom(graph_cases, action, expected_scale):
     'sys.platform != "win32"',
     reason='need investigate differences between linux and windows',
 )
-def test_set_scale_and_translation(graph_cases):
+def test_set_scale_and_translation(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -1350,7 +1352,7 @@ def test_set_scale_and_translation(graph_cases):
 
 
 @pytest.mark.parametrize('action', [None, 'zoomIn', 'zoomOut'])
-def test_fit(graph_cases, action):
+def test_fit(graph_cases, action) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type action: Optional[str]
@@ -1366,7 +1368,7 @@ def test_fit(graph_cases, action):
     assert obtained_scale == pytest.approx(3.14, abs=2)
 
 
-def test_get_edge_terminals(graph_cases):
+def test_get_edge_terminals(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -1380,7 +1382,7 @@ def test_get_edge_terminals(graph_cases):
 
 
 @pytest.mark.parametrize('terminal_type', ['source', 'target'])
-def test_set_edge_terminals(graph_cases, terminal_type):
+def test_set_edge_terminals(graph_cases, terminal_type) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type terminal_type: str
@@ -1399,7 +1401,7 @@ def test_set_edge_terminals(graph_cases, terminal_type):
         assert 0
 
 
-def test_set_get_style(graph_cases):
+def test_set_get_style(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -1420,7 +1422,7 @@ def test_set_get_style(graph_cases):
     assert 'Unable to find cell with id nonexistent' in str(excinfo.value)
 
 
-def test_set_get_connectable(graph_cases):
+def test_set_get_connectable(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -1441,7 +1443,7 @@ def test_set_get_connectable(graph_cases):
     assert connectable
 
 
-def test_get_edge_terminals_error_edge_not_found(graph_cases, selenium_extras):
+def test_get_edge_terminals_error_edge_not_found(graph_cases, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type selenium_extras: qmxgraph.tests.conftest.SeleniumExtras
@@ -1458,7 +1460,7 @@ def test_get_edge_terminals_error_edge_not_found(graph_cases, selenium_extras):
     )
 
 
-def test_get_edge_terminals_error_not_an_edge(graph_cases, selenium_extras):
+def test_get_edge_terminals_error_not_an_edge(graph_cases, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     :type selenium_extras: qmxgraph.tests.conftest.SeleniumExtras
@@ -1474,7 +1476,7 @@ def test_get_edge_terminals_error_not_an_edge(graph_cases, selenium_extras):
     )
 
 
-def test_custom_font_family(graph_cases_factory, port):
+def test_custom_font_family(graph_cases_factory, port) -> None:
     """
     :type graph_cases_factory: callable
     :type port: qmxgraph.tests.conftest.Port
@@ -1493,7 +1495,7 @@ def test_custom_font_family(graph_cases_factory, port):
         assert len(match) == 1
 
 
-def test_ports(graph_cases):
+def test_ports(graph_cases) -> None:
     graph = graph_cases('2v')
     vertex_a, vertex_b = graph.get_vertices()
     port_x_name, port_y_name = 'X', 'Y'
@@ -1562,12 +1564,12 @@ def insert_by_parametrized_type(graph, cell_type, tags=None):
         QmxGraphApi.LAYOUT_STACK,
     ],
 )
-def test_run_all_layouts(layout_name, graph_cases):
+def test_run_all_layouts(layout_name, graph_cases) -> None:
     graph = graph_cases('3v_1e')
     graph.eval_js_function('api.runLayout', layout_name)
 
 
-def test_run_organic_layout(graph_cases):
+def test_run_organic_layout(graph_cases) -> None:
     graph = graph_cases('3v_3e')
     label = lambda cell: graph.get_label(cell)
     nodes_positions = {
@@ -1595,7 +1597,7 @@ def test_run_organic_layout(graph_cases):
         )
 
 
-def test_run_invalid_layout(graph_cases):
+def test_run_invalid_layout(graph_cases) -> None:
     graph = graph_cases('3v_1e')
     with pytest.raises(WebDriverException):
         graph.eval_js_function('api.runLayout', 'invalid_layout_name')
