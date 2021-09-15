@@ -13,7 +13,8 @@ requirements = []
 
 setup(
     name='qmxgraph',
-    version='0.1.0',
+    use_scm_version=True,
+    setup_requires=["setuptools_scm"],
     description="A Qt graph drawing widget using JavaScript's mxGraph " "library.",
     long_description=readme + '\n\n' + history,
     author="Rafael Bertoldi",
@@ -21,7 +22,6 @@ setup(
     url='https://github.com/ESSS/qmxgraph',
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    include_package_data=True,
     install_requires=requirements,
     license="MIT license",
     zip_safe=False,
