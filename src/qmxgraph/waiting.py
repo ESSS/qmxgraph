@@ -6,7 +6,7 @@ from typing import Generator
 from typing import Optional
 from typing import Tuple
 
-from attr import define
+import attr
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtTest import QTest
 
@@ -37,7 +37,7 @@ def wait_callback_called(*, timeout_ms=1000) -> Generator["_Callback", None, Non
     wait_until(callback.was_called, timeout_ms=timeout_ms)
 
 
-@define
+@attr.s(auto_attribs=True)
 class _Callback:
     args: Optional[Tuple[Any, ...]] = None
 

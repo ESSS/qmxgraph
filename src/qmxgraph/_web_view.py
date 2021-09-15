@@ -133,6 +133,7 @@ class QWebViewWithDragDrop(QWebEngineView):
         self._check_valid_eval_state()
         with wait_callback_called(timeout_ms=timeout_ms) as callback:
             self.page().runJavaScript(script, callback)
+        assert callback.args is not None
         return callback.args[0]
 
     def eval_js_async(self, script: str) -> None:

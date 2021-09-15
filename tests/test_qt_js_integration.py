@@ -39,6 +39,7 @@ def test_error_redirection(loaded_graph):
     with wait_signals_called(error_redirection.on_error) as cb:
         eval_js(loaded_graph, """throw Error("test")""")
 
+    assert cb.args is not None
     msg, url, line, column = cb.args
     expected = textwrap.dedent(
         '''\

@@ -1,20 +1,25 @@
-def test_tuple_of_validator():
-    from qmxgraph import decoration_contents
-    import attr
-    import pytest
+import attr
+import pytest
 
-    @attr.s
-    class Cutlery:
-        name = attr.ib()
+from qmxgraph import extra_attr_validators
 
-    @attr.s
-    class Door:
-        pass
 
-    @attr.s
-    class Household:
-        silverware = attr.ib(validator=decoration_contents.tuple_of(Cutlery))
+@attr.s
+class Cutlery:
+    name = attr.ib()
 
+
+@attr.s
+class Door:
+    pass
+
+
+@attr.s
+class Household:
+    silverware = attr.ib(validator=extra_attr_validators.tuple_of(Cutlery))
+
+
+def test_tuple_of_validator() -> None:
     Household(silverware=(Cutlery(name='fork'),))
 
     with pytest.raises(TypeError) as execinfo:
@@ -32,7 +37,7 @@ def test_tuple_of_validator():
     assert msg in str(execinfo.value)
 
 
-def test_contents_after():
+def test_contents_after() -> None:
     from qmxgraph.decoration_contents import Table, TableRow, TableData
 
     table = Table(
@@ -57,12 +62,12 @@ def test_content_converter():
 
     table = Table(
         [
-            dict(tag='tr', contents=['1', 'Cutlery']),
+            dict(tag='tr', contents=['1', 'Cutlery']),  # type:ignore[list-item]
             TableRow(
                 [
                     '',
                     'Spoon',
-                    dict(
+                    dict(  # type:ignore[list-item]
                         tag='td',
                         contents=[
                             dict(
