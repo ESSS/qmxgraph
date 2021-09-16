@@ -41,7 +41,7 @@ from qmxgraph.waiting import wait_until
 # Some ugliness to successfully build the doc on ReadTheDocs...
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if not on_rtd:
-    from qmxgraph import resource_mxgraph, resource_qmxgraph  # noqa
+    from qmxgraph import resource_mxgraph, resource_qmxgraph  # type:ignore[attr-defined]
 
 
 class QmxGraph(QWidget):

@@ -21,6 +21,7 @@ import qmxgraph.constants
 import qmxgraph.js
 import qmxgraph.mime
 from qmxgraph._web_view import ViewState
+from qmxgraph.cell_bounds import CellBounds
 from qmxgraph.exceptions import InvalidJavaScriptError
 from qmxgraph.exceptions import ViewStateError
 from qmxgraph.waiting import wait_callback_called
@@ -28,7 +29,7 @@ from qmxgraph.waiting import wait_signals_called
 from qmxgraph.widget import QmxGraph
 
 
-def test_error_redirection(loaded_graph):
+def test_error_redirection(loaded_graph) -> None:
     """
     It is possible to redirect errors in JS code to Python/Qt side.
 
@@ -39,6 +40,7 @@ def test_error_redirection(loaded_graph):
     with wait_signals_called(error_redirection.on_error) as cb:
         eval_js(loaded_graph, """throw Error("test")""")
 
+    assert cb.args is not None
     msg, url, line, column = cb.args
     expected = textwrap.dedent(
         '''\
@@ -50,7 +52,7 @@ def test_error_redirection(loaded_graph):
     assert (url, line, column) == ('qrc:/', 1, 1)
 
 
-def test_events_bridge_delayed_signals(graph, qtbot, mocker):
+def test_events_bridge_delayed_signals(graph, qtbot, mocker) -> None:
     from qmxgraph.widget import EventsBridge
 
     events = EventsBridge()
@@ -77,7 +79,7 @@ def test_events_bridge_delayed_signals(graph, qtbot, mocker):
     qtbot.waitUntil(partial(check_call, expected))
 
 
-def test_events_bridge_plain(graph, mocker):
+def test_events_bridge_plain(graph, mocker) -> None:
     """
     Verify if the Python code can listen to JavaScript events by using
     qmxgraph's events bridge.
@@ -167,7 +169,7 @@ def test_events_bridge_plain(graph, mocker):
     assert removed_handler.call_args_list == [mocker.call([vertex_id])]
 
 
-def test_bridges_signal_handlers_can_call_api(loaded_graph):
+def test_bridges_signal_handlers_can_call_api(loaded_graph) -> None:
     """
     Verify if the Python code handling bridge signals can call the
     qmxgraph api.
@@ -190,7 +192,7 @@ def test_bridges_signal_handlers_can_call_api(loaded_graph):
     assert zoom_scale_obtained == [1]
 
 
-def test_set_double_click_handler(graph, handler, qtbot):
+def test_set_double_click_handler(graph, handler, qtbot) -> None:
     """
     :type graph: qmxgraph.widget.qmxgraph
     :type handler: _HandlerFixture
@@ -222,7 +224,7 @@ def test_set_double_click_handler(graph, handler, qtbot):
     )
 
 
-def test_set_popup_menu_handler(graph, handler, qtbot):
+def test_set_popup_menu_handler(graph, handler, qtbot) -> None:
     """
     :type graph: qmxgraph.widget.qmxgraph
     :type handler: _HandlerFixture
@@ -254,7 +256,7 @@ def test_set_popup_menu_handler(graph, handler, qtbot):
     )
 
 
-def test_container_resize(loaded_graph):
+def test_container_resize(loaded_graph) -> None:
     """
     The div containing graph in web view must be resized match dimensions of
     Qt widget in initialization and also when web view is resized.
@@ -280,7 +282,7 @@ def test_container_resize(loaded_graph):
     assert height == expected_height
 
 
-def test_web_inspector(loaded_graph, mocker):
+def test_web_inspector(loaded_graph, mocker) -> None:
     """
     :type loaded_graph: qmxgraph.widget.qmxgraph
     :type mocker: pytest_mock.MockFixture
@@ -301,7 +303,7 @@ def test_web_inspector(loaded_graph, mocker):
     QDialog.show.assert_called_once_with()
 
 
-def test_blank(loaded_graph, qtbot):
+def test_blank(loaded_graph, qtbot) -> None:
     """
     :type loaded_graph: qmxgraph.widget.QmxGraph
     """
@@ -316,14 +318,14 @@ def test_blank(loaded_graph, qtbot):
     assert not loaded_graph.is_loaded()
 
 
-def test_blank_and_load(graph, qtbot):
+def test_blank_and_load(graph, qtbot) -> None:
     graph.load_and_wait()
     graph.blank()
     wait_until_blanked(qtbot, graph)
     graph.load_and_wait(timeout_ms=5000)
 
 
-def test_web_channel_blocking(graph, qtbot):
+def test_web_channel_blocking(graph, qtbot) -> None:
     def is_web_channel_blocked() -> bool:
         # Both updates and signals should be blocked/unblocked. at the same time.
         result = graph.inner_web_view().page().webChannel().blockUpdates()
@@ -370,7 +372,7 @@ def test_state_errors_after_closing(graph: QmxGraph) -> None:
         graph.blank_and_wait()
 
 
-def test_drag_drop(loaded_graph, drag_drop_events):
+def test_drag_drop(loaded_graph, drag_drop_events) -> None:
     """
     Dragging and dropping data with valid qmxgraph MIME data in qmxgraph should
     result graph changes according to contents of dropped data.
@@ -425,7 +427,7 @@ def test_drag_drop(loaded_graph, drag_drop_events):
     assert loaded_graph.api.get_tag(cell_id, 'bar') == 'a'
 
 
-def test_drag_drop_invalid_mime_type(loaded_graph, drag_drop_events):
+def test_drag_drop_invalid_mime_type(loaded_graph, drag_drop_events) -> None:
     """
     Can't drop data in qmxgraph unless it is from qmxgraph valid MIME type,
     all events should be ignored.
@@ -456,7 +458,7 @@ def test_drag_drop_invalid_mime_type(loaded_graph, drag_drop_events):
 
 
 @pytest.mark.qt_no_exception_capture
-def test_drag_drop_invalid_version(loaded_graph, drag_drop_events):
+def test_drag_drop_invalid_version(loaded_graph, drag_drop_events) -> None:
     """
     :type loaded_graph: qmxgraph.widget.qmxgraph
     :type drag_drop_events: DragDropEventsFactory
@@ -497,7 +499,7 @@ def test_drag_drop_invalid_version(loaded_graph, drag_drop_events):
 
 
 @pytest.mark.parametrize('debug', (True, False))
-def test_invalid_api_call(loaded_graph, debug):
+def test_invalid_api_call(loaded_graph, debug) -> None:
     """
     :type loaded_graph: qmxgraph.widget.qmxgraph
     :type debug: bool
@@ -525,7 +527,7 @@ def test_invalid_api_call(loaded_graph, debug):
 
 
 @pytest.mark.parametrize('enabled', (True, False))
-def test_graph_api_calls(loaded_graph, enabled):
+def test_graph_api_calls(loaded_graph, enabled) -> None:
     """
     Tests the available calls to the graph api.
     """
@@ -553,7 +555,7 @@ def test_graph_api_calls(loaded_graph, enabled):
         assert getter_func() is not enabled
 
 
-def test_tags(loaded_graph):
+def test_tags(loaded_graph) -> None:
     """
     :type loaded_graph: qmxgraph.widget.qmxgraph
     """
@@ -569,7 +571,7 @@ def test_tags(loaded_graph):
     assert loaded_graph.api.get_tag(with_tags_id, 'bar') == '2'
 
 
-def test_get_cell_count(loaded_graph):
+def test_get_cell_count(loaded_graph) -> None:
     """
     :type loaded_graph: qmxgraph.widget.qmxgraph
     """
@@ -584,7 +586,7 @@ def test_get_cell_count(loaded_graph):
     assert get_cell_count(loaded_graph, 'function(cell){ return cell.isVertex() }') == 2
 
 
-def test_get_cell_ids(loaded_graph):
+def test_get_cell_ids(loaded_graph) -> None:
     """
     :type loaded_graph: qmxgraph.widget.qmxgraph
     """
@@ -599,7 +601,18 @@ def test_get_cell_ids(loaded_graph):
     assert get_cell_ids(loaded_graph, 'function(cell){ return cell.isVertex() }') == ['2', '3']
 
 
-def test_last_index_of(loaded_graph):
+def test_cell_bounds(loaded_graph) -> None:
+    node_a = loaded_graph.api.insert_vertex(10, 10, 50, 50, 'A')
+
+    bounds = loaded_graph.api.get_cell_bounds(node_a)
+    assert bounds == CellBounds(x=10, y=10, width=50, height=50)
+
+    new_bounds = CellBounds(x=100, y=100, width=75, height=75)
+    loaded_graph.api.set_cell_bounds(node_a, new_bounds)
+    assert loaded_graph.api.get_cell_bounds(node_a) == new_bounds
+
+
+def test_last_index_of(loaded_graph) -> None:
     """
     :type loaded_graph: qmxgraph.widget.qmxgraph
     """

@@ -6,6 +6,12 @@ Classes to used to represent content in:
 
 """
 from functools import lru_cache
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Sequence
+from typing import Type
+from typing import Union
 
 import attr
 
@@ -17,7 +23,7 @@ asdict = attr.asdict
 
 _is_int = attr.validators.instance_of(int)
 _is_str = attr.validators.instance_of(str)
-_tag_to_class = {}
+_tag_to_class: Dict[str, Type] = {}
 
 
 def _register_decoration_class(class_):
@@ -112,7 +118,7 @@ class Image:
 _register_decoration_class(Image)
 
 
-@attr.s(frozen=True, slots=True)
+@attr.s(frozen=True, slots=True, auto_attribs=True)
 class TableData:
     """
     Represents the contents of a table's cell when inserting or updating a
@@ -125,17 +131,17 @@ class TableData:
     :ivar optional[str] style: A inline style for the element.
     """
 
-    tag = attr.ib(default='td', init=False)
-    contents = attrib_table_contents(str, Image)
-    colspan = attr.ib(default=1, validator=_is_int)
-    rowspan = attr.ib(default=1, validator=_is_int)
-    style = attr.ib(default=None, validator=attr.validators.optional(_is_str))
+    tag: str = attr.ib(default='td', init=False)
+    contents: List[Union[str, Image]] = attrib_table_contents(str, Image)
+    colspan: int = attr.ib(default=1, validator=_is_int)
+    rowspan: int = attr.ib(default=1, validator=_is_int)
+    style: Optional[str] = attr.ib(default=None, validator=attr.validators.optional(_is_str))
 
 
 _register_decoration_class(TableData)
 
 
-@attr.s(frozen=True, slots=True)
+@attr.s(frozen=True, slots=True, auto_attribs=True)
 class TableRow:
     """
     Represents the contents of a table's row when inserting or updating a
@@ -148,14 +154,14 @@ class TableRow:
         `str` used).
     """
 
-    tag = attr.ib(default='tr', init=False)
-    contents = attrib_table_contents(str, TableData)
+    tag: str = attr.ib(default='tr', init=False)
+    contents: Sequence[Union[str, TableData]] = attrib_table_contents(str, TableData)
 
 
 _register_decoration_class(TableRow)
 
 
-@attr.s(frozen=True, slots=True)
+@attr.s(frozen=True, slots=True, auto_attribs=True)
 class Table:
     """
     Represents the contents of a table when inserting or updating a table in
@@ -165,8 +171,8 @@ class Table:
     :ivar tuple[TableRow] contents: The table rows.
     """
 
-    tag = attr.ib(default='table', init=False)
-    contents = attrib_table_contents(TableRow)
+    tag: str = attr.ib(default='table', init=False)
+    contents: Sequence[TableRow] = attrib_table_contents(TableRow)
 
     def contents_after(self, caption):
         """

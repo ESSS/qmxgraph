@@ -969,7 +969,7 @@ class QmxGraphApi(object):
             # Capture all warning messages from Qt.
             capture_context = _capture_critical_log_messages()
         else:
-            capture_context = nullcontext([])
+            capture_context = nullcontext([])  # type:ignore[assignment]
 
         with capture_context as messages:
             result = eval_func(call)

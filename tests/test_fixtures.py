@@ -3,7 +3,7 @@ import os
 pytest_plugins = 'pytester'
 
 
-def test_port_fixture(testdir):
+def test_port_fixture(testdir) -> None:
     """
     Listen on several ports to make sure that fixture `port` is able to get
     always a free port.
@@ -16,7 +16,7 @@ def test_port_fixture(testdir):
         test_port='''
         import pytest
 
-        def test_port(port):
+        def test_port(port) -> None:
             port_ = port.get()
 
             import socket

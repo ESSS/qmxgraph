@@ -7,6 +7,9 @@ Classes used to represent bounds in:
 - :attr:`qmxgraph.widget.EventsBridge.on_cell_geometry_changed`
 
 """
+from typing import Any
+from typing import Optional
+
 import attr
 
 
@@ -56,7 +59,7 @@ _is_optional_parent_anchor_position = attr.validators.optional(
 )
 
 
-def _convert_parent_anchor_position(v):
+def _convert_parent_anchor_position(v: Any) -> Optional[ParentAnchorPosition]:
     if not v:
         return None
     elif v.__class__ == ParentAnchorPosition:
@@ -84,7 +87,7 @@ class CellBounds:
     y = attr.ib(validator=_is_number)
     width = attr.ib(validator=_is_number)
     height = attr.ib(validator=_is_number)
-    parent_anchor_position = attr.ib(
+    parent_anchor_position: Optional[ParentAnchorPosition] = attr.ib(
         default=None,
         validator=_is_optional_parent_anchor_position,
         converter=_convert_parent_anchor_position,
