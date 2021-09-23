@@ -404,6 +404,43 @@ graphs.createGraph = function createGraph (container, options, styles) {
         mxConstants.DEFAULT_FONTFAMILY = family;
     }
 
+    if (!!options['custom_fonts'] && options['font_family'].length > 0) {
+        // There is a `setFontFamily` method it isn't seem safe/easy to use it as:
+        // * every canvas used by mxGraph is temporary (see `mxShape.prototype.redrawShape`)
+        // * there are parts that are hardcoded to use always constant below (see
+        // `mxSvgCanvas2D.prototype.createStyle`)
+        // For these reasons it just straight up updates default font family used throughout
+        // graph.
+        var customFonts = options['custom_fonts'];
+
+        var style = document.createElement('style');
+        var styleHtml = ''
+        
+        for (var i = 0; i < customFonts.length; i++) {
+            var customFont = customFonts[i];
+            
+            styleHtml += "@font-face{";
+            for (const [key, value] of Object.entries(customFont)) {
+                styleHtml += "\n\t"; 
+                var replaced_key = key.replace("_", "-");
+                if (replaced_key === "src") {
+                    styleHtml += replaced_key + ": url('" + value + "');"
+                } else {
+                    styleHtml += replaced_key + ": " + value + ";"
+                }
+            }
+            styleHtml += "\n}\n";
+        }
+
+        var textNode = document.createTextNode(styleHtml);
+        style.appendChild(textNode)
+        document.head.appendChild(style);
+    }
+
+
+
+
+    
     /* jshint +W069 */
 
     // Hooks -------------------------------------------------------------------
