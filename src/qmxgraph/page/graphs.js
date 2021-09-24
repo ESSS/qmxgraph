@@ -404,37 +404,33 @@ graphs.createGraph = function createGraph (container, options, styles) {
         mxConstants.DEFAULT_FONTFAMILY = family;
     }
 
-    if (!!options['custom_fonts'] && options['font_family'].length > 0) {
-        // There is a `setFontFamily` method it isn't seem safe/easy to use it as:
-        // * every canvas used by mxGraph is temporary (see `mxShape.prototype.redrawShape`)
-        // * there are parts that are hardcoded to use always constant below (see
-        // `mxSvgCanvas2D.prototype.createStyle`)
-        // For these reasons it just straight up updates default font family used throughout
-        // graph.
+    if (!!options['custom_fonts'] && options['custom_fonts'].length > 0) {
+        // Adds custom fonts to the html through css/style
         var customFonts = options['custom_fonts'];
 
         var style = document.createElement('style');
-        var styleHtml = ''
+        var styleContent = ''
         
         for (var i = 0; i < customFonts.length; i++) {
             var customFont = customFonts[i];
             
-            styleHtml += "@font-face{";
+            styleContent += "@font-face{";
             for (const [key, value] of Object.entries(customFont)) {
-                styleHtml += "\n\t"; 
+                styleContent += "\n\t"; 
                 var replaced_key = key.replace("_", "-");
                 if (replaced_key === "src") {
-                    styleHtml += replaced_key + ": url('" + value + "');"
+                    styleContent += replaced_key + ": url('" + value + "');"
                 } else {
-                    styleHtml += replaced_key + ": " + value + ";"
+                    styleContent += replaced_key + ": " + value + ";"
                 }
             }
-            styleHtml += "\n}\n";
+            styleContent += "\n}\n";
         }
 
-        var textNode = document.createTextNode(styleHtml);
+        var textNode = document.createTextNode(styleContent);
         style.appendChild(textNode)
         document.head.appendChild(style);
+        mxConstants.CUSTOM_FONTS = styleContent;
     }
 
 
