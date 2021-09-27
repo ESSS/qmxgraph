@@ -75,6 +75,7 @@ class GraphOptions(object):
     )
     enable_cloning = attr.ib(default=True, validator=_is_bool)
     font_family = attr.ib(default=None, validator=attr.validators.optional(tuple_of(str)))
+    custom_fonts = attr.ib(default=None, validator=attr.validators.optional(tuple_of(dict)))
     multigraph = attr.ib(default=False, validator=_is_bool)
     port_image = attr.ib(
         default=None,
