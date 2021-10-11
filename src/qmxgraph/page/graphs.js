@@ -410,13 +410,13 @@ graphs.createGraph = function createGraph (container, options, styles) {
 
         var style = document.createElement('style');
         var styleContent = ''
-        
+
         for (var i = 0; i < customFonts.length; i++) {
             var customFont = customFonts[i];
-            
+
             styleContent += "@font-face{";
             for (const [key, value] of Object.entries(customFont)) {
-                styleContent += "\n\t"; 
+                styleContent += "\n\t";
                 var replaced_key = key.replace("_", "-");
                 if (replaced_key === "src") {
                     styleContent += replaced_key + ": url('" + value + "');"
@@ -436,7 +436,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
 
 
 
-    
+
     /* jshint +W069 */
 
     // Hooks -------------------------------------------------------------------
