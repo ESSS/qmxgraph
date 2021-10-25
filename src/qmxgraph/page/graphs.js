@@ -407,34 +407,32 @@ graphs.createGraph = function createGraph (container, options, styles) {
     if (!!options['custom_fonts'] && options['custom_fonts'].length > 0) {
         // Adds custom fonts to the html through css/style
         var customFonts = options['custom_fonts'];
-
-        var style = document.createElement('style');
-        var styleContent = ''
+        var styleContent = '';
+        var hop = Object.prototype.hasOwnProperty;
 
         for (var i = 0; i < customFonts.length; i++) {
             var customFont = customFonts[i];
-
             styleContent += "@font-face{";
-            for (const [key, value] of Object.entries(customFont)) {
-                styleContent += "\n\t";
-                var replaced_key = key.replace("_", "-");
-                if (replaced_key === "src") {
-                    styleContent += replaced_key + ": url('" + value + "');"
-                } else {
+            for (var key in customFont) {
+                if (hop.call(customFont, key)) {
+                    styleContent += "\n\t";
+                    var value = customFont[key];
+                    var replaced_key = key.replace("_", "-");
+                    if (replaced_key === "src") {
+                        value += "url('" + value + "')"
+                    }
                     styleContent += replaced_key + ": " + value + ";"
                 }
             }
             styleContent += "\n}\n";
         }
 
+        var style = document.createElement('style');
         var textNode = document.createTextNode(styleContent);
-        style.appendChild(textNode)
+        style.appendChild(textNode);
         document.head.appendChild(style);
         mxConstants.CUSTOM_FONTS = styleContent;
     }
-
-
-
 
 
     /* jshint +W069 */
