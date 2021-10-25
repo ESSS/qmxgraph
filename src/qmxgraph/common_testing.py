@@ -7,7 +7,10 @@ from typing import List
 from qmxgraph.widget import QmxGraph
 
 
-def get_cell_count(widget: QmxGraph, filter_function: str) -> int:
+RETURN_ALL_CELLS_FILTER = 'function(cell) { return true }'
+
+
+def get_cell_count(widget: QmxGraph, filter_function: str = RETURN_ALL_CELLS_FILTER) -> int:
     """
     :param widget: The widget used to display the graph.
     :param filter_function: A javascript function used to filter the cells.
@@ -18,7 +21,7 @@ def get_cell_count(widget: QmxGraph, filter_function: str) -> int:
     return len(get_cell_ids(widget, filter_function))
 
 
-def get_cell_ids(widget: QmxGraph, filter_function: str) -> List[str]:
+def get_cell_ids(widget: QmxGraph, filter_function: str = RETURN_ALL_CELLS_FILTER) -> List[str]:
     """
     :param widget: The widget used to display the graph.
     :param filter_function: A javascript function used to filter the cells.
