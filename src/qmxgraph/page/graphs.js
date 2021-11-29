@@ -431,7 +431,6 @@ graphs.createGraph = function createGraph (container, options, styles) {
         var textNode = document.createTextNode(styleContent);
         style.appendChild(textNode);
         document.head.appendChild(style);
-        mxConstants.CUSTOM_FONTS = styleContent;
     }
 
 
