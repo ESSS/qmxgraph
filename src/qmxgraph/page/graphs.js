@@ -419,7 +419,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
                     var value = customFont[key];
                     var replaced_key = key.replace("_", "-");
                     if (replaced_key === "src") {
-                        value += "url('" + value + "')"
+                        value = "url('" + value + "')"
                     }
                     styleContent += replaced_key + ": " + value + ";"
                 }
