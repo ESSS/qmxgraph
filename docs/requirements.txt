@@ -1,0 +1,7 @@
+- attrs >=17
+- oop-ext
+- pyqt =5.12
+- sphinx
+- sphinx_rtd_theme
+## Pin docutils because of circular include warnings (see #193)
+#docutils==0.16
