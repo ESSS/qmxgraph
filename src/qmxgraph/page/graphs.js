@@ -428,6 +428,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
         }
 
         var style = document.createElement('style');
+        style.id =  'custom fonts';
         var textNode = document.createTextNode(styleContent);
         style.appendChild(textNode);
         document.head.appendChild(style);
