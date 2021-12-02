@@ -77,6 +77,37 @@ graphs.utils.setStyleKey = function setStyleKey (style, key, value) {
 };
 
 /**
+ * Removes the given key in an inline style.
+ *
+ * @param {string} style An inline style of mxGraph.
+ * @param {string} key Key in style.
+ * @returns {string} New inline style with the key removed.
+ */
+graphs.utils.removeStyleKey = function removeStyleKey (style, key) {
+    "use strict";
+
+    if (style === null || style === undefined || style.length === 0)
+    {
+        return style;
+    }
+
+    var index = style.indexOf(key+'=');
+
+    if (index >= 0)
+    {
+        var parts = style.split(';')
+        for (var i = 0; i < parts.length; ++i) {
+          var current = parts[i];
+          if (current.split('=')[0] == key) {
+              break;
+          }
+        }
+        style = parts.slice(0, i).concat(parts.slice(i+1, parts.length)).join(';');
+    }
+    return style;
+};
+
+/**
  * Obtain decoration style, with most up-to-date rotation.
  *
  * Decorations have their rotation define as a style, as
