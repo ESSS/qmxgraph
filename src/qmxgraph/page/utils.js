@@ -73,13 +73,13 @@ graphs.utils.setStyleKey = function setStyleKey(style, key, value) {
                 var current_key = current.split('=')[0];
                 if (current_key == key)
                 {
-                    // Just to find the key index
-                    break;
+                    break; // Just to find the key index
                 }
             }
 
             var updated_key_value = key + '=' + value;
-            style = parts.slice(0, i).concat(updated_key_value).concat(parts.slice(i+1, parts.length)).join(';');
+            parts.splice(i, 1, updated_key_value)
+            style = parts.join(';');
         }
     }
 
@@ -112,7 +112,8 @@ graphs.utils.removeStyleKey = function removeStyleKey (style, key) {
               break;
           }
         }
-        style = parts.slice(0, i).concat(parts.slice(i+1, parts.length)).join(';');
+        parts.splice(i, 1);
+        style = parts.join(';');
     }
     return style;
 };
