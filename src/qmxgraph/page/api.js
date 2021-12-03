@@ -1713,9 +1713,8 @@ graphs.Api.prototype.setEdgeTerminal = function setEdgeTerminal (
             edge_style = graphs.utils.setStyleKey(edge_style, terminal_key, terminal_value);
         }
         else {
-            // Remove the previously connected port (tries both options).
-            edge_style = graphs.utils.removeStyleKey(edge_style, graphs.Api.SOURCE_TERMINAL_CELL + 'Port');
-            edge_style = graphs.utils.removeStyleKey(edge_style, graphs.Api.TARGET_TERMINAL_CELL + 'Port');
+            // Remove the previously connected port.
+            edge_style = graphs.utils.removeStyleKey(edge_style, terminal_key);
         }
         model.setStyle(edge, edge_style);
     } finally {
