@@ -66,10 +66,20 @@ graphs.utils.setStyleKey = function setStyleKey (style, key, value) {
         }
         else
         {
-            var cont = style.indexOf(';', index);
+            var parts = style.split(';')
+            for (var i = 0; i < parts.length; ++i)
+            {
+                var current = parts[i];
+                var current_key = current.split('=')[0];
+                if (current_key == key)
+                {
+                    // Just to find the key index
+                    break;
+                }
+            }
 
-            style = style.substring(0, index) + key + '=' + value +
-                ((cont >= 0) ? style.substring(cont) : '');
+            var updated_key_value = key + '=' + value;
+            style = parts.slice(0, i).concat(updated_key_value).concat(parts.slice(i+1, parts.length)).join(';');
         }
     }
 
