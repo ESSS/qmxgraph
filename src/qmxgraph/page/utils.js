@@ -57,30 +57,21 @@ graphs.utils.setStyleKey = function setStyleKey(style, key, value) {
     }
     else
     {
-        var index = style.indexOf(key+'=');
-
-        if (index < 0)
+        var parts = style.split(';');
+        for (var i = 0; i < parts.length; ++i)
         {
-            var sep = (style.charAt(style.length-1) === ';') ? '' : ';';
-            style = style + sep + key + '=' + value;
-        }
-        else
-        {
-            var parts = style.split(';')
-            for (var i = 0; i < parts.length; ++i)
+            var current = parts[i];
+            var current_key = current.split('=')[0];
+            if (current_key == key)
             {
-                var current = parts[i];
-                var current_key = current.split('=')[0];
-                if (current_key == key)
-                {
-                    break; // Just to find the key index
-                }
+                // Just to find the key index to update. Will append in the end in case it is new.
+                break;
             }
-
-            var updated_key_value = key + '=' + value;
-            parts.splice(i, 1, updated_key_value)
-            style = parts.join(';');
         }
+
+        var updated_key_value = key + '=' + value;
+        parts.splice(i, 1, updated_key_value);
+        style = parts.join(';');
     }
 
     return style;
