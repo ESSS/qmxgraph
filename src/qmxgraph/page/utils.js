@@ -51,23 +51,35 @@ graphs.utils.setStyleKey = function setStyleKey(style, key, value) {
         value = "0";
     }
 
-    if (style === null || style === undefined || style.length === 0) {
-        style = key + "=" + value;
-    } else {
-        var index = style.indexOf(key + "=");
+    if (style === null || style === undefined || style.length === 0)
+    {
+        style = key + '=' + value;
+    }
+    else
+    {
+        var index = style.indexOf(key+'=');
 
-        if (index < 0) {
-            var sep = style.charAt(style.length - 1) === ";" ? "" : ";";
-            style = style + sep + key + "=" + value;
-        } else {
-            var cont = style.indexOf(";", index);
+        if (index < 0)
+        {
+            var sep = (style.charAt(style.length-1) === ';') ? '' : ';';
+            style = style + sep + key + '=' + value;
+        }
+        else
+        {
+            var parts = style.split(';')
+            for (var i = 0; i < parts.length; ++i)
+            {
+                var current = parts[i];
+                var current_key = current.split('=')[0];
+                if (current_key == key)
+                {
+                    // Just to find the key index
+                    break;
+                }
+            }
 
-            style =
-                style.substring(0, index) +
-                key +
-                "=" +
-                value +
-                (cont >= 0 ? style.substring(cont) : "");
+            var updated_key_value = key + '=' + value;
+            style = parts.slice(0, i).concat(updated_key_value).concat(parts.slice(i+1, parts.length)).join(';');
         }
     }
 
