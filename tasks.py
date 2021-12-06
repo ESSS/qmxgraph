@@ -476,7 +476,6 @@ if sys.platform.startswith('win'):
 
         return dict([parse_subst_line(line) for line in output.splitlines()])
 
-
 else:
 
     def follow_subst(path, deep=True):
