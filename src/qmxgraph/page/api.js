@@ -13,7 +13,7 @@
 
 /*global namespace */
 
-namespace('graphs');
+namespace("graphs");
 
 /**
  * A public API made available so other clients can communicate with graph
@@ -22,26 +22,23 @@ namespace('graphs');
  * @param {mxEditor} graphEditor A graph drawing widget.
  * @constructor
  */
-graphs.Api = function Api (graphEditor) {
+graphs.Api = function Api(graphEditor) {
     "use strict";
 
     this._graphEditor = graphEditor;
 };
 
-
 /**
  * Constant indicating a cell will be used as source terminal.
  * @type {string}
  */
-graphs.Api.SOURCE_TERMINAL_CELL = 'source';
-
+graphs.Api.SOURCE_TERMINAL_CELL = "source";
 
 /**
  * Constant indicating a cell will be used as target terminal.
  * @type {string}
  */
-graphs.Api.TARGET_TERMINAL_CELL = 'target';
-
+graphs.Api.TARGET_TERMINAL_CELL = "target";
 
 /**
  * Inserts a new vertex in an arbitrary position in graph.
@@ -58,8 +55,16 @@ graphs.Api.TARGET_TERMINAL_CELL = 'target';
  * @param {number} [id] The id of the vertex. If omitted (or non unique) an id is generated.
  * @returns {number} Id of new vertex.
  */
-graphs.Api.prototype.insertVertex = function insertVertex (
-    x, y, width, height, label, style, tags, id) {
+graphs.Api.prototype.insertVertex = function insertVertex(
+    x,
+    y,
+    width,
+    height,
+    label,
+    style,
+    tags,
+    id
+) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -71,16 +76,7 @@ graphs.Api.prototype.insertVertex = function insertVertex (
 
     var value = this._prepareCellValue(label, tags);
     var parent = graph.getDefaultParent();
-    var vertex = graph.insertVertex(
-        parent,
-        id,
-        value,
-        coords.x,
-        coords.y,
-        width,
-        height,
-        style
-    );
+    var vertex = graph.insertVertex(parent, id, value, coords.x, coords.y, width, height, style);
 
     return vertex.getId();
 };
@@ -102,8 +98,17 @@ graphs.Api.prototype.insertVertex = function insertVertex (
  * @throws {Error} If vertex isn't found in graph.
  * @throws {Error} If a port with the same name is already present for the given vertex.
  */
-graphs.Api.prototype.insertPort = function insertPort (
-    vertexId, portName, x, y, width, height, label, style, tags) {
+graphs.Api.prototype.insertPort = function insertPort(
+    vertexId,
+    portName,
+    x,
+    y,
+    width,
+    height,
+    label,
+    style,
+    tags
+) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -116,17 +121,7 @@ graphs.Api.prototype.insertPort = function insertPort (
     model.beginUpdate();
     var port;
     try {
-        port = graph.insertVertex(
-            parent,
-            portId,
-            value,
-            x,
-            y,
-            width,
-            height,
-            style,
-            true
-        );
+        port = graph.insertVertex(parent, portId, value, x, y, width, height, style, true);
         // Center port on given (x,y) coordinates.
         port.geometry.offset = new mxPoint(-width / 2, -height / 2);
     } finally {
@@ -134,7 +129,7 @@ graphs.Api.prototype.insertPort = function insertPort (
     }
 };
 
-graphs.Api.prototype.getPortNames = function getPortNames (vertexId) {
+graphs.Api.prototype.getPortNames = function getPortNames(vertexId) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -143,21 +138,30 @@ graphs.Api.prototype.getPortNames = function getPortNames (vertexId) {
     var candidates = model.getChildCells(parent, true, false);
 
     var portNames = [];
-    var basePortId = mxCell.createPortId(vertexId, '');
+    var basePortId = mxCell.createPortId(vertexId, "");
     var basePortIdLength = basePortId.length;
     for (var i = 0; i < candidates.length; ++i) {
         var cell = candidates[i];
         if (cell.isPort()) {
             var name = cell.getId().substring(basePortIdLength);
-            portNames.push(name)
+            portNames.push(name);
         }
     }
 
     return portNames;
 };
 
-graphs.Api.prototype.updatePort = function updatePort (
-    vertexId, portName, x, y, width, height, label, style, tags) {
+graphs.Api.prototype.updatePort = function updatePort(
+    vertexId,
+    portName,
+    x,
+    y,
+    width,
+    height,
+    label,
+    style,
+    tags
+) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -188,7 +192,7 @@ graphs.Api.prototype.updatePort = function updatePort (
             this.setLabel(portId, label);
         }
         if (style !== null) {
-            this.setStyle(portId, style)
+            this.setStyle(portId, style);
         }
         // tags.
         if (tags !== null) {
@@ -196,7 +200,7 @@ graphs.Api.prototype.updatePort = function updatePort (
             for (var i = 0; i < existingTags.length; ++i) {
                 var tagName = existingTags[i];
                 if (tags.indexOf(tagName) === -1) {
-                    portCell.removeAttribute(tagName)
+                    portCell.removeAttribute(tagName);
                 }
             }
             var hop = Object.prototype.hasOwnProperty;
@@ -230,8 +234,16 @@ graphs.Api.prototype.updatePort = function updatePort (
  * @throws {Error} If source or target aren't found in graph.
  * @throws {Error} If the source or target ports aren't found in the respective vertices.
  */
-graphs.Api.prototype.insertEdge = function insertEdge (
-    sourceId, targetId, label, style, tags, sourcePortName, targetPortName, id) {
+graphs.Api.prototype.insertEdge = function insertEdge(
+    sourceId,
+    targetId,
+    label,
+    style,
+    tags,
+    sourcePortName,
+    targetPortName,
+    id
+) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -277,8 +289,16 @@ graphs.Api.prototype.insertEdge = function insertEdge (
  * @param {number} [id] The id of the decoration. If omitted (or non unique) an id is generated.
  * @returns {number} Id of new decoration.
  */
-graphs.Api.prototype.insertDecoration = function insertDecoration (
-    x, y, width, height, label, style, tags, id) {
+graphs.Api.prototype.insertDecoration = function insertDecoration(
+    x,
+    y,
+    width,
+    height,
+    label,
+    style,
+    tags,
+    id
+) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -286,20 +306,21 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
     var edge = graph.getCellAt(x, y, parent, false, true);
 
     if (edge === null) {
-        throw Error("Could not find an edge at position and can only add a " +
-            "decoration over an edge.");
+        throw Error(
+            "Could not find an edge at position and can only add a " + "decoration over an edge."
+        );
     }
 
     var edgeTerminalPoints = this._getMxEdgeTerminalPoints(edge);
     var sourcePoint = edgeTerminalPoints[0];
     var targetPoint = edgeTerminalPoints[1];
 
-    var distance = function(a, b) {
+    var distance = function (a, b) {
         return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
     };
 
     var total = distance(targetPoint, sourcePoint);
-    var current = distance(sourcePoint, {x: x, y: y});
+    var current = distance(sourcePoint, { x: x, y: y });
 
     // Relative position in edge
     var position = current / total;
@@ -313,14 +334,16 @@ graphs.Api.prototype.insertDecoration = function insertDecoration (
  * @param {number} position Position of the decoration.
  * @returns {number} Position of the decoration in mxGraph coordinates (normalized between [-1, 1]).
  */
-graphs.Api.prototype._mapDecorationPositionToMxGraph = function _mapDecorationPositionToMxGraph(position) {
-  if (position < 0) {
-    position = 0;
-  } else if (position > 1) {
-    position = 1;
-  }
-  return (position * 2) - 1;  // mxGraph normalizes between [-1, 1].
-}
+graphs.Api.prototype._mapDecorationPositionToMxGraph = function _mapDecorationPositionToMxGraph(
+    position
+) {
+    if (position < 0) {
+        position = 0;
+    } else if (position > 1) {
+        position = 1;
+    }
+    return position * 2 - 1; // mxGraph normalizes between [-1, 1].
+};
 
 /**
  * Inserts a decoration over an edge in graph. A decoration is basically an
@@ -339,8 +362,16 @@ graphs.Api.prototype._mapDecorationPositionToMxGraph = function _mapDecorationPo
  * @returns {number} Id of new decoration.
  * @throws {Error} If edge isn't found in graph.
  */
-graphs.Api.prototype.insertDecorationOnEdge = function insertDecorationOnEdge (
-    edgeId, position, width, height, label, style, tags, id) {
+graphs.Api.prototype.insertDecorationOnEdge = function insertDecorationOnEdge(
+    edgeId,
+    position,
+    width,
+    height,
+    label,
+    style,
+    tags,
+    id
+) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -366,20 +397,28 @@ graphs.Api.prototype.insertDecorationOnEdge = function insertDecorationOnEdge (
  * @param {number} [id] The id of the decoration. If omitted (or non unique) an id is generated.
  * @returns {number} Id of new decoration.
  */
-graphs.Api.prototype._insertDecorationOnEdge = function _insertDecorationOnEdge (
-    edge, position, width, height, label, style, tags, id) {
+graphs.Api.prototype._insertDecorationOnEdge = function _insertDecorationOnEdge(
+    edge,
+    position,
+    width,
+    height,
+    label,
+    style,
+    tags,
+    id
+) {
     "use strict";
 
     var graph = this._graphEditor.graph;
     position = this._mapDecorationPositionToMxGraph(position);
 
-    style = graphs.utils.setStyleKey(style, 'labelPosition', 'left');
-    style = graphs.utils.setStyleKey(style, 'align', 'right');
+    style = graphs.utils.setStyleKey(style, "labelPosition", "left");
+    style = graphs.utils.setStyleKey(style, "align", "right");
 
     var decorationStyle = graphs.utils.obtainDecorationStyle(graph, edge, style);
 
     var value = this._prepareCellValue(label, tags);
-    value.setAttribute('__decoration__', '1');
+    value.setAttribute("__decoration__", "1");
 
     if (id === undefined) {
         id = null;
@@ -390,7 +429,16 @@ graphs.Api.prototype._insertDecorationOnEdge = function _insertDecorationOnEdge 
     var decoration;
     try {
         decoration = graph.insertVertex(
-            edge, id, value, position, 0, width, height, decorationStyle, true);
+            edge,
+            id,
+            value,
+            position,
+            0,
+            width,
+            height,
+            decorationStyle,
+            true
+        );
         decoration.geometry.offset = new mxPoint(-width / 2, -height / 2);
         decoration.connectable = false;
     } finally {
@@ -422,33 +470,43 @@ graphs.Api.prototype._insertDecorationOnEdge = function _insertDecorationOnEdge 
  * @returns {number} Id of new table.
  * @throws {Error} If parentId  is supplied but isn't found in graph.
  */
-graphs.Api.prototype.insertTable = function insertTable (
-    x, y, width, contents, title, tags, style, parentId, id) {
+graphs.Api.prototype.insertTable = function insertTable(
+    x,
+    y,
+    width,
+    contents,
+    title,
+    tags,
+    style,
+    parentId,
+    id
+) {
     "use strict";
 
     var graph = this._graphEditor.graph;
     var model = graph.getModel();
-    var isRelative = parentId != null;  // jshint ignore:line
+    var isRelative = parentId != null; // jshint ignore:line
     var parent = null;
     var coords;
     if (isRelative) {
         parent = this._findCell(model, parentId);
-        coords = {x: x, y: y};  // No adjustments in coordinates
+        coords = { x: x, y: y }; // No adjustments in coordinates
     } else {
         parent = graph.getDefaultParent();
         coords = graphs.utils.adjustCoordinates(graph, x, y);
     }
 
-    var tableStyle = 'table';
-    if (style != null) {  // jshint ignore:line
-        tableStyle += ';' + style;
+    var tableStyle = "table";
+    if (style != null) {
+        // jshint ignore:line
+        tableStyle += ";" + style;
     }
-    tableStyle = graphs.utils.setStyleKey(tableStyle, mxConstants.STYLE_OVERFLOW, 'fill');
+    tableStyle = graphs.utils.setStyleKey(tableStyle, mxConstants.STYLE_OVERFLOW, "fill");
     tableStyle = graphs.utils.setStyleKey(tableStyle, mxConstants.STYLE_CLONEABLE, false);
 
     var label = graphs.utils.createTableElement(contents, title);
     var value = this._prepareCellValue(label, tags);
-    value.setAttribute('__table__', '1');
+    value.setAttribute("__table__", "1");
 
     if (id === undefined) {
         id = null;
@@ -488,7 +546,7 @@ graphs.Api.prototype.insertTable = function insertTable (
  * @param {string} title See {@linkcode graphs.Api.prototype.insertTable}.
  * @throws {Error} Unable to find table or cell is not a table.
  */
-graphs.Api.prototype.updateTable = function updateTable (tableId, contents, title) {
+graphs.Api.prototype.updateTable = function updateTable(tableId, contents, title) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -500,7 +558,7 @@ graphs.Api.prototype.updateTable = function updateTable (tableId, contents, titl
 
     var label = graphs.utils.createTableElement(contents, title);
     var value = table.cloneValue();
-    value.setAttribute('label', label);
+    value.setAttribute("label", label);
     model.beginUpdate();
     try {
         model.setValue(table, value);
@@ -510,7 +568,7 @@ graphs.Api.prototype.updateTable = function updateTable (tableId, contents, titl
     }
 };
 
-graphs.Api.prototype.setCollapsed = function setCollapsed (cellId, collapsed) {
+graphs.Api.prototype.setCollapsed = function setCollapsed(cellId, collapsed) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -533,7 +591,7 @@ graphs.Api.prototype.setCollapsed = function setCollapsed (cellId, collapsed) {
  * @throws {Error} Cell not found.
  * @throws {Error} Could not determine type of cell.
  */
-graphs.Api.prototype.getCellType = function getCellType (cellId) {
+graphs.Api.prototype.getCellType = function getCellType(cellId) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -564,16 +622,16 @@ graphs.Api.prototype.getCellType = function getCellType (cellId) {
  * @returns {number|null} Id of cell if any given position, otherwise returns
  * null.
  */
-graphs.Api.prototype.getCellIdAt = function getCellIdAt (x, y) {
+graphs.Api.prototype.getCellIdAt = function getCellIdAt(x, y) {
     "use strict";
 
     var graph = this._graphEditor.graph;
     var parent = graph.getDefaultParent();
-    var ignoreFn = function(state) {
+    var ignoreFn = function (state) {
         return state.cell.isPort();
     };
     var cell = graph.getCellAt(x, y, parent, true, true, ignoreFn);
-    return !!cell? cell.getId() : null;
+    return !!cell ? cell.getId() : null;
 };
 
 /**
@@ -583,7 +641,7 @@ graphs.Api.prototype.getCellIdAt = function getCellIdAt (x, y) {
  * @returns {number} Id of the decoration's parent.
  * @throws {Error} If the given cell is not found or it is a decoration.
  */
-graphs.Api.prototype.getDecorationParentCellId = function getDecorationParentCellId (cellId) {
+graphs.Api.prototype.getDecorationParentCellId = function getDecorationParentCellId(cellId) {
     "use strict";
 
     var cell = this._findDecoration(cellId);
@@ -596,25 +654,26 @@ graphs.Api.prototype.getDecorationParentCellId = function getDecorationParentCel
  * @param {mxCell} cell The cell.
  * @returns {object} The bounds object.
  */
-graphs.Api.prototype._getBoundsFromMxCell = function _getBoundsFromMxCell (cell) {
+graphs.Api.prototype._getBoundsFromMxCell = function _getBoundsFromMxCell(cell) {
     "use strict";
 
     var geometry = cell.getGeometry();
     var parent_anchor_position = null;
-    var x = geometry.x, y = geometry.y;
+    var x = geometry.x,
+        y = geometry.y;
 
     if (geometry.relative) {
-        parent_anchor_position = {'x': x, 'y': y};
+        parent_anchor_position = { x: x, y: y };
         x = geometry.offset ? geometry.offset.x : 0;
         y = geometry.offset ? geometry.offset.y : 0;
     }
 
     return {
-        'x': x,
-        'y': y,
-        'width': geometry.width,
-        'height': geometry.height,
-        'parent_anchor_position': parent_anchor_position
+        x: x,
+        y: y,
+        width: geometry.width,
+        height: geometry.height,
+        parent_anchor_position: parent_anchor_position,
     };
 };
 
@@ -625,7 +684,7 @@ graphs.Api.prototype._getBoundsFromMxCell = function _getBoundsFromMxCell (cell)
  * @returns {object} The bounds object.
  * @throws {Error} Unable to find cell.
  */
-graphs.Api.prototype.getCellBounds = function getCellBounds (cellId) {
+graphs.Api.prototype.getCellBounds = function getCellBounds(cellId) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -640,7 +699,7 @@ graphs.Api.prototype.getCellBounds = function getCellBounds (cellId) {
  * @param {object} cell_bounds The bounds object.
  * @throws {Error} Unable to find cell.
  */
-graphs.Api.prototype.setCellBounds = function setCellBounds (cellId, cell_bounds) {
+graphs.Api.prototype.setCellBounds = function setCellBounds(cellId, cell_bounds) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -652,7 +711,7 @@ graphs.Api.prototype.setCellBounds = function setCellBounds (cellId, cell_bounds
     geometry.height = cell_bounds.height;
     if (cell_bounds.parent_anchor_position) {
         geometry.relative = true;
-        geometry.offset = geometry.offset || new mxPoint(0,0);
+        geometry.offset = geometry.offset || new mxPoint(0, 0);
         geometry.offset.x = cell_bounds.x;
         geometry.offset.y = cell_bounds.y;
         geometry.x = cell_bounds.parent_anchor_position.x;
@@ -664,7 +723,7 @@ graphs.Api.prototype.setCellBounds = function setCellBounds (cellId, cell_bounds
         geometry.y = cell_bounds.y;
     }
     model.setGeometry(cell, geometry);
-    graph.refresh(cell)
+    graph.refresh(cell);
 };
 
 /**
@@ -673,7 +732,7 @@ graphs.Api.prototype.setCellBounds = function setCellBounds (cellId, cell_bounds
  * @param {number} cellId Id of a cell in graph.
  * @returns {boolean} True if cell exists.
  */
-graphs.Api.prototype.hasCell = function hasCell (cellId) {
+graphs.Api.prototype.hasCell = function hasCell(cellId) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -688,7 +747,7 @@ graphs.Api.prototype.hasCell = function hasCell (cellId) {
  * x in screen coordinates, y in screen coordinates, width and height.
  * @throws {Error} Unable to find cell.
  */
-graphs.Api.prototype.getGeometry = function getGeometry (cellId) {
+graphs.Api.prototype.getGeometry = function getGeometry(cellId) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -715,11 +774,11 @@ graphs.Api.prototype.getGeometry = function getGeometry (cellId) {
  * decoration along the parent edge.
  * @throws {Error} Unable to find the cell or it is not an decoration.
  */
-graphs.Api.prototype.getDecorationPosition = function getDecorationPosition (cellId) {
+graphs.Api.prototype.getDecorationPosition = function getDecorationPosition(cellId) {
     "use strict";
 
     var cell = this._findDecoration(cellId);
-    var position = cell.getGeometry().x;  // Normalized between [-1, 1].
+    var position = cell.getGeometry().x; // Normalized between [-1, 1].
     return (position + 1) / 2;
 };
 
@@ -731,7 +790,7 @@ graphs.Api.prototype.getDecorationPosition = function getDecorationPosition (cel
  * along the parent edge.
  * @throws {Error} Unable to find the cell or it is not an decoration.
  */
-graphs.Api.prototype.setDecorationPosition = function setDecorationPosition (cellId, position) {
+graphs.Api.prototype.setDecorationPosition = function setDecorationPosition(cellId, position) {
     "use strict";
 
     var cell = this._findDecoration(cellId);
@@ -752,7 +811,7 @@ graphs.Api.prototype.setDecorationPosition = function setDecorationPosition (cel
  * @param {boolean} visible Visibility state.
  * @throws {Error} Unable to find cell.
  */
-graphs.Api.prototype.setVisible = function setVisible (cellId, visible) {
+graphs.Api.prototype.setVisible = function setVisible(cellId, visible) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -770,7 +829,7 @@ graphs.Api.prototype.setVisible = function setVisible (cellId, visible) {
  * @param {number} cellId Id of a cell in graph.
  * @throws {Error} Unable to find cell.
  */
-graphs.Api.prototype.isVisible = function isVisible (cellId) {
+graphs.Api.prototype.isVisible = function isVisible(cellId) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -787,12 +846,12 @@ graphs.Api.prototype.isVisible = function isVisible (cellId) {
  * @param {boolean} visible Visibility state.
  * @throws {Error} Unable to find cell.
  */
-graphs.Api.prototype.setPortVisible = function setPortVisible (cellId, portName, visible) {
+graphs.Api.prototype.setPortVisible = function setPortVisible(cellId, portName, visible) {
     "use strict";
 
     var graph = this._graphEditor.graph;
     var model = graph.getModel();
-    this._findCell(model, cellId);  // Cell missing detection.
+    this._findCell(model, cellId); // Cell missing detection.
     var port = this._findPort(model, cellId, portName, true);
     model.setVisible(port, visible);
     graph.refresh(port);
@@ -806,12 +865,12 @@ graphs.Api.prototype.setPortVisible = function setPortVisible (cellId, portName,
  * @throws {Error} Unable to find cell.
  * @throws {Error} If a port with the given name is not present in the vertex.
  */
-graphs.Api.prototype.isPortVisible = function isPortVisible (cellId, portName) {
+graphs.Api.prototype.isPortVisible = function isPortVisible(cellId, portName) {
     "use strict";
 
     var graph = this._graphEditor.graph;
     var model = graph.getModel();
-    this._findCell(model, cellId);  // Cell missing detection.
+    this._findCell(model, cellId); // Cell missing detection.
     var port = this._findPort(model, cellId, portName, true);
     return model.isVisible(port);
 };
@@ -849,19 +908,18 @@ graphs.Api.prototype.isConnectable = function isConnectable(cellId) {
     return model.isConnectable(cell);
 };
 
-
 /**
  * Select the cells with the given ids.
  *
  * @param {number[]} cellIds An array with the ids of the cells to select.
  */
-graphs.Api.prototype.setSelectedCells = function setSelectedCells (cellIds) {
+graphs.Api.prototype.setSelectedCells = function setSelectedCells(cellIds) {
     "use strict";
 
     var cellsToSelect = [];
     var model = this._graphEditor.graph.getModel();
     var cell = null;
-    for (var i = cellIds.length; i--;) {
+    for (var i = cellIds.length; i--; ) {
         cell = model.getCell(cellIds[i]);
         cellsToSelect.push(cell);
     }
@@ -873,13 +931,13 @@ graphs.Api.prototype.setSelectedCells = function setSelectedCells (cellIds) {
 /**
  * Get the ids of the selected cells.
  */
-graphs.Api.prototype.getSelectedCells = function getSelectedCells () {
+graphs.Api.prototype.getSelectedCells = function getSelectedCells() {
     "use strict";
 
     var selectionModel = this._graphEditor.graph.getSelectionModel();
     var cells = selectionModel.cells;
     var cellIds = [];
-    for (var i = cells.length; i--;) {
+    for (var i = cells.length; i--; ) {
         cellIds.push(cells[i].getId());
     }
     return cellIds;
@@ -888,7 +946,7 @@ graphs.Api.prototype.getSelectedCells = function getSelectedCells () {
 /**
  * Groups the currently selected cells in graph.
  */
-graphs.Api.prototype.group = function group () {
+graphs.Api.prototype.group = function group() {
     "use strict";
 
     this._graphEditor.execute("group");
@@ -897,7 +955,7 @@ graphs.Api.prototype.group = function group () {
 /**
  * Ungroups the currently selected group in graph.
  */
-graphs.Api.prototype.ungroup = function ungroup () {
+graphs.Api.prototype.ungroup = function ungroup() {
     "use strict";
 
     this._graphEditor.execute("ungroup");
@@ -906,7 +964,7 @@ graphs.Api.prototype.ungroup = function ungroup () {
 /**
  * Shows/hides outline window of graph.
  */
-graphs.Api.prototype.toggleOutline = function toggleOutline () {
+graphs.Api.prototype.toggleOutline = function toggleOutline() {
     "use strict";
 
     this._graphEditor.execute("toggleOutline");
@@ -915,7 +973,7 @@ graphs.Api.prototype.toggleOutline = function toggleOutline () {
 /**
  * Shows/hides grid in background of graph.
  */
-graphs.Api.prototype.toggleGrid = function toggleGrid () {
+graphs.Api.prototype.toggleGrid = function toggleGrid() {
     "use strict";
 
     this._graphEditor.execute("toggleGrid");
@@ -924,7 +982,7 @@ graphs.Api.prototype.toggleGrid = function toggleGrid () {
 /**
  * Enables/disables snapping to grid of graph.
  */
-graphs.Api.prototype.toggleSnap = function toggleSnap () {
+graphs.Api.prototype.toggleSnap = function toggleSnap() {
     "use strict";
 
     this._graphEditor.execute("toggleSnap");
@@ -941,7 +999,7 @@ graphs.Api.prototype.toggleSnap = function toggleSnap () {
  * @param {number} width New width.
  * @param {number} height New height.
  */
-graphs.Api.prototype.resizeContainer = function resizeContainer (width, height) {
+graphs.Api.prototype.resizeContainer = function resizeContainer(width, height) {
     "use strict";
 
     var parent = this._graphEditor.graph.getDefaultParent();
@@ -960,7 +1018,7 @@ graphs.Api.prototype.resizeContainer = function resizeContainer (width, height) 
 /**
  * Zoom in the graph.
  */
-graphs.Api.prototype.zoomIn = function zoomIn () {
+graphs.Api.prototype.zoomIn = function zoomIn() {
     "use strict";
 
     this._graphEditor.graph.zoomIn();
@@ -969,7 +1027,7 @@ graphs.Api.prototype.zoomIn = function zoomIn () {
 /**
  * Zoom out the graph.
  */
-graphs.Api.prototype.zoomOut = function zoomOut () {
+graphs.Api.prototype.zoomOut = function zoomOut() {
     "use strict";
 
     this._graphEditor.graph.zoomOut();
@@ -980,7 +1038,7 @@ graphs.Api.prototype.zoomOut = function zoomOut () {
  *
  * @returns {number}
  */
-graphs.Api.prototype.getZoomScale = function getZoomScale () {
+graphs.Api.prototype.getZoomScale = function getZoomScale() {
     "use strict";
 
     return this._graphEditor.graph.view.getScale();
@@ -989,7 +1047,7 @@ graphs.Api.prototype.getZoomScale = function getZoomScale () {
 /**
  * Reset graph's zoom.
  */
-graphs.Api.prototype.resetZoom = function resetZoom () {
+graphs.Api.prototype.resetZoom = function resetZoom() {
     "use strict";
 
     this._graphEditor.graph.zoomActual();
@@ -1002,7 +1060,7 @@ graphs.Api.prototype.resetZoom = function resetZoom () {
  * along the y axis. The three values returned by this function is suitable to be supplied to
  * {@link graphs.Api#setScaleAndTranslation} to set the scale and translation to a previous value.
  */
-graphs.Api.prototype.getScaleAndTranslation = function getScaleAndTranslation () {
+graphs.Api.prototype.getScaleAndTranslation = function getScaleAndTranslation() {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -1018,7 +1076,7 @@ graphs.Api.prototype.getScaleAndTranslation = function getScaleAndTranslation ()
  * @param {number} x The new graph's translation along the X axis (0 = origin).
  * @param {number} y The new graph's scale along the Y axis (0 = origin}.
  */
-graphs.Api.prototype.setScaleAndTranslation = function setScaleAndTranslation (scale, x, y) {
+graphs.Api.prototype.setScaleAndTranslation = function setScaleAndTranslation(scale, x, y) {
     "use strict";
 
     var view = this._graphEditor.graph.getView();
@@ -1028,7 +1086,7 @@ graphs.Api.prototype.setScaleAndTranslation = function setScaleAndTranslation (s
 /**
  * Rescale the graph to fit in the container.
  */
-graphs.Api.prototype.fit = function fit () {
+graphs.Api.prototype.fit = function fit() {
     "use strict";
 
     this._graphEditor.graph.fit(10);
@@ -1041,7 +1099,7 @@ graphs.Api.prototype.fit = function fit () {
  * @param {boolean} ignoreMissingCells Ids of non existent cells are ignored instead raising
  * an error.
  */
-graphs.Api.prototype.removeCells = function removeCells (cellIds, ignoreMissingCells) {
+graphs.Api.prototype.removeCells = function removeCells(cellIds, ignoreMissingCells) {
     "use strict";
 
     ignoreMissingCells = !!ignoreMissingCells;
@@ -1064,7 +1122,7 @@ graphs.Api.prototype.removeCells = function removeCells (cellIds, ignoreMissingC
  * @throws {Error} If vertex isn't found in graph.
  * @throws {Error} If a port with the given name is not present in the vertex.
  */
-graphs.Api.prototype.removePort = function removePort (vertexId, portName) {
+graphs.Api.prototype.removePort = function removePort(vertexId, portName) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -1076,14 +1134,14 @@ graphs.Api.prototype.removePort = function removePort (vertexId, portName) {
     // This array will contain the port and edges connected on the parent vertex using the port.
     var cellsToRemove = [port];
     var edges = graph.getEdges(parent);
-    for (var i = edges.length; i--;) {
+    for (var i = edges.length; i--; ) {
         var terminals = this._getMxEdgeTerminalsWithPorts(edges[i]);
         var source_terminal = terminals[0];
         var target_terminal = terminals[1];
         if (
-            (source_terminal[0] == vertexId && source_terminal[1] == portName)  // jshint ignore:line
-            || (target_terminal[0] == vertexId && target_terminal[1] == portName)  // jshint ignore:line
-        ){
+            (source_terminal[0] == vertexId && source_terminal[1] == portName) || // jshint ignore:line
+            (target_terminal[0] == vertexId && target_terminal[1] == portName) // jshint ignore:line
+        ) {
             cellsToRemove.push(edges[i]);
         }
     }
@@ -1096,16 +1154,16 @@ graphs.Api.prototype.removePort = function removePort (vertexId, portName) {
  * @param {function} handler Callback that handles event. Receives an
  * {@linkCode Array} of removed cell ids as only argument.
  */
-graphs.Api.prototype.registerCellsRemovedHandler = function registerCellsRemovedHandler (handler) {
+graphs.Api.prototype.registerCellsRemovedHandler = function registerCellsRemovedHandler(handler) {
     "use strict";
 
     var graph = this._graphEditor.graph;
 
-    var removeHandler = function(sender, evt) {
-        var cells = evt.getProperty('cells');
+    var removeHandler = function (sender, evt) {
+        var cells = evt.getProperty("cells");
         var cellIds = [];
 
-        var findCellIds = function(cells) {
+        var findCellIds = function (cells) {
             for (var i = 0; i < cells.length; i++) {
                 var cell = cells[i];
                 if (cell.isPort()) {
@@ -1138,13 +1196,13 @@ graphs.Api.prototype.registerCellsRemovedHandler = function registerCellsRemoved
  * @param {function} handler Callback that handles event. Receives an
  * {@linkCode Array} of added cell ids as only argument.
  */
-graphs.Api.prototype.registerCellsAddedHandler = function registerCellsAddedHandler (handler) {
+graphs.Api.prototype.registerCellsAddedHandler = function registerCellsAddedHandler(handler) {
     "use strict";
 
     var graph = this._graphEditor.graph;
 
-    var addHandler = function(sender, evt) {
-        var cells = evt.getProperty('cells');
+    var addHandler = function (sender, evt) {
+        var cells = evt.getProperty("cells");
         var cellIds = [];
         for (var i = 0; i < cells.length; i++) {
             var cell = cells[i];
@@ -1169,12 +1227,12 @@ graphs.Api.prototype.registerCellsAddedHandler = function registerCellsAddedHand
  *   1. graph dump;
  *   2. graph scale and translation;
  */
-graphs.Api.prototype.registerViewUpdateHandler = function registerViewUpdateHandler (handler) {
+graphs.Api.prototype.registerViewUpdateHandler = function registerViewUpdateHandler(handler) {
     "use strict";
     var graph = this._graphEditor.graph;
-    var listener = (function(sender, evt) {
+    var listener = function (sender, evt) {
         handler(this.dump(), this.getScaleAndTranslation());
-    }).bind(this);
+    }.bind(this);
     graph.getView().addListener(mxEvent.SCALE, listener);
     graph.getView().addListener(mxEvent.TRANSLATE, listener);
     graph.getView().addListener(mxEvent.SCALE_AND_TRANSLATE, listener);
@@ -1190,11 +1248,11 @@ graphs.Api.prototype.registerViewUpdateHandler = function registerViewUpdateHand
  * @param {function} handler Callback that handles event. Receives as argument a map of cell id
  * to a object describing the cell bounds.
  */
-graphs.Api.prototype.registerBoundsChangedHandler = function registerBoundsChangedHandler (handler) {
+graphs.Api.prototype.registerBoundsChangedHandler = function registerBoundsChangedHandler(handler) {
     "use strict";
 
-    var cellBoundsChangeHandler = (function cellBoundsChangeHandler (source, event) {
-        var cells = event.getProperty('cells');
+    var cellBoundsChangeHandler = function cellBoundsChangeHandler(source, event) {
+        var cells = event.getProperty("cells");
         var cell_bounds_map = {};
 
         for (var index = 0; index < cells.length; ++index) {
@@ -1204,7 +1262,7 @@ graphs.Api.prototype.registerBoundsChangedHandler = function registerBoundsChang
             cell_bounds_map[cell_id] = geometry;
         }
         handler(cell_bounds_map);
-    }).bind(this);
+    }.bind(this);
 
     var graph = this._graphEditor.graph;
     graph.addListener(mxEvent.CELLS_MOVED, cellBoundsChangeHandler);
@@ -1218,13 +1276,15 @@ graphs.Api.prototype.registerBoundsChangedHandler = function registerBoundsChang
  * @param {function} handler Callback that handles event. Receives an array with the id of cells
  * that are selected as only argument.
  */
-graphs.Api.prototype.registerSelectionChangedHandler = function registerSelectionChangedHandler (handler) {
+graphs.Api.prototype.registerSelectionChangedHandler = function registerSelectionChangedHandler(
+    handler
+) {
     "use strict";
 
-    var selectionHandler = function(source, event) {
+    var selectionHandler = function (source, event) {
         var selectedCells = source.cells;
         var selectedCellsIds = [];
-        for (var i = selectedCells.length; i--;) {
+        for (var i = selectedCells.length; i--; ) {
             selectedCellsIds.push(selectedCells[i].getId());
         }
         handler(selectedCellsIds);
@@ -1241,23 +1301,24 @@ graphs.Api.prototype.registerSelectionChangedHandler = function registerSelectio
  * boolean indicating if the changed terminal is the source (or target), id of the new terminal,
  * id of the old terminal.
  */
-graphs.Api.prototype.registerTerminalChangedHandler = function registerTerminalChangedHandler (handler) {
+graphs.Api.prototype.registerTerminalChangedHandler = function registerTerminalChangedHandler(
+    handler
+) {
     "use strict";
 
-    var cellConnectedHandler = function(source, event) {
-        var changeList = event.getProperty('edit').changes;
+    var cellConnectedHandler = function (source, event) {
+        var changeList = event.getProperty("edit").changes;
         for (var i = 0; i < changeList.length; i++) {
             var change = changeList[i];
 
-            var notifyTerminalChange = (
+            var notifyTerminalChange =
                 change instanceof mxTerminalChange &&
                 change.previous !== null &&
-                change.terminal !== null
-            );
+                change.terminal !== null;
             if (notifyTerminalChange) {
                 handler(
                     change.cell.getId(),
-                    (change.source ? 'source' : 'target'),
+                    change.source ? "source" : "target",
                     change.terminal.getId(),
                     change.previous.getId()
                 );
@@ -1277,79 +1338,83 @@ graphs.Api.prototype.registerTerminalChangedHandler = function registerTerminalC
  * boolean indicating if the changed terminal is the source (or target), id of the new terminal,
  * port id used in the new terminal, id of the old terminal, port id used in the old terminal.
  */
-graphs.Api.prototype.registerTerminalWithPortChangedHandler = function registerTerminalWithPortChangedHandler (handler) {
-    "use strict";
+graphs.Api.prototype.registerTerminalWithPortChangedHandler =
+    function registerTerminalWithPortChangedHandler(handler) {
+        "use strict";
 
-    function getPortNameFromStyle(stylesheet, style, source) {
-        var styleObj = stylesheet.getCellStyle(style, null) || {};
-        var portData = mxCell.parsePortId(styleObj[source + 'Port']);
-        return portData[1];
-    }
-
-    var cellConnectedHandler = function(source, event) {
-        var changeList = event.getProperty('edit').changes;
-        var eventMap = {};
-
-        for (var i = 0; i < changeList.length; i++) {
-            var change = changeList[i];
-            if (!change.cell) {
-                continue;
-            }
-            var eventTargetId = change.cell.getId();
-
-            var styleChange = (
-                change instanceof mxStyleChange &&
-                change.previous !== undefined &&
-                change.style !== undefined
-            );
-            if (styleChange) {
-                var eventData = eventMap[eventTargetId] = eventMap[eventTargetId] || {};
-                eventData.previousStyle = change.previous;
-                eventData.newStyle = change.style;
-                continue;
-            }
-
-            var notifyTerminalChange = (
-                change instanceof mxTerminalChange &&
-                change.previous !== null &&
-                change.terminal !== null
-            );
-            if (notifyTerminalChange) {
-                var eventData = eventMap[eventTargetId] = eventMap[eventTargetId] || {};
-                eventData.source = change.source ? 'source' : 'target';
-                eventData.newTerminalId = change.terminal.getId();
-                eventData.previousTerminalId = change.previous.getId();
-                continue;
-            }
+        function getPortNameFromStyle(stylesheet, style, source) {
+            var styleObj = stylesheet.getCellStyle(style, null) || {};
+            var portData = mxCell.parsePortId(styleObj[source + "Port"]);
+            return portData[1];
         }
 
-        var stylesheet = new mxStylesheet();
-        for (var eventTargetId in eventMap) {
-            if (Object.prototype.hasOwnProperty.call(eventMap, eventTargetId)) {
-                var eventData = eventMap[eventTargetId];
-                if (eventData.source !== undefined) {
-                    var newPortName = getPortNameFromStyle(
-                        stylesheet, eventData.newStyle, eventData.source);
-                    var previousPortName = getPortNameFromStyle(
-                        stylesheet, eventData.previousStyle, eventData.source);
-                    handler(
-                        eventTargetId,
-                        eventData.source,
-                        eventData.newTerminalId,
-                        newPortName,
-                        eventData.previousTerminalId,
-                        previousPortName
-                    );
+        var cellConnectedHandler = function (source, event) {
+            var changeList = event.getProperty("edit").changes;
+            var eventMap = {};
+
+            for (var i = 0; i < changeList.length; i++) {
+                var change = changeList[i];
+                if (!change.cell) {
+                    continue;
+                }
+                var eventTargetId = change.cell.getId();
+
+                var styleChange =
+                    change instanceof mxStyleChange &&
+                    change.previous !== undefined &&
+                    change.style !== undefined;
+                if (styleChange) {
+                    var eventData = (eventMap[eventTargetId] = eventMap[eventTargetId] || {});
+                    eventData.previousStyle = change.previous;
+                    eventData.newStyle = change.style;
+                    continue;
+                }
+
+                var notifyTerminalChange =
+                    change instanceof mxTerminalChange &&
+                    change.previous !== null &&
+                    change.terminal !== null;
+                if (notifyTerminalChange) {
+                    var eventData = (eventMap[eventTargetId] = eventMap[eventTargetId] || {});
+                    eventData.source = change.source ? "source" : "target";
+                    eventData.newTerminalId = change.terminal.getId();
+                    eventData.previousTerminalId = change.previous.getId();
+                    continue;
                 }
             }
-        }
+
+            var stylesheet = new mxStylesheet();
+            for (var eventTargetId in eventMap) {
+                if (Object.prototype.hasOwnProperty.call(eventMap, eventTargetId)) {
+                    var eventData = eventMap[eventTargetId];
+                    if (eventData.source !== undefined) {
+                        var newPortName = getPortNameFromStyle(
+                            stylesheet,
+                            eventData.newStyle,
+                            eventData.source
+                        );
+                        var previousPortName = getPortNameFromStyle(
+                            stylesheet,
+                            eventData.previousStyle,
+                            eventData.source
+                        );
+                        handler(
+                            eventTargetId,
+                            eventData.source,
+                            eventData.newTerminalId,
+                            newPortName,
+                            eventData.previousTerminalId,
+                            previousPortName
+                        );
+                    }
+                }
+            }
+        };
+
+        var graph = this._graphEditor.graph;
+        graph.model.addListener(mxEvent.CHANGE, cellConnectedHandler);
+        graph = null;
     };
-
-    var graph = this._graphEditor.graph;
-    graph.model.addListener(mxEvent.CHANGE, cellConnectedHandler);
-    graph = null;
-};
-
 
 /**
  * Register a handler to event when cells have their label changed.
@@ -1357,16 +1422,16 @@ graphs.Api.prototype.registerTerminalWithPortChangedHandler = function registerT
  * @param {function} handler Callback that handles event. Receives, respectively, id of cell
  * that was renamed, its new label and its old label.
  */
-graphs.Api.prototype.registerLabelChangedHandler = function registerLabelChangedHandler (handler) {
+graphs.Api.prototype.registerLabelChangedHandler = function registerLabelChangedHandler(handler) {
     "use strict";
 
     var graph = this._graphEditor.graph;
 
-    var labelChangedHandler = function(sender, evt) {
-        var cell = evt.getProperty('cell');
+    var labelChangedHandler = function (sender, evt) {
+        var cell = evt.getProperty("cell");
         var cellId = cell.getId();
-        var newValue = evt.getProperty('value');
-        var oldValue = evt.getProperty('old');
+        var newValue = evt.getProperty("value");
+        var oldValue = evt.getProperty("old");
         handler(cellId, newValue, oldValue);
     };
 
@@ -1380,13 +1445,13 @@ graphs.Api.prototype.registerLabelChangedHandler = function registerLabelChanged
  * @returns {string} Label of cell.
  * @throws {Error} Unable to find cell.
  */
-graphs.Api.prototype.getLabel = function getLabel (cellId) {
+graphs.Api.prototype.getLabel = function getLabel(cellId) {
     "use strict";
 
     var graph = this._graphEditor.graph;
     var cell = graph.getModel().getCell(cellId);
     if (cell) {
-        return graph.convertValueToString(cell) || '';
+        return graph.convertValueToString(cell) || "";
     } else {
         throw Error("Unable to find cell with id " + cellId);
     }
@@ -1399,7 +1464,7 @@ graphs.Api.prototype.getLabel = function getLabel (cellId) {
  * @param {string} label New label.
  * @throws {Error} Unable to find cell.
  */
-graphs.Api.prototype.setLabel = function setLabel (cellId, label) {
+graphs.Api.prototype.setLabel = function setLabel(cellId, label) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -1425,7 +1490,7 @@ graphs.Api.prototype.setStyle = function setStyle(cellId, style) {
     var graph = this._graphEditor.graph;
     var model = graph.getModel();
     var cell = this._findCell(model, cellId);
-    model.setStyle(cell, style);  // Use the model to trigger mxStyleChange as needed.
+    model.setStyle(cell, style); // Use the model to trigger mxStyleChange as needed.
     graph.refresh(cell); // Force a refresh of that cell to guarantee
 };
 
@@ -1454,7 +1519,7 @@ graphs.Api.prototype.getStyle = function getStyle(cellId) {
  * @param {string} tagValue Value of tag.
  * @throws {Error} Unable to find cell.
  */
-graphs.Api.prototype.setTag = function setTag (cellId, tagName, tagValue) {
+graphs.Api.prototype.setTag = function setTag(cellId, tagName, tagValue) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -1476,7 +1541,7 @@ graphs.Api.prototype.setTag = function setTag (cellId, tagName, tagValue) {
  * @param {string} tagValue Value of tag.
  * @throws {Error} Unable to find cell.
  */
-graphs.Api.prototype._setMxCellTag = function _setMxCellTag (cell, tagName, tagValue) {
+graphs.Api.prototype._setMxCellTag = function _setMxCellTag(cell, tagName, tagValue) {
     "use strict";
 
     this._checkTagValue(tagName, tagValue);
@@ -1497,7 +1562,7 @@ graphs.Api.prototype._setMxCellTag = function _setMxCellTag (cell, tagName, tagV
  * @throws {Error} Unable to find cell.
  * @throws {Error} Unable to find tag.
  */
-graphs.Api.prototype.getTag = function getTag (cellId, tagName) {
+graphs.Api.prototype.getTag = function getTag(cellId, tagName) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -1506,7 +1571,7 @@ graphs.Api.prototype.getTag = function getTag (cellId, tagName) {
         if (mxUtils.isNode(cell.value)) {
             var internalTagName = this._getInternalTag(tagName);
             if (cell.hasAttribute(internalTagName)) {
-                return cell.getAttribute(internalTagName, '');
+                return cell.getAttribute(internalTagName, "");
             }
         }
         throw Error("Tag '" + tagName + "' not found in cell with id " + cellId);
@@ -1515,7 +1580,7 @@ graphs.Api.prototype.getTag = function getTag (cellId, tagName) {
     }
 };
 
-graphs.Api.prototype.delTag = function delTag (cellId, tagName) {
+graphs.Api.prototype.delTag = function delTag(cellId, tagName) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -1524,7 +1589,7 @@ graphs.Api.prototype.delTag = function delTag (cellId, tagName) {
         if (mxUtils.isNode(cell.value)) {
             var internalTagName = this._getInternalTag(tagName);
             if (cell.hasAttribute(internalTagName)) {
-                return cell.getAttribute(internalTagName, '');
+                return cell.getAttribute(internalTagName, "");
             }
         }
         throw Error("Tag '" + tagName + "' not found in cell with id " + cellId);
@@ -1541,7 +1606,7 @@ graphs.Api.prototype.delTag = function delTag (cellId, tagName) {
  * @returns {boolean} True if tag exists in cell.
  * @throws {Error} Unable to find cell.
  */
-graphs.Api.prototype.hasTag = function hasTag (cellId, tagName) {
+graphs.Api.prototype.hasTag = function hasTag(cellId, tagName) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -1568,21 +1633,21 @@ graphs.Api.prototype.hasTag = function hasTag (cellId, tagName) {
  * @param {function} handler Callback that handles event. Receives a id of cell that was double
  * clicked as only argument.
  */
-graphs.Api.prototype.registerDoubleClickHandler = function registerDoubleClickHandler (handler) {
+graphs.Api.prototype.registerDoubleClickHandler = function registerDoubleClickHandler(handler) {
     "use strict";
 
-    var doubleClickHandler = function(editor, cell) {
+    var doubleClickHandler = function (editor, cell) {
         var cellId = cell.getId();
         handler(cellId);
     };
 
     // We need to associate our action with a name in mxEditor's adapter action list to be able to
     // connect our action to mxEditor double click handler, as can be seem below.
-    this._graphEditor.addAction('doubleClick', doubleClickHandler);
+    this._graphEditor.addAction("doubleClick", doubleClickHandler);
 
     // From http://jgraph.github.io/mxgraph/docs/js-api/files/editor/mxEditor-js.html#mxEditor.dblClickAction:
     // Specifies the name of the action to be executed when a cell is double clicked
-    this._graphEditor.dblClickAction = 'doubleClick';
+    this._graphEditor.dblClickAction = "doubleClick";
 };
 
 /**
@@ -1596,22 +1661,21 @@ graphs.Api.prototype.registerDoubleClickHandler = function registerDoubleClickHa
  * was right-clicked, X coordinate in screen coordinates and Y coordinate in screen coordinates as
  * its three arguments.
  */
-graphs.Api.prototype.registerPopupMenuHandler = function registerPopupMenuHandler (handler) {
+graphs.Api.prototype.registerPopupMenuHandler = function registerPopupMenuHandler(handler) {
     "use strict";
 
-    var popupMenuHandler = function(editor, cell, x, y) {
-        var cellId = cell? cell.getId() : null;
+    var popupMenuHandler = function (editor, cell, x, y) {
+        var cellId = cell ? cell.getId() : null;
         handler(cellId, x, y);
     };
 
-    this._graphEditor.addAction('popupMenu', popupMenuHandler);
+    this._graphEditor.addAction("popupMenu", popupMenuHandler);
 
     // Installs a popupmenu handler using local function (see below).
     var graph = this._graphEditor.graph;
     mxEvent.disableContextMenu(graph.container);
-    graph.popupMenuHandler.factoryMethod = function(menu, cell, evt)
-    {
-        handler(cell? cell.getId() : null, evt.clientX, evt.clientY);
+    graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
+        handler(cell ? cell.getId() : null, evt.clientX, evt.clientY);
     };
 };
 
@@ -1647,7 +1711,7 @@ graphs.Api.prototype.restore = function restore(state) {
  * @throws {Error} Unable to find edge.
  * @throws {Error} Given cell isn't an edge.
  */
-graphs.Api.prototype.getEdgeTerminals = function getEdgeTerminals (edgeId) {
+graphs.Api.prototype.getEdgeTerminals = function getEdgeTerminals(edgeId) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -1679,8 +1743,12 @@ graphs.Api.prototype.getEdgeTerminals = function getEdgeTerminals (edgeId) {
  * @throws {Error} Unable to find cell's port.
  * @throws {Error} Not a valid terminal type.
  */
-graphs.Api.prototype.setEdgeTerminal = function setEdgeTerminal (
-    cellId, terminalType, newTerminalCellId, portName) {
+graphs.Api.prototype.setEdgeTerminal = function setEdgeTerminal(
+    cellId,
+    terminalType,
+    newTerminalCellId,
+    portName
+) {
     "use strict";
     var isSource = true;
 
@@ -1689,7 +1757,7 @@ graphs.Api.prototype.setEdgeTerminal = function setEdgeTerminal (
     } else if (terminalType === graphs.Api.TARGET_TERMINAL_CELL) {
         isSource = false;
     } else {
-        throw Error(String(terminalType) + ' is not a valid value for `terminalType`');
+        throw Error(String(terminalType) + " is not a valid value for `terminalType`");
     }
 
     var graph = this._graphEditor.graph;
@@ -1703,13 +1771,13 @@ graphs.Api.prototype.setEdgeTerminal = function setEdgeTerminal (
     model.beginUpdate();
     try {
         model.setTerminal(edge, terminal, isSource);
-        var terminal_value = '';
+        var terminal_value = "";
         if (portName) {
-             terminal_value = mxCell.createPortId(newTerminalCellId, portName);
+            terminal_value = mxCell.createPortId(newTerminalCellId, portName);
         }
         var edge_style = model.getStyle(edge);
-        var terminal_key = terminalType + 'Port';
-        console.log('setEdgeTerminal', 'edge_style', edge_style, terminal_key, terminal_value);
+        var terminal_key = terminalType + "Port";
+        console.log("setEdgeTerminal", "edge_style", edge_style, terminal_key, terminal_value);
         edge_style = graphs.utils.setStyleKey(edge_style, terminal_key, terminal_value);
         model.setStyle(edge, edge_style);
     } finally {
@@ -1725,19 +1793,21 @@ graphs.Api.prototype.setEdgeTerminal = function setEdgeTerminal (
  * @returns {[[number, string], [number, string]]}
  * @private
  */
-graphs.Api.prototype._getMxEdgeTerminalsWithPorts = function _getMxEdgeTerminalsWithPorts (edge) {
+graphs.Api.prototype._getMxEdgeTerminalsWithPorts = function _getMxEdgeTerminalsWithPorts(edge) {
     "use strict";
 
     var sourceId = edge.getTerminal(true).getId();
     var targetId = edge.getTerminal(false).getId();
 
-    var style = edge.getStyle() || '';
+    var style = edge.getStyle() || "";
 
-    if (!this._qmxgraphSourcePortNameExtractionRegex){
+    if (!this._qmxgraphSourcePortNameExtractionRegex) {
         this._qmxgraphTargetPortNameExtractionRegex = new RegExp(
-            '(?:^|;)targetPort=' + mxCell._PORT_ID_PREFIX + '\\d+-([^;$]+)(?:;|$)');
+            "(?:^|;)targetPort=" + mxCell._PORT_ID_PREFIX + "\\d+-([^;$]+)(?:;|$)"
+        );
         this._qmxgraphSourcePortNameExtractionRegex = new RegExp(
-            '(?:^|;)sourcePort=' + mxCell._PORT_ID_PREFIX + '\\d+-([^;$]+)(?:;|$)');
+            "(?:^|;)sourcePort=" + mxCell._PORT_ID_PREFIX + "\\d+-([^;$]+)(?:;|$)"
+        );
     }
 
     var sourcePortName = this._qmxgraphSourcePortNameExtractionRegex.exec(style);
@@ -1753,7 +1823,10 @@ graphs.Api.prototype._getMxEdgeTerminalsWithPorts = function _getMxEdgeTerminals
         targetPortName = null;
     }
 
-    return [[sourceId, sourcePortName], [targetId, targetPortName]];
+    return [
+        [sourceId, sourcePortName],
+        [targetId, targetPortName],
+    ];
 };
 
 /**
@@ -1766,7 +1839,7 @@ graphs.Api.prototype._getMxEdgeTerminalsWithPorts = function _getMxEdgeTerminals
  * @throws {Error} Unable to find edge.
  * @throws {Error} Given cell isn't an edge.
  */
-graphs.Api.prototype.getEdgeTerminalsWithPorts = function getEdgeTerminalsWithPorts (edgeId) {
+graphs.Api.prototype.getEdgeTerminalsWithPorts = function getEdgeTerminalsWithPorts(edgeId) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -1789,7 +1862,7 @@ graphs.Api.prototype.getEdgeTerminalsWithPorts = function getEdgeTerminalsWithPo
  * @returns {[mxPoint, mxPoint]} An array with two point (the source and target points).
  * @throws {Error} Given cell isn't an edge.
  */
-graphs.Api.prototype._getMxEdgeTerminalPoints = function _getMxEdgeTerminalPoints (edge) {
+graphs.Api.prototype._getMxEdgeTerminalPoints = function _getMxEdgeTerminalPoints(edge) {
     "use strict";
 
     // Need terminal positions to be able to determine correct relative position
@@ -1803,9 +1876,15 @@ graphs.Api.prototype._getMxEdgeTerminalPoints = function _getMxEdgeTerminalPoint
     }
 
     var sourcePort = view.getTerminalPort(
-        view.getState(edge), view.getState(edge.getTerminal(true)), true);
+        view.getState(edge),
+        view.getState(edge.getTerminal(true)),
+        true
+    );
     var targetPort = view.getTerminalPort(
-        view.getState(edge), view.getState(edge.getTerminal(false)), false);
+        view.getState(edge),
+        view.getState(edge.getTerminal(false)),
+        false
+    );
 
     var edgeGeo = this.getGeometry(edgeId);
     var x = edgeGeo[0] + Math.floor(edgeGeo[2] / 2);
@@ -1825,7 +1904,7 @@ graphs.Api.prototype._getMxEdgeTerminalPoints = function _getMxEdgeTerminalPoint
  * @throws {Error} Unable to find edge.
  * @throws {Error} Given cell isn't an edge.
  */
-graphs.Api.prototype.getEdgeTerminalPoints = function getEdgeTerminalPoints (edgeId) {
+graphs.Api.prototype.getEdgeTerminalPoints = function getEdgeTerminalPoints(edgeId) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -1835,7 +1914,7 @@ graphs.Api.prototype.getEdgeTerminalPoints = function getEdgeTerminalPoints (edg
     var terminal_points = this._getMxEdgeTerminalPoints(edge);
     return [
         [terminal_points[0].x, terminal_points[0].y],
-        [terminal_points[1].x, terminal_points[1].y]
+        [terminal_points[1].x, terminal_points[1].y],
     ];
 };
 
@@ -1993,8 +2072,8 @@ graphs.Api.prototype._prepareCellValue = function _prepareCellValue(label, tags)
     "use strict";
 
     var doc = mxUtils.createXmlDocument();
-    var value = doc.createElement('data');
-    value.setAttribute('label', label);
+    var value = doc.createElement("data");
+    value.setAttribute("label", label);
 
     tags = tags || {};
     var hop = Object.prototype.hasOwnProperty;
@@ -2021,7 +2100,7 @@ graphs.Api.prototype._prepareCellValue = function _prepareCellValue(label, tags)
 graphs.Api.prototype._getInternalTag = function _getInternalTag(tag) {
     "use strict";
 
-    return 'data-qgraph-tag-' + tag;
+    return "data-qgraph-tag-" + tag;
 };
 
 /**
@@ -2051,7 +2130,7 @@ graphs.Api.prototype._findCell = function _findCell(model, cellId, ignoreMissing
     "use strict";
 
     var cell = model.getCell(cellId);
-    if ((!cell) && (!ignoreMissingCell)) {
+    if (!cell && !ignoreMissingCell) {
         throw Error("Unable to find cell with id " + cellId);
     }
     return cell;
@@ -2066,7 +2145,7 @@ graphs.Api.prototype._findCell = function _findCell(model, cellId, ignoreMissing
  * @private
  * @throws {Error} If the port exist when it is not expected or is missing when expected.
  */
-graphs.Api.prototype._findPort = function _findPort (model, cellId, portName, alreadyExits) {
+graphs.Api.prototype._findPort = function _findPort(model, cellId, portName, alreadyExits) {
     "use strict";
 
     var portId = mxCell.createPortId(cellId, portName);
@@ -2086,7 +2165,7 @@ graphs.Api.prototype._findPort = function _findPort (model, cellId, portName, al
  * @param {string} portName The name of the port.
  * @returns {boolean} True if the port exists.
  */
-graphs.Api.prototype.hasPort = function hasPort (cellId, portName) {
+graphs.Api.prototype.hasPort = function hasPort(cellId, portName) {
     "use strict";
 
     var graph = this._graphEditor.graph;
@@ -2102,7 +2181,7 @@ graphs.Api.prototype.hasPort = function hasPort (cellId, portName) {
  * @private
  * @throws {Error} Unable to find cell or the cell is not a decoration.
  */
-graphs.Api.prototype._findDecoration = function _findDecoration (cellId) {
+graphs.Api.prototype._findDecoration = function _findDecoration(cellId) {
     "use strict";
 
     var graph = this._graphEditor.graph;

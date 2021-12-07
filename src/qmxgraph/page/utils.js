@@ -12,7 +12,7 @@
  *
  * @namespace graphs.utils
  */
-namespace('graphs.utils');
+namespace("graphs.utils");
 
 /**
  * Calculates the angle formed by terminals of an edge.
@@ -21,7 +21,7 @@ namespace('graphs.utils');
  * @param {mxCell} edge An edge in graph.
  * @returns {number} Angle in degrees.
  */
-graphs.utils.calculateEdgeAngle = function calculateEdgeAngle (graph, edge) {
+graphs.utils.calculateEdgeAngle = function calculateEdgeAngle(graph, edge) {
     "use strict";
 
     var view = graph.view;
@@ -42,34 +42,32 @@ graphs.utils.calculateEdgeAngle = function calculateEdgeAngle (graph, edge) {
  * @param {*} value New value of key in style.
  * @returns {string} New inline style with updated key.
  */
-graphs.utils.setStyleKey = function setStyleKey (style, key, value) {
+graphs.utils.setStyleKey = function setStyleKey(style, key, value) {
     "use strict";
 
     if (value === true) {
-        value = '1';
+        value = "1";
     } else if (value === false) {
-        value = '0';
+        value = "0";
     }
 
-    if (style === null || style === undefined || style.length === 0)
-    {
-        style = key + '=' + value;
-    }
-    else
-    {
-        var index = style.indexOf(key+'=');
+    if (style === null || style === undefined || style.length === 0) {
+        style = key + "=" + value;
+    } else {
+        var index = style.indexOf(key + "=");
 
-        if (index < 0)
-        {
-            var sep = (style.charAt(style.length-1) === ';') ? '' : ';';
-            style = style + sep + key + '=' + value;
-        }
-        else
-        {
-            var cont = style.indexOf(';', index);
+        if (index < 0) {
+            var sep = style.charAt(style.length - 1) === ";" ? "" : ";";
+            style = style + sep + key + "=" + value;
+        } else {
+            var cont = style.indexOf(";", index);
 
-            style = style.substring(0, index) + key + '=' + value +
-                ((cont >= 0) ? style.substring(cont) : '');
+            style =
+                style.substring(0, index) +
+                key +
+                "=" +
+                value +
+                (cont >= 0 ? style.substring(cont) : "");
         }
     }
 
@@ -89,15 +87,14 @@ graphs.utils.setStyleKey = function setStyleKey (style, key, value) {
  * @param {string} baseStyle Inline style to be used as base for decoration.
  * @returns {string} Inline style for a decoration.
  */
-graphs.utils.obtainDecorationStyle = function obtainDecorationStyle (
-    graph, edge, baseStyle) {
+graphs.utils.obtainDecorationStyle = function obtainDecorationStyle(graph, edge, baseStyle) {
     "use strict";
 
     var rotation = graphs.utils.calculateEdgeAngle(graph, edge);
 
     // Obtain customized base rotation in the element's style
     // TODO: handle multiple names (overrides) in the baseStyle for obtaining desired style
-    var styleName = baseStyle.split(';')[0];
+    var styleName = baseStyle.split(";")[0];
     var styleSheet = graph.stylesheet.styles[styleName];
 
     // + 90 as rotation of objects in mxGraph, or at least when using rotation
@@ -111,7 +108,7 @@ graphs.utils.obtainDecorationStyle = function obtainDecorationStyle (
         rotation += 360;
     }
     rotation = Math.round(rotation);
-    return graphs.utils.setStyleKey(baseStyle, 'rotation', rotation);
+    return graphs.utils.setStyleKey(baseStyle, "rotation", rotation);
 };
 
 /**
@@ -125,7 +122,7 @@ graphs.utils.obtainDecorationStyle = function obtainDecorationStyle (
  * @param {number} y Y coordinate in screen coordinates
  * @returns {{x: number, y: number}} Converted coordinates.
  */
-graphs.utils.adjustCoordinates = function adjustCoordinates (graph, x, y) {
+graphs.utils.adjustCoordinates = function adjustCoordinates(graph, x, y) {
     "use strict";
 
     // Take in account scroll position to convert screen-to-graph-coordinates
@@ -144,7 +141,7 @@ graphs.utils.adjustCoordinates = function adjustCoordinates (graph, x, y) {
     var finalX = (x + dx) / graph.view.scale - graph.view.translate.x;
     var finalY = (y + dy) / graph.view.scale - graph.view.translate.y;
 
-    return {x: finalX, y: finalY};
+    return { x: finalX, y: finalY };
 };
 
 /**
@@ -154,9 +151,9 @@ graphs.utils.adjustCoordinates = function adjustCoordinates (graph, x, y) {
  * @param {*} value The value tested.
  * @returns {boolean}
  */
-graphs.utils.isObject = function isObject (value) {
+graphs.utils.isObject = function isObject(value) {
     "use strict";
-    return Object.prototype.toString.call(value) === '[object Object]';
+    return Object.prototype.toString.call(value) === "[object Object]";
 };
 
 /**
@@ -168,9 +165,9 @@ graphs.utils.isObject = function isObject (value) {
  * this value is returned.
  * @returns {*} The property value or `defaultValue`.
  */
-graphs.utils.getValue = function getValue (object, attrName, defaultValue) {
+graphs.utils.getValue = function getValue(object, attrName, defaultValue) {
     "use strict";
-    return (attrName in object) ? object[attrName] : defaultValue;
+    return attrName in object ? object[attrName] : defaultValue;
 };
 
 /**
@@ -219,7 +216,7 @@ graphs.utils.getValue = function getValue (object, attrName, defaultValue) {
  * @param {string} title Title of table.
  * @returns {string} A HTML table that contains given contents and title.
  */
-graphs.utils.createTableElement = function createTableElement (contents, title) {
+graphs.utils.createTableElement = function createTableElement(contents, title) {
     "use strict";
 
     var isObject = graphs.utils.isObject;
@@ -228,24 +225,24 @@ graphs.utils.createTableElement = function createTableElement (contents, title) 
     /**
      * @param {string|graphs.utils.TableDataDescription} data
      */
-    var createTableData = function createTableDataContents (data) {
+    var createTableData = function createTableDataContents(data) {
         if (!isObject(data)) {
-            return '<td>' + escapeHtml(data) + '</td>';
+            return "<td>" + escapeHtml(data) + "</td>";
         }
 
         var td_defaults = [
-            ['colspan', 1],
-            ['rowspan', 1],
-            ['style', null]
+            ["colspan", 1],
+            ["rowspan", 1],
+            ["style", null],
         ];
-        var result = '<td';
+        var result = "<td";
         for (var i = 0; i < td_defaults.length; ++i) {
             var attr_name = td_defaults[i][0];
             if (data[attr_name] !== td_defaults[i][1]) {
-                result += ' ' + attr_name + '="' + data[attr_name] + '"';
+                result += " " + attr_name + '="' + data[attr_name] + '"';
             }
         }
-        result += '>';
+        result += ">";
         var dataContents = data.contents;
         for (var index = 0; index < dataContents.length; ++index) {
             var element = dataContents[index];
@@ -256,27 +253,28 @@ graphs.utils.createTableElement = function createTableElement (contents, title) 
                 result += escapeHtml(element);
             }
         }
-        result += '</td>';
+        result += "</td>";
         return result;
     };
 
     var table = '<table width="100%" border="1" cellpadding="4" class="table-cell-title">';
-    table += '<tr><th colspan="2">' + title + '</th></tr>';
-    table += '</table>';
-    table += '<div class="table-cell-contents-container">' +
+    table += '<tr><th colspan="2">' + title + "</th></tr>";
+    table += "</table>";
+    table +=
+        '<div class="table-cell-contents-container">' +
         '<table width="100%" border="1" cellpadding="4" class="table-cell-contents">';
 
     var tableContents = contents.contents;
     for (var rowIndex = 0; rowIndex < tableContents.length; ++rowIndex) {
         var rowContents = tableContents[rowIndex].contents;
-        table += '<tr>';
+        table += "<tr>";
         for (var colIndex = 0; colIndex < rowContents.length; ++colIndex) {
             table += createTableData(rowContents[colIndex]);
         }
-        table += '</tr>';
+        table += "</tr>";
     }
-    table += '</table>';
-    table += '</div>';
+    table += "</table>";
+    table += "</div>";
 
     return table;
 };
@@ -288,14 +286,16 @@ graphs.utils.createTableElement = function createTableElement (contents, title) 
  * @param {string} text The string to be escaped.
  * @returns {string}
  */
-graphs.utils.escapeHtml = function escapeHtml (text) {
+graphs.utils.escapeHtml = function escapeHtml(text) {
     "use strict";
     var map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;",
     };
-    return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+    return String(text).replace(/[&<>"']/g, function (m) {
+        return map[m];
+    });
 };

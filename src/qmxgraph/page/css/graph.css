@@ -1,15 +1,16 @@
-html, body {
+html,
+body {
     height: 100%;
     margin: 0;
 }
 
 .graph {
-    background:url('../images/grid.gif');
+    background: url("../images/grid.gif");
     overflow: hidden;
 }
 
 .graph.hide-bg {
-    background:none;
+    background: none;
 }
 
 table.table-cell-title {
@@ -49,7 +50,7 @@ table.table-cell-contents td {
     text-align: center;
     font-size: 24px;
     color: #cd0000;
-    background-color: rgba(128,128,128,0.3) !important;
+    background-color: rgba(128, 128, 128, 0.3) !important;
     width: 100%;
     height: 100%;
     line-height: 100%;

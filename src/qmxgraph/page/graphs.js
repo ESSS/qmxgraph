@@ -24,7 +24,7 @@
  *
  * @namespace graphs
  */
-namespace('graphs');
+namespace("graphs");
 
 /**
  * Factory method to configure and create a new graph drawing widget using
@@ -35,7 +35,7 @@ namespace('graphs');
  * @param {Object} styles Additional styles available for graph.
  * @returns {mxEditor} A new graph drawing widget.
  */
-graphs.createGraph = function createGraph (container, options, styles) {
+graphs.createGraph = function createGraph(container, options, styles) {
     "use strict";
 
     // Initialization ----------------------------------------------------------
@@ -55,63 +55,56 @@ graphs.createGraph = function createGraph (container, options, styles) {
 
     // Customizations ----------------------------------------------------------
 
-    mxCell.prototype.hasAttribute = function(name)
-    {
+    mxCell.prototype.hasAttribute = function (name) {
         var userObject = this.getValue();
 
-        return (userObject !== null &&
-            userObject.nodeType === mxConstants.NODETYPE_ELEMENT) ?
-            userObject.hasAttribute(name) : false;
+        return userObject !== null && userObject.nodeType === mxConstants.NODETYPE_ELEMENT
+            ? userObject.hasAttribute(name)
+            : false;
     };
 
-    mxCell.prototype.removeAttribute = function(name){
+    mxCell.prototype.removeAttribute = function (name) {
         var userObject = this.getValue();
 
         if (
-            (userObject !== null)
-            && (userObject.nodeType === mxConstants.NODETYPE_ELEMENT)
-            && userObject.hasAttribute(name)
+            userObject !== null &&
+            userObject.nodeType === mxConstants.NODETYPE_ELEMENT &&
+            userObject.hasAttribute(name)
         ) {
             userObject.removeAttribute(name);
         } else {
-            throw Error(
-                "The cell " + this.getId()
-                + " does not have an attribute named " + name
-            )
+            throw Error("The cell " + this.getId() + " does not have an attribute named " + name);
         }
     };
 
-    mxCell.prototype.getAttributeNames = function(){
+    mxCell.prototype.getAttributeNames = function () {
         var userObject = this.getValue();
 
-        if (
-            (userObject !== null)
-            && (userObject.nodeType === mxConstants.NODETYPE_ELEMENT)
-        ) {
+        if (userObject !== null && userObject.nodeType === mxConstants.NODETYPE_ELEMENT) {
             return userObject.getAttributeNames();
         } else {
             return [];
         }
     };
 
-    mxCell.prototype.isDecoration = function() {
-        return this.getAttribute('__decoration__', '0') === '1';
+    mxCell.prototype.isDecoration = function () {
+        return this.getAttribute("__decoration__", "0") === "1";
     };
 
-    mxCell._PORT_ID_PREFIX = 'qmxgraph-port-';
+    mxCell._PORT_ID_PREFIX = "qmxgraph-port-";
 
-    mxCell.prototype.isPort = function() {
+    mxCell.prototype.isPort = function () {
         var cellId = this.getId();
         return cellId.indexOf(mxCell._PORT_ID_PREFIX) === 0;
     };
 
-    mxCell.createPortId = function createPortId (vertexId, name) {
-        return mxCell._PORT_ID_PREFIX + vertexId + '-' + name;
+    mxCell.createPortId = function createPortId(vertexId, name) {
+        return mxCell._PORT_ID_PREFIX + vertexId + "-" + name;
     };
 
-    mxCell.parsePortId = function parsePortId (portId) {
-        portId = portId || '';
-        if (portId.indexOf(mxCell._PORT_ID_PREFIX) === 0){
+    mxCell.parsePortId = function parsePortId(portId) {
+        portId = portId || "";
+        if (portId.indexOf(mxCell._PORT_ID_PREFIX) === 0) {
             portId = portId.substr(mxCell._PORT_ID_PREFIX.length);
             var result = portId.match(/^([^-]+)-(.*)$/);
             if (result.length === 3) {
@@ -122,46 +115,37 @@ graphs.createGraph = function createGraph (container, options, styles) {
     };
 
     var superIsCellFoldable = graph.isCellFoldable;
-    graph.isCellFoldable = function(cell, collapse)
-    {
+    graph.isCellFoldable = function (cell, collapse) {
         return cell.isTable() || superIsCellFoldable.apply(this, arguments);
     };
 
     // Table-like vertices inspired by this example:
     // https://jgraph.github.io/mxgraph/javascript/examples/scrollbars.html
-    mxCell.prototype.isTable = function() {
-        return this.getAttribute('__table__', '0') === '1';
+    mxCell.prototype.isTable = function () {
+        return this.getAttribute("__table__", "0") === "1";
     };
 
     // Overrides getLabel to be able to fold table cells reliably
     var supeGetLabel = graph.getLabel;
-    graph.getLabel = function(cell)
-    {
-        if (cell.isTable())
-        {
-            if (this.isCellCollapsed(cell))
-            {
+    graph.getLabel = function (cell) {
+        if (cell.isTable()) {
+            if (this.isCellCollapsed(cell)) {
                 // When collapsed, just show just title part of table vertices
-                var value = cell.getAttribute('label');
+                var value = cell.getAttribute("label");
                 return value.substring(0, value.indexOf("</table>") + "</table>".length);
-            }
-            else
-            {
+            } else {
                 return supeGetLabel.apply(this, arguments);
             }
-        }
-        else
-        {
+        } else {
             return supeGetLabel.apply(this, arguments);
         }
     };
 
     // Overrides getTooltipForCell so tables don't have tooltips
     var superGetTooltipForCell = graph.getTooltipForCell;
-    graph.getTooltipForCell = function(cell)
-    {
+    graph.getTooltipForCell = function (cell) {
         if (cell.isTable()) {
-            return '';
+            return "";
         } else {
             return superGetTooltipForCell.apply(this, arguments);
         }
@@ -170,60 +154,68 @@ graphs.createGraph = function createGraph (container, options, styles) {
     // Overrides inspired by suggestion how to hold custom attributes (
     // https://jgraph.github.io/mxgraph/docs/js-api/files/model/mxCell-js.html)
     var superConvertValueToString = graph.convertValueToString;
-    graph.convertValueToString = function(cell)
-    {
+    graph.convertValueToString = function (cell) {
         if (mxUtils.isNode(cell.value)) {
-            return cell.getAttribute('label', '');
+            return cell.getAttribute("label", "");
         } else {
             return superConvertValueToString.apply(this, arguments);
         }
     };
 
     var superCellLabelChanged = graph.cellLabelChanged;
-    graph.cellLabelChanged = function(cell, newValue, autoSize)
-    {
+    graph.cellLabelChanged = function (cell, newValue, autoSize) {
         if (mxUtils.isNode(cell.value)) {
             var newValue_ = cell.cloneValue();
-            newValue_.setAttribute('label', newValue);
+            newValue_.setAttribute("label", newValue);
             superCellLabelChanged.call(this, cell, newValue_, autoSize);
         } else {
             superCellLabelChanged.apply(this, arguments);
         }
     };
 
-    graph.isPort = function(cell) {
+    graph.isPort = function (cell) {
         return cell.isPort();
     };
 
     var superIsCellSelectable = mxGraph.prototype.isCellSelectable;
     mxGraph.prototype.isCellSelectable = function isCellSelectable(cell) {
-
         function hasSelectableStyle(cell) {
             var styleName = cell.getStyle();
             var style = this.getStylesheet().getCellStyle(styleName);
             return mxUtils.getValue(style, mxConstants.STYLE_SELECTABLE, 1);
-        };
+        }
 
-        return superIsCellSelectable.apply(this, arguments) && !cell.isPort() && hasSelectableStyle.call(this, cell);
+        return (
+            superIsCellSelectable.apply(this, arguments) &&
+            !cell.isPort() &&
+            hasSelectableStyle.call(this, cell)
+        );
     };
 
-    mxGraph.prototype.labelChanged = function(cell, value, evt)
-    {
+    mxGraph.prototype.labelChanged = function (cell, value, evt) {
         this.model.beginUpdate();
-        try
-        {
+        try {
             var old = null;
             if (mxUtils.isNode(cell.value)) {
-                old = cell.getAttribute('label', '');
+                old = cell.getAttribute("label", "");
             } else {
                 old = cell.value;
             }
             this.cellLabelChanged(cell, value, this.isAutoSizeCell(cell));
-            this.fireEvent(new mxEventObject(mxEvent.LABEL_CHANGED,
-                'cell', cell, 'value', value, 'old', old, 'event', evt));
-        }
-        finally
-        {
+            this.fireEvent(
+                new mxEventObject(
+                    mxEvent.LABEL_CHANGED,
+                    "cell",
+                    cell,
+                    "value",
+                    value,
+                    "old",
+                    old,
+                    "event",
+                    evt
+                )
+            );
+        } finally {
             this.model.endUpdate();
         }
 
@@ -237,8 +229,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
      * @param {mxCell} cell The cell of interest.
      * @returns {boolean}
      */
-    mxGraph.prototype.isCellLocked = function(cell)
-    {
+    mxGraph.prototype.isCellLocked = function (cell) {
         if (this.isCellsLocked()) {
             return true;
         }
@@ -247,7 +238,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
         }
         var geometry = this.model.getGeometry(cell);
         return (
-            geometry != null &&  // jshint ignore:line
+            geometry != null && // jshint ignore:line
             this.model.isVertex(cell) &&
             geometry.relative
         );
@@ -261,7 +252,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
      * @param {mxCell} cell
      * @returns {mxRectangle}
      */
-    mxGraph.prototype.getPreferredSizeForCell = function getPreferredSizeForCell (cell) {
+    mxGraph.prototype.getPreferredSizeForCell = function getPreferredSizeForCell(cell) {
         if (cell.isTable()) {
             var result;
             var originalGridEnabled = this.gridEnabled;
@@ -285,7 +276,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
 
     // Key bindings ------------------------------------------------------------
     var keyHandler = editor.keyHandler;
-    keyHandler.bindAction(46, 'delete');
+    keyHandler.bindAction(46, "delete");
 
     // Styles ------------------------------------------------------------------
     if (!!styles) {
@@ -294,20 +285,20 @@ graphs.createGraph = function createGraph (container, options, styles) {
             if (!hop.call(styles, name)) {
                 continue;
             }
-            if (name !== 'edge') {
+            if (name !== "edge") {
                 graph.getStylesheet().putCellStyle(name, styles[name]);
             }
         }
 
         /* jshint -W069 */
-        if (!!styles['edge']) {
-            graph.getStylesheet().putDefaultEdgeStyle(styles['edge']);
+        if (!!styles["edge"]) {
+            graph.getStylesheet().putDefaultEdgeStyle(styles["edge"]);
         }
         /* jshint +W069 */
     }
 
     // Additional Actions ------------------------------------------------------
-    var toggleGrid = function(editor, cell) {
+    var toggleGrid = function (editor, cell) {
         var graph = editor.graph;
         var classes = editor.graph.container.classList;
         var hideBG = "hide-bg";
@@ -323,70 +314,70 @@ graphs.createGraph = function createGraph (container, options, styles) {
             graph.gridEnabled = graph.__formerGridEnabled;
         }
     };
-    editor.addAction('toggleGrid', toggleGrid);
+    editor.addAction("toggleGrid", toggleGrid);
 
-    var toggleSnap = function(editor, cell) {
+    var toggleSnap = function (editor, cell) {
         var graph = editor.graph;
         graph.gridEnabled = !graph.gridEnabled;
         graph.__formerGridEnabled = graph.gridEnabled;
     };
-    editor.addAction('toggleSnap', toggleSnap);
+    editor.addAction("toggleSnap", toggleSnap);
 
     // Options -----------------------------------------------------------------
 
     // Configure options in graph editor
     /* jshint -W069 */
-    graph.setCellsMovable(options['cells_movable']);
+    graph.setCellsMovable(options["cells_movable"]);
 
-    graph.setConnectable(options['cells_connectable']);
+    graph.setConnectable(options["cells_connectable"]);
 
-    graph.setCellsCloneable(options['cells_cloneable']);
+    graph.setCellsCloneable(options["cells_cloneable"]);
 
-    graph.setCellsResizable(options['cells_resizable']);
+    graph.setCellsResizable(options["cells_resizable"]);
 
-    graph.connectionHandler.setCreateTarget(options['allow_create_target']);
+    graph.connectionHandler.setCreateTarget(options["allow_create_target"]);
 
-    graph.allowDanglingEdges = options['allow_dangling_edges'];
+    graph.allowDanglingEdges = options["allow_dangling_edges"];
 
-    graph.multigraph = options['multigraph'];
+    graph.multigraph = options["multigraph"];
 
-    graph.graphHandler.setCloneEnabled(options['enable_cloning']);
+    graph.graphHandler.setCloneEnabled(options["enable_cloning"]);
 
-    if (options['show_highlight']) {
-        new mxCellTracker(graph, '#00FF00');  // jshint ignore:line
+    if (options["show_highlight"]) {
+        new mxCellTracker(graph, "#00FF00"); // jshint ignore:line
     }
 
-    if (options['show_outline']) {
+    if (options["show_outline"]) {
         editor.showOutline();
     }
 
-    if (!options['show_grid']) {
+    if (!options["show_grid"]) {
         // By default, grid is shown. Can't have snap without grid visible
         // though
         editor.execute("toggleGrid");
         editor.execute("toggleSnap");
-    } else if (!options['snap_to_grid']) {
+    } else if (!options["snap_to_grid"]) {
         editor.execute("toggleSnap");
     }
 
-    if (!!options['connection_image']) {
+    if (!!options["connection_image"]) {
         graph.connectionHandler.connectImage = new mxImage(
-            options['connection_image'][0],
-            options['connection_image'][1],
-            options['connection_image'][2]
+            options["connection_image"][0],
+            options["connection_image"][1],
+            options["connection_image"][2]
         );
     }
 
-    if (!!options['port_image']) {
+    if (!!options["port_image"]) {
         // TODO: way to do it without messing prototype?
         mxConstraintHandler.prototype.pointImage = new mxImage(
-            options['port_image'][0],
-            options['port_image'][1],
-            options['port_image'][2]
+            options["port_image"][0],
+            options["port_image"][1],
+            options["port_image"][2]
         );
     }
 
-    if (!!options['font_family'] && options['font_family'].length > 0) {
+    if (!!options["font_family"] && options["font_family"].length > 0) {
         // There is a `setFontFamily` method it isn't seem safe/easy to use it as:
         // * every canvas used by mxGraph is temporary (see `mxShape.prototype.redrawShape`)
         // * there are parts that are hardcoded to use always constant below (see
@@ -394,7 +385,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
         // For these reasons it just straight up updates default font family used throughout
         // graph.
         var family = "";
-        var raw = options['font_family'];
+        var raw = options["font_family"];
         for (var i = 0; i < raw.length; i++) {
             family += raw[i];
             if (i < raw.length - 1) {
@@ -404,10 +395,10 @@ graphs.createGraph = function createGraph (container, options, styles) {
         mxConstants.DEFAULT_FONTFAMILY = family;
     }
 
-    if (!!options['custom_fonts'] && options['custom_fonts'].length > 0) {
+    if (!!options["custom_fonts"] && options["custom_fonts"].length > 0) {
         // Adds custom fonts to the html through css/style
-        var customFonts = options['custom_fonts'];
-        var styleContent = '';
+        var customFonts = options["custom_fonts"];
+        var styleContent = "";
         var hop = Object.prototype.hasOwnProperty;
 
         for (var i = 0; i < customFonts.length; i++) {
@@ -419,30 +410,28 @@ graphs.createGraph = function createGraph (container, options, styles) {
                     var value = customFont[key];
                     var replaced_key = key.replace("_", "-");
                     if (replaced_key === "src") {
-                        value = "url('" + value + "')"
+                        value = "url('" + value + "')";
                     }
-                    styleContent += replaced_key + ": " + value + ";"
+                    styleContent += replaced_key + ": " + value + ";";
                 }
             }
             styleContent += "\n}\n";
         }
 
-        var style = document.createElement('style');
-        style.id =  'custom fonts';
+        var style = document.createElement("style");
+        style.id = "custom fonts";
         var textNode = document.createTextNode(styleContent);
         style.appendChild(textNode);
         document.head.appendChild(style);
     }
 
-
     /* jshint +W069 */
 
     // Hooks -------------------------------------------------------------------
-    graph.createGroupCell = function(cells)
-    {
+    graph.createGroupCell = function (cells) {
         var group = mxGraph.prototype.createGroupCell.call(this, cells);
-        group.setValue('group');
-        group.setStyle('group');
+        group.setValue("group");
+        group.setStyle("group");
 
         return group;
     };
@@ -450,14 +439,14 @@ graphs.createGraph = function createGraph (container, options, styles) {
     // Event Handling ----------------------------------------------------------
 
     // * When an edge is moved, the rotation of any child marker must update too
-    var onCellsMove = function(sender, evt) {
-        var cells = evt.getProperty('cells');
-        var dx = evt.getProperty('dx');
-        var dy = evt.getProperty('dy');
+    var onCellsMove = function (sender, evt) {
+        var cells = evt.getProperty("cells");
+        var dx = evt.getProperty("dx");
+        var dy = evt.getProperty("dy");
 
         sender.__moved = [];
 
-        for (var c = cells.length; c--;) {
+        for (var c = cells.length; c--; ) {
             var cell = cells[c];
             if (!cell.isEdge()) {
                 var edges = sender.model.getEdges(cell);
@@ -484,7 +473,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
     graph.addListener(mxEvent.MOVE_CELLS, onCellsMove);
 
     // * Handle delayed rotation of edge markers
-    var onRefresh = function(sender, event) {
+    var onRefresh = function (sender, event) {
         // If any edges with markers were moved indirectly when one or more
         // vertices were moved it is time to consume their delayed event
         // and update markers rotation.
@@ -500,11 +489,15 @@ graphs.createGraph = function createGraph (container, options, styles) {
                 var markers = edgeMarkers[1];
                 for (var i = 0; i < markers.length; i++) {
                     var marker = markers[i];
-                    if (marker.isTable()) {  // Tables are not actual markers.
+                    if (marker.isTable()) {
+                        // Tables are not actual markers.
                         continue;
                     }
                     var markerStyle = graphs.utils.obtainDecorationStyle(
-                        graph, edge, marker.getStyle());
+                        graph,
+                        edge,
+                        marker.getStyle()
+                    );
                     graph.model.setStyle(marker, markerStyle);
                 }
             }
@@ -515,7 +508,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
     graph.addListener(mxEvent.REFRESH, onRefresh);
 
     // * Adds mouse wheel handling for zoom
-    mxEvent.addMouseWheelListener(function(evt, up) {
+    mxEvent.addMouseWheelListener(function (evt, up) {
         // - `up = true` direction:
         //      Moves the viewport closer to the graph;
         //      When browsing a web page the vertical scrollbar will move up;
@@ -534,7 +527,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
 
     graph.container.addEventListener(
         "mousedown",
-        function(event) {
+        function (event) {
             if (event.shiftKey) {
                 console.log(event.clientX, event.clientY);
             }
@@ -553,7 +546,7 @@ graphs.createGraph = function createGraph (container, options, styles) {
  * styles.
  * @returns {Object} Styles converted to mxGraph format.
  */
-graphs.parseStyles = function parseStyles (rawStyles) {
+graphs.parseStyles = function parseStyles(rawStyles) {
     "use strict";
 
     if (!rawStyles) {
@@ -564,27 +557,27 @@ graphs.parseStyles = function parseStyles (rawStyles) {
 
     var styleMap = {};
     /* jshint -W069 */
-    styleMap['dashed'] = mxConstants.STYLE_DASHED;
-    styleMap['decoration_base_rotation'] = mxConstants.STYLE_DECORATION_BASE_ROTATION;
-    styleMap['deletable'] = mxConstants.STYLE_DELETABLE;
-    styleMap['end_arrow'] = mxConstants.STYLE_ENDARROW;
-    styleMap['fill_color'] = mxConstants.STYLE_FILLCOLOR;
-    styleMap['fill_opacity'] = mxConstants.STYLE_FILL_OPACITY;
-    styleMap['foldable'] = mxConstants.STYLE_FOLDABLE;
-    styleMap['image'] = mxConstants.STYLE_IMAGE;
-    styleMap['label_position'] = mxConstants.STYLE_LABEL_POSITION;
-    styleMap['label_rotatable'] = mxConstants.STYLE_LABEL_ROTATABLE;
-    styleMap['no_label'] = mxConstants.STYLE_NOLABEL;
-    styleMap['resizable'] = mxConstants.STYLE_RESIZABLE;
-    styleMap['rotatable'] = mxConstants.STYLE_ROTATABLE;
-    styleMap['selectable'] = mxConstants.STYLE_SELECTABLE;
-    styleMap['shape'] = mxConstants.STYLE_SHAPE;
-    styleMap['start_arrow'] = mxConstants.STYLE_STARTARROW;
-    styleMap['stroke_color'] = mxConstants.STYLE_STROKECOLOR;
-    styleMap['stroke_width'] = mxConstants.STYLE_STROKEWIDTH;
-    styleMap['stroke_opacity'] = mxConstants.STYLE_STROKE_OPACITY;
-    styleMap['vertical_align'] = mxConstants.STYLE_VERTICAL_ALIGN;
-    styleMap['vertical_label_position'] = mxConstants.STYLE_VERTICAL_LABEL_POSITION;
+    styleMap["dashed"] = mxConstants.STYLE_DASHED;
+    styleMap["decoration_base_rotation"] = mxConstants.STYLE_DECORATION_BASE_ROTATION;
+    styleMap["deletable"] = mxConstants.STYLE_DELETABLE;
+    styleMap["end_arrow"] = mxConstants.STYLE_ENDARROW;
+    styleMap["fill_color"] = mxConstants.STYLE_FILLCOLOR;
+    styleMap["fill_opacity"] = mxConstants.STYLE_FILL_OPACITY;
+    styleMap["foldable"] = mxConstants.STYLE_FOLDABLE;
+    styleMap["image"] = mxConstants.STYLE_IMAGE;
+    styleMap["label_position"] = mxConstants.STYLE_LABEL_POSITION;
+    styleMap["label_rotatable"] = mxConstants.STYLE_LABEL_ROTATABLE;
+    styleMap["no_label"] = mxConstants.STYLE_NOLABEL;
+    styleMap["resizable"] = mxConstants.STYLE_RESIZABLE;
+    styleMap["rotatable"] = mxConstants.STYLE_ROTATABLE;
+    styleMap["selectable"] = mxConstants.STYLE_SELECTABLE;
+    styleMap["shape"] = mxConstants.STYLE_SHAPE;
+    styleMap["start_arrow"] = mxConstants.STYLE_STARTARROW;
+    styleMap["stroke_color"] = mxConstants.STYLE_STROKECOLOR;
+    styleMap["stroke_width"] = mxConstants.STYLE_STROKEWIDTH;
+    styleMap["stroke_opacity"] = mxConstants.STYLE_STROKE_OPACITY;
+    styleMap["vertical_align"] = mxConstants.STYLE_VERTICAL_ALIGN;
+    styleMap["vertical_label_position"] = mxConstants.STYLE_VERTICAL_LABEL_POSITION;
     /* jshint +W069 */
 
     var hop = Object.prototype.hasOwnProperty;
@@ -602,8 +595,7 @@ graphs.parseStyles = function parseStyles (rawStyles) {
 
             var mapping = styleMap[key];
             if (mapping === undefined) {
-                throw Error("Couldn't find style mapping for " +
-                    key + " in style " + name);
+                throw Error("Couldn't find style mapping for " + key + " in style " + name);
             }
 
             styles[name][mapping] = style[key];
