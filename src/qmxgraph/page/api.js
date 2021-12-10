@@ -307,7 +307,7 @@ graphs.Api.prototype.insertDecoration = function insertDecoration(
 
     if (edge === null) {
         throw Error(
-            "Could not find an edge at position and can only add a " + "decoration over an edge."
+            "Could not find an edge at position and can only add a decoration over an edge."
         );
     }
 
@@ -498,7 +498,6 @@ graphs.Api.prototype.insertTable = function insertTable(
 
     var tableStyle = "table";
     if (style != null) {
-        // jshint ignore:line
         tableStyle += ";" + style;
     }
     tableStyle = graphs.utils.setStyleKey(tableStyle, mxConstants.STYLE_OVERFLOW, "fill");
