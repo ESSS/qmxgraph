@@ -54,23 +54,51 @@ graphs.utils.setStyleKey = function setStyleKey(style, key, value) {
     if (style === null || style === undefined || style.length === 0) {
         style = key + "=" + value;
     } else {
-        var index = style.indexOf(key + "=");
-
-        if (index < 0) {
-            var sep = style.charAt(style.length - 1) === ";" ? "" : ";";
-            style = style + sep + key + "=" + value;
-        } else {
-            var cont = style.indexOf(";", index);
-
-            style =
-                style.substring(0, index) +
-                key +
-                "=" +
-                value +
-                (cont >= 0 ? style.substring(cont) : "");
+        var parts = style.split(";");
+        for (var i = 0; i < parts.length; ++i) {
+            var current = parts[i];
+            var current_key = current.split("=")[0];
+            if (current_key == key) {
+                // Just to find the key index to update. Will append in the end in case it is new.
+                break;
+            }
         }
+
+        var updated_key_value = key + "=" + value;
+        parts.splice(i, 1, updated_key_value);
+        style = parts.join(";");
     }
 
+    return style;
+};
+
+/**
+ * Removes the given key in an inline style.
+ *
+ * @param {string} style An inline style of mxGraph.
+ * @param {string} key Key in style.
+ * @returns {string} New inline style with the key removed.
+ */
+graphs.utils.removeStyleKey = function removeStyleKey(style, key) {
+    "use strict";
+
+    if (style === null || style === undefined || style.length === 0) {
+        return style;
+    }
+
+    var index = style.indexOf(key + "=");
+
+    if (index >= 0) {
+        var parts = style.split(";");
+        for (var i = 0; i < parts.length; ++i) {
+            var current = parts[i];
+            if (current.split("=")[0] == key) {
+                break;
+            }
+        }
+        parts.splice(i, 1);
+        style = parts.join(";");
+    }
     return style;
 };
 

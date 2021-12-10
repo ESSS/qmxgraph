@@ -307,7 +307,7 @@ graphs.Api.prototype.insertDecoration = function insertDecoration(
 
     if (edge === null) {
         throw Error(
-            "Could not find an edge at position and can only add a " + "decoration over an edge."
+            "Could not find an edge at position and can only add a decoration over an edge."
         );
     }
 
@@ -498,7 +498,6 @@ graphs.Api.prototype.insertTable = function insertTable(
 
     var tableStyle = "table";
     if (style != null) {
-        // jshint ignore:line
         tableStyle += ";" + style;
     }
     tableStyle = graphs.utils.setStyleKey(tableStyle, mxConstants.STYLE_OVERFLOW, "fill");
@@ -1777,8 +1776,12 @@ graphs.Api.prototype.setEdgeTerminal = function setEdgeTerminal(
         }
         var edge_style = model.getStyle(edge);
         var terminal_key = terminalType + "Port";
-        console.log("setEdgeTerminal", "edge_style", edge_style, terminal_key, terminal_value);
-        edge_style = graphs.utils.setStyleKey(edge_style, terminal_key, terminal_value);
+        if (portName) {
+            edge_style = graphs.utils.setStyleKey(edge_style, terminal_key, terminal_value);
+        } else {
+            // Remove the previously connected port.
+            edge_style = graphs.utils.removeStyleKey(edge_style, terminal_key);
+        }
         model.setStyle(edge, edge_style);
     } finally {
         model.endUpdate();
