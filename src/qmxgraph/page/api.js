@@ -1776,11 +1776,10 @@ graphs.Api.prototype.setEdgeTerminal = function setEdgeTerminal(
             terminal_value = mxCell.createPortId(newTerminalCellId, portName);
         }
         var edge_style = model.getStyle(edge);
-        var terminal_key = terminalType + 'Port';
+        var terminal_key = terminalType + "Port";
         if (portName) {
             edge_style = graphs.utils.setStyleKey(edge_style, terminal_key, terminal_value);
-        }
-        else {
+        } else {
             // Remove the previously connected port.
             edge_style = graphs.utils.removeStyleKey(edge_style, terminal_key);
         }

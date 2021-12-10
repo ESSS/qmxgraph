@@ -51,27 +51,22 @@ graphs.utils.setStyleKey = function setStyleKey(style, key, value) {
         value = "0";
     }
 
-    if (style === null || style === undefined || style.length === 0)
-    {
-        style = key + '=' + value;
-    }
-    else
-    {
-        var parts = style.split(';');
-        for (var i = 0; i < parts.length; ++i)
-        {
+    if (style === null || style === undefined || style.length === 0) {
+        style = key + "=" + value;
+    } else {
+        var parts = style.split(";");
+        for (var i = 0; i < parts.length; ++i) {
             var current = parts[i];
-            var current_key = current.split('=')[0];
-            if (current_key == key)
-            {
+            var current_key = current.split("=")[0];
+            if (current_key == key) {
                 // Just to find the key index to update. Will append in the end in case it is new.
                 break;
             }
         }
 
-        var updated_key_value = key + '=' + value;
+        var updated_key_value = key + "=" + value;
         parts.splice(i, 1, updated_key_value);
-        style = parts.join(';');
+        style = parts.join(";");
     }
 
     return style;
@@ -84,27 +79,25 @@ graphs.utils.setStyleKey = function setStyleKey(style, key, value) {
  * @param {string} key Key in style.
  * @returns {string} New inline style with the key removed.
  */
-graphs.utils.removeStyleKey = function removeStyleKey (style, key) {
+graphs.utils.removeStyleKey = function removeStyleKey(style, key) {
     "use strict";
 
-    if (style === null || style === undefined || style.length === 0)
-    {
+    if (style === null || style === undefined || style.length === 0) {
         return style;
     }
 
-    var index = style.indexOf(key+'=');
+    var index = style.indexOf(key + "=");
 
-    if (index >= 0)
-    {
-        var parts = style.split(';')
+    if (index >= 0) {
+        var parts = style.split(";");
         for (var i = 0; i < parts.length; ++i) {
-          var current = parts[i];
-          if (current.split('=')[0] == key) {
-              break;
-          }
+            var current = parts[i];
+            if (current.split("=")[0] == key) {
+                break;
+            }
         }
         parts.splice(i, 1);
-        style = parts.join(';');
+        style = parts.join(";");
     }
     return style;
 };
