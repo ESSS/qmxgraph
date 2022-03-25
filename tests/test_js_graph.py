@@ -41,6 +41,36 @@ def test_insert_vertex(graph_cases) -> None:
     assert graph.get_vertex() is not None
 
 
+def test_insert_vertex_with_zoom_and_scale(graph_cases) -> None:
+    """
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    """
+    graph = graph_cases('empty')
+    x = 10
+    y = 20
+    w = 30
+    h = 40
+    scale = 2
+    trans_x = 8
+    trans_y = 7
+    graph.eval_js_function('api.setScaleAndTranslation', scale, trans_x, trans_y)
+
+    # `adjustXYCcoordinates` value `undefined` defaults to `true`.
+    graph.eval_js_function('api.insertVertex', x, y, w, h, '', '', {}, 'adjusted-1')
+    graph.eval_js_function('api.insertVertex', x, y, w, h, '', '', {}, 'adjusted-2', True)
+    adjusted1_bounds = graph.eval_js_function('api.getCellBounds', 'adjusted-1')
+    adjusted2_bounds = graph.eval_js_function('api.getCellBounds', 'adjusted-2')
+    assert adjusted2_bounds == adjusted1_bounds
+    assert adjusted1_bounds['x'] == (x / scale) - trans_x == -3
+    assert adjusted1_bounds['y'] == (y / scale) - trans_y == 3
+
+    # When `adjustXYCcoordinates` is `false` values are taken on face value.
+    graph.eval_js_function('api.insertVertex', x, y, w, h, '', '', {}, 'absolute', False)
+    absolute_bounds = graph.eval_js_function('api.getCellBounds', 'absolute')
+    assert absolute_bounds['x'] == x
+    assert absolute_bounds['y'] == y
+
+
 @pytest.mark.parametrize('dumped,restored', [('1v', '2v'), ('2v', '1v')])
 def test_dump_restore(dumped, restored, graph_cases) -> None:
     """

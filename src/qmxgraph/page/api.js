@@ -53,6 +53,8 @@ graphs.Api.TARGET_TERMINAL_CELL = "target";
  * attributes that may be added to a cell that may be later queried (or even modified), with the
  * objective of allowing better inspection and interaction with cells in a graph.
  * @param {number} [id] The id of the vertex. If omitted (or non unique) an id is generated.
+ * @param {boolean} [adjustXYCcoordinates=true] A flag indicating the received X and Y coordinates
+ * should be adjusted using current zoom and pan (screen to world transformation).
  * @returns {number} Id of new vertex.
  */
 graphs.Api.prototype.insertVertex = function insertVertex(
@@ -63,15 +65,24 @@ graphs.Api.prototype.insertVertex = function insertVertex(
     label,
     style,
     tags,
-    id
+    id,
+    adjustXYCcoordinates
 ) {
     "use strict";
 
-    var graph = this._graphEditor.graph;
-    var coords = graphs.utils.adjustCoordinates(graph, x, y);
-
     if (id === undefined) {
         id = null;
+    }
+    if (adjustXYCcoordinates === undefined) {
+        adjustXYCcoordinates = true;
+    }
+
+    var graph = this._graphEditor.graph;
+    var coords;
+    if (adjustXYCcoordinates) {
+        coords = graphs.utils.adjustCoordinates(graph, x, y);
+    } else {
+        coords = { x: x, y: y };
     }
 
     var value = this._prepareCellValue(label, tags);
