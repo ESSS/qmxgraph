@@ -41,7 +41,18 @@ class QmxGraphApi(object):
         self._graph = weakref.ref(graph)
         self._call_context_manager_factory = call_context_manager_factory
 
-    def insert_vertex(self, x, y, width, height, label, style=None, tags=None, id=None):
+    def insert_vertex(
+        self,
+        x,
+        y,
+        width,
+        height,
+        label,
+        style=None,
+        tags=None,
+        id=None,
+        adjust_xy_coordinates=True,
+    ):
         """
         Inserts a new vertex in graph.
 
@@ -59,10 +70,15 @@ class QmxGraphApi(object):
             interaction with cells in a graph.
         :param Optional[str] id: The id of the edge. If omitted (or non
             unique) an id is generated.
+        :param bool adjust_xy_coordinates: A flag indicating the received X and Y
+            coordinates should be adjusted using current zoom and pan (screen to
+            world transformation).
         :rtype: str
         :return: Id of new vertex.
         """
-        return self.call_api('insertVertex', x, y, width, height, label, style, tags, id)
+        return self.call_api(
+            'insertVertex', x, y, width, height, label, style, tags, id, adjust_xy_coordinates
+        )
 
     def insert_port(
         self, vertex_id, port_name, x, y, width, height, label=None, style=None, tags=None
