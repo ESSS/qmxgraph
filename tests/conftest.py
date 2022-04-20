@@ -678,7 +678,7 @@ class BaseGraphCase(object):
     def eval_js_function(self, fn, *args):
         """
         :param str fn: A function expression in JavaScript.
-        :param tuple args: Positional arguments passed to JavaScript function.
+        :param object args: Positional arguments passed to JavaScript function.
         :rtype: object
         :return: Return obtained by evaluation of given function.
         """
