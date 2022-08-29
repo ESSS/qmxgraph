@@ -40,7 +40,7 @@
         var effectiveLabelRotatable = mxUtils.getValue(
             this.style,
             mxConstants.STYLE_LABEL_ROTATABLE,
-            1
+            1,
         );
         if (effectiveLabelRotatable == 0) {
             // jshint ignore:line
@@ -56,7 +56,7 @@
         var effectiveLabelRotatable = mxUtils.getValue(
             this.style,
             mxConstants.STYLE_LABEL_ROTATABLE,
-            1
+            1,
         );
         if (effectiveLabelRotatable == 0) {
             // jshint ignore:line
