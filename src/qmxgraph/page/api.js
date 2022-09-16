@@ -1159,6 +1159,39 @@ graphs.Api.prototype.removePort = function removePort(vertexId, portName) {
 };
 
 /**
+ * Recursively finds cells' ids.
+ *
+ * @param {Array[mxCell]} cells The cells.
+ * @returns {Array[number]} Cell ids.
+ */
+graphs.Api.prototype._findCellIds = function _findCellIds(cells) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var cellIds = [];
+
+    for (var i = 0; i < cells.length; i++) {
+        var cell = cells[i];
+        if (cell.isPort()) {
+            // On qmxgraph ports are not considered cells.
+            // Cells are how they are modeled by the underling mxgraph library.
+            continue;
+        }
+
+        cellIds.push(cell.getId());
+
+        // Decorations for instance are children of other cells
+        // instead of default parent of graph. When add/remove event
+        // comes from a cell with default parent, the original event
+        // omits children cells that were also added/removed.
+        var childCells = this._findCellIds(graph.getModel().getChildCells(cell));
+        cellIds.push.apply(cellIds, childCells);
+    }
+
+    return cellIds;
+};
+
+/**
  * Register a handler to event when cells are removed from graph.
  *
  * @param {function} handler Callback that handles event. Receives an
@@ -1167,37 +1200,16 @@ graphs.Api.prototype.removePort = function removePort(vertexId, portName) {
 graphs.Api.prototype.registerCellsRemovedHandler = function registerCellsRemovedHandler(handler) {
     "use strict";
 
-    var graph = this._graphEditor.graph;
-
     var removeHandler = function (sender, evt) {
         var cells = evt.getProperty("cells");
-        var cellIds = [];
-
-        var findCellIds = function (cells) {
-            for (var i = 0; i < cells.length; i++) {
-                var cell = cells[i];
-                if (cell.isPort()) {
-                    // On qmxgraph ports are not considered cells.
-                    // Cells are how they are modeled by the underling mxgraph library.
-                    continue;
-                }
-
-                cellIds.push(cell.getId());
-
-                // Decorations for instance are children of other cells
-                // instead of default parent of graph. When remove event
-                // comes from a cell with default parent, the original event
-                // omits children cells that were also removed.
-                findCellIds(graph.getModel().getChildCells(cell));
-            }
-        };
-        findCellIds(cells);
+        var cellIds = this._findCellIds(cells);
         if (cellIds.length) {
             handler(cellIds);
         }
     };
 
-    graph.addListener(mxEvent.CELLS_REMOVED, removeHandler);
+    var graph = this._graphEditor.graph;
+    graph.addListener(mxEvent.CELLS_REMOVED, removeHandler.bind(this));
 };
 
 /**
@@ -1209,25 +1221,16 @@ graphs.Api.prototype.registerCellsRemovedHandler = function registerCellsRemoved
 graphs.Api.prototype.registerCellsAddedHandler = function registerCellsAddedHandler(handler) {
     "use strict";
 
-    var graph = this._graphEditor.graph;
-
     var addHandler = function (sender, evt) {
         var cells = evt.getProperty("cells");
-        var cellIds = [];
-        for (var i = 0; i < cells.length; i++) {
-            var cell = cells[i];
-            if (cell.isPort()) {
-                // See comment about ports on `graphs.Api#registerCellsRemovedHandler`.
-                continue;
-            }
-            cellIds.push(cell.getId());
-        }
+        var cellIds = this._findCellIds(cells);
         if (cellIds.length) {
             handler(cellIds);
         }
     };
 
-    graph.addListener(mxEvent.CELLS_ADDED, addHandler);
+    var graph = this._graphEditor.graph;
+    graph.addListener(mxEvent.CELLS_ADDED, addHandler.bind(this));
 };
 
 /**
