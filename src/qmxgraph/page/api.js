@@ -66,7 +66,7 @@ graphs.Api.prototype.insertVertex = function insertVertex(
     style,
     tags,
     id,
-    adjustXYCcoordinates,
+    adjustXYCcoordinates
 ) {
     "use strict";
 
@@ -118,7 +118,7 @@ graphs.Api.prototype.insertPort = function insertPort(
     height,
     label,
     style,
-    tags,
+    tags
 ) {
     "use strict";
 
@@ -171,7 +171,7 @@ graphs.Api.prototype.updatePort = function updatePort(
     height,
     label,
     style,
-    tags,
+    tags
 ) {
     "use strict";
 
@@ -253,7 +253,7 @@ graphs.Api.prototype.insertEdge = function insertEdge(
     tags,
     sourcePortName,
     targetPortName,
-    id,
+    id
 ) {
     "use strict";
 
@@ -308,7 +308,7 @@ graphs.Api.prototype.insertDecoration = function insertDecoration(
     label,
     style,
     tags,
-    id,
+    id
 ) {
     "use strict";
 
@@ -318,7 +318,7 @@ graphs.Api.prototype.insertDecoration = function insertDecoration(
 
     if (edge === null) {
         throw Error(
-            "Could not find an edge at position and can only add a decoration over an edge.",
+            "Could not find an edge at position and can only add a decoration over an edge."
         );
     }
 
@@ -346,7 +346,7 @@ graphs.Api.prototype.insertDecoration = function insertDecoration(
  * @returns {number} Position of the decoration in mxGraph coordinates (normalized between [-1, 1]).
  */
 graphs.Api.prototype._mapDecorationPositionToMxGraph = function _mapDecorationPositionToMxGraph(
-    position,
+    position
 ) {
     if (position < 0) {
         position = 0;
@@ -381,7 +381,7 @@ graphs.Api.prototype.insertDecorationOnEdge = function insertDecorationOnEdge(
     label,
     style,
     tags,
-    id,
+    id
 ) {
     "use strict";
 
@@ -416,7 +416,7 @@ graphs.Api.prototype._insertDecorationOnEdge = function _insertDecorationOnEdge(
     label,
     style,
     tags,
-    id,
+    id
 ) {
     "use strict";
 
@@ -448,7 +448,7 @@ graphs.Api.prototype._insertDecorationOnEdge = function _insertDecorationOnEdge(
             width,
             height,
             decorationStyle,
-            true,
+            true
         );
         decoration.geometry.offset = new mxPoint(-width / 2, -height / 2);
         decoration.connectable = false;
@@ -490,7 +490,7 @@ graphs.Api.prototype.insertTable = function insertTable(
     tags,
     style,
     parentId,
-    id,
+    id
 ) {
     "use strict";
 
@@ -534,7 +534,7 @@ graphs.Api.prototype.insertTable = function insertTable(
             0,
             0,
             tableStyle,
-            isRelative,
+            isRelative
         );
         table.connectable = false;
 
@@ -683,7 +683,7 @@ graphs.Api.prototype._getBoundsFromMxCell = function _getBoundsFromMxCell(cell) 
         y: y,
         width: geometry.width,
         height: geometry.height,
-        parent_anchor_position: parent_anchor_position,
+        parent_anchor_position: parent_anchor_position
     };
 };
 
@@ -1287,7 +1287,7 @@ graphs.Api.prototype.registerBoundsChangedHandler = function registerBoundsChang
  * that are selected as only argument.
  */
 graphs.Api.prototype.registerSelectionChangedHandler = function registerSelectionChangedHandler(
-    handler,
+    handler
 ) {
     "use strict";
 
@@ -1312,7 +1312,7 @@ graphs.Api.prototype.registerSelectionChangedHandler = function registerSelectio
  * id of the old terminal.
  */
 graphs.Api.prototype.registerTerminalChangedHandler = function registerTerminalChangedHandler(
-    handler,
+    handler
 ) {
     "use strict";
 
@@ -1330,7 +1330,7 @@ graphs.Api.prototype.registerTerminalChangedHandler = function registerTerminalC
                     change.cell.getId(),
                     change.source ? "source" : "target",
                     change.terminal.getId(),
-                    change.previous.getId(),
+                    change.previous.getId()
                 );
             }
         }
@@ -1401,12 +1401,12 @@ graphs.Api.prototype.registerTerminalWithPortChangedHandler =
                         var newPortName = getPortNameFromStyle(
                             stylesheet,
                             eventData.newStyle,
-                            eventData.source,
+                            eventData.source
                         );
                         var previousPortName = getPortNameFromStyle(
                             stylesheet,
                             eventData.previousStyle,
-                            eventData.source,
+                            eventData.source
                         );
                         handler(
                             eventTargetId,
@@ -1414,7 +1414,7 @@ graphs.Api.prototype.registerTerminalWithPortChangedHandler =
                             eventData.newTerminalId,
                             newPortName,
                             eventData.previousTerminalId,
-                            previousPortName,
+                            previousPortName
                         );
                     }
                 }
@@ -1757,7 +1757,7 @@ graphs.Api.prototype.setEdgeTerminal = function setEdgeTerminal(
     cellId,
     terminalType,
     newTerminalCellId,
-    portName,
+    portName
 ) {
     "use strict";
     var isSource = true;
@@ -1817,10 +1817,10 @@ graphs.Api.prototype._getMxEdgeTerminalsWithPorts = function _getMxEdgeTerminals
 
     if (!this._qmxgraphSourcePortNameExtractionRegex) {
         this._qmxgraphTargetPortNameExtractionRegex = new RegExp(
-            "(?:^|;)targetPort=" + mxCell._PORT_ID_PREFIX + "\\d+-([^;$]+)(?:;|$)",
+            "(?:^|;)targetPort=" + mxCell._PORT_ID_PREFIX + "\\d+-([^;$]+)(?:;|$)"
         );
         this._qmxgraphSourcePortNameExtractionRegex = new RegExp(
-            "(?:^|;)sourcePort=" + mxCell._PORT_ID_PREFIX + "\\d+-([^;$]+)(?:;|$)",
+            "(?:^|;)sourcePort=" + mxCell._PORT_ID_PREFIX + "\\d+-([^;$]+)(?:;|$)"
         );
     }
 
@@ -1839,7 +1839,7 @@ graphs.Api.prototype._getMxEdgeTerminalsWithPorts = function _getMxEdgeTerminals
 
     return [
         [sourceId, sourcePortName],
-        [targetId, targetPortName],
+        [targetId, targetPortName]
     ];
 };
 
@@ -1892,12 +1892,12 @@ graphs.Api.prototype._getMxEdgeTerminalPoints = function _getMxEdgeTerminalPoint
     var sourcePort = view.getTerminalPort(
         view.getState(edge),
         view.getState(edge.getTerminal(true)),
-        true,
+        true
     );
     var targetPort = view.getTerminalPort(
         view.getState(edge),
         view.getState(edge.getTerminal(false)),
-        false,
+        false
     );
 
     var edgeGeo = this.getGeometry(edgeId);
@@ -1928,7 +1928,7 @@ graphs.Api.prototype.getEdgeTerminalPoints = function getEdgeTerminalPoints(edge
     var terminal_points = this._getMxEdgeTerminalPoints(edge);
     return [
         [terminal_points[0].x, terminal_points[0].y],
-        [terminal_points[1].x, terminal_points[1].y],
+        [terminal_points[1].x, terminal_points[1].y]
     ];
 };
 

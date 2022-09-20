@@ -212,8 +212,8 @@ graphs.createGraph = function createGraph(container, options, styles) {
                     "old",
                     old,
                     "event",
-                    evt,
-                ),
+                    evt
+                )
             );
         } finally {
             this.model.endUpdate();
@@ -364,7 +364,7 @@ graphs.createGraph = function createGraph(container, options, styles) {
         graph.connectionHandler.connectImage = new mxImage(
             options["connection_image"][0],
             options["connection_image"][1],
-            options["connection_image"][2],
+            options["connection_image"][2]
         );
     }
 
@@ -373,7 +373,7 @@ graphs.createGraph = function createGraph(container, options, styles) {
         mxConstraintHandler.prototype.pointImage = new mxImage(
             options["port_image"][0],
             options["port_image"][1],
-            options["port_image"][2],
+            options["port_image"][2]
         );
     }
 
@@ -496,7 +496,7 @@ graphs.createGraph = function createGraph(container, options, styles) {
                     var markerStyle = graphs.utils.obtainDecorationStyle(
                         graph,
                         edge,
-                        marker.getStyle(),
+                        marker.getStyle()
                     );
                     graph.model.setStyle(marker, markerStyle);
                 }
@@ -532,7 +532,7 @@ graphs.createGraph = function createGraph(container, options, styles) {
                 console.log(event.clientX, event.clientY);
             }
         },
-        false,
+        false
     );
 
     return editor;

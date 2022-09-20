@@ -261,7 +261,7 @@ graphs.utils.createTableElement = function createTableElement(contents, title) {
         var td_defaults = [
             ["colspan", 1],
             ["rowspan", 1],
-            ["style", null],
+            ["style", null]
         ];
         var result = "<td";
         for (var i = 0; i < td_defaults.length; ++i) {
@@ -321,7 +321,7 @@ graphs.utils.escapeHtml = function escapeHtml(text) {
         "<": "&lt;",
         ">": "&gt;",
         '"': "&quot;",
-        "'": "&#039;",
+        "'": "&#039;"
     };
     return String(text).replace(/[&<>"']/g, function (m) {
         return map[m];
