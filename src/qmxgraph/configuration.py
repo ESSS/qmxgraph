@@ -61,6 +61,8 @@ class GraphOptions(object):
     :ivar bool show_outline: Show outline of graph in a floating window.
     :ivar bool snap_to_grid: Snap to background grid when moving vertices
         in graph.
+    :ivar bool zoom_to_cursor: Apply zoom focused on the position of the mouse cursor
+        instead of on the center.
     """
 
     allow_create_target = attr.ib(default=False, validator=_is_bool)
@@ -85,6 +87,7 @@ class GraphOptions(object):
     show_highlight = attr.ib(default=True, validator=_is_bool)
     show_outline = attr.ib(default=False, validator=_is_bool)
     snap_to_grid = attr.ib(default=True, validator=_is_bool)
+    zoom_to_cursor = attr.ib(default=False, validator=_is_bool)
 
     def as_dict(self):
         return attr.asdict(self)
