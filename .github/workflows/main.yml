@@ -51,7 +51,7 @@ jobs:
         export TEST_QMXGRAPH=1
         echo "=== conda devenv -n qmxgraph --print-full ==="
         conda devenv -n qmxgraph --print-full
-        echo "=== === ==="
+        echo "=== === === === ==="
         conda devenv -n qmxgraph
         conda install -n qmxgraph coveralls pytest-cov
         conda list -n qmxgraph
