@@ -18,15 +18,14 @@ dependencies:
 
   {% if TEST_QMXGRAPH %}
   - cherrypy
-  - hypothesis ==3.11.0
+  - hypothesis =3.11
   - pytest-mock
   - pytest-qt
   - pytest-rerunfailures
   - pytest-selenium >=1,<2
   - pytest-timeout
   - typing-extensions <4.2.0  # [PYTHON_VERSION=="3.6"]
-  {% if sys.platform != 'win32' %}
-  - pytest-xvfb
-  {% endif %}
-
+  # Pin importlib_resources due to #151.
+  - importlib_resources <5.10
+  - pytest-xvfb  # [linux]
   {% endif %}
