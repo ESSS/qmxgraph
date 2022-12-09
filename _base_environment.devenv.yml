@@ -11,7 +11,7 @@ dependencies:
     - oop-ext
     - pip
     - pre-commit
-    - pyqt
+    - pyqt >=5.12
 
 environment:
   PYTHONPATH:

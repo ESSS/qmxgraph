@@ -1,3 +1,6 @@
+import os
+import shutil
+
 import pytest
 
 
@@ -7,7 +10,9 @@ def pytest_configure(config):
     # of pytest so they can't reliably be removed by a fixture.
     config.cache.set('qmxgraph/ports', [])
 
-    import os
+    # Ensure phantomjs is available.
+    phantomjs = shutil.which("phantomjs")
+    assert phantomjs is not None
 
     lock_file = _get_port_lock_filename(config.rootdir)
     if os.path.isfile(lock_file):
