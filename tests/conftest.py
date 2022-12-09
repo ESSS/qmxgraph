@@ -18,10 +18,6 @@ def pytest_configure(config):
     if os.path.isfile(lock_file):
         os.remove(lock_file)
 
-    import socket
-
-    socket.setdefaulttimeout(15.0)
-
 
 # Fixtures --------------------------------------------------------------------
 
@@ -949,25 +945,24 @@ def _wait_graph_page_ready(host, selenium):
     import socket
     from selenium.common.exceptions import TimeoutException
 
-    timeout = 15
+    timeout = 30
     timeout_exceptions = (TimeoutException, TimeoutError, socket.timeout)
-    selenium.set_page_load_timeout(1)
+    selenium.set_page_load_timeout(timeout)
     refresh = True
     try:
         selenium.get(host.address)
         refresh = False
     except timeout_exceptions:
         pass
-
+    tries = 3
     if refresh:
-        for n in range(timeout):
+        for n in range(tries):
             try:
                 selenium.refresh()
                 break
             except timeout_exceptions:
-                pass
-        else:
-            raise TimeoutException("All page load tries resulted in timeout")
+                if n == tries - 1:
+                    raise
 
     from selenium.webdriver.support.wait import WebDriverWait
     from selenium.webdriver.common.by import By
