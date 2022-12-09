@@ -891,7 +891,7 @@ def test_insert_with_tags(graph_cases, cell_type) -> None:
     # Listen to on cells added event to be sure tags are already configured
     # as soon as cell is created
     graph.selenium.execute_script(
-        'callback = function(cellIds) {'
+        'window.callback = function(cellIds) {'
         '   window.tags = cellIds.map('
         '       function(cellId) {'
         '           return api.hasTag(cellId, "tagTest")? api.getTag(cellId, "tagTest") : null;'  # noqa
@@ -1187,7 +1187,7 @@ def test_set_double_click_handler(graph_cases) -> None:
     vertex_id = graph.get_id(graph.get_vertex())
 
     graph.selenium.execute_script(
-        'callback = function(cellId) {'
+        'window.callback = function(cellId) {'
         '    if (!window.__dblClick__) {'
         '        window.__dblClick__ = [];'
         '    }'
@@ -1215,7 +1215,7 @@ def test_add_selection_change_handler(graph_cases) -> None:
     edge = graph.get_edge(source, target)
 
     graph.selenium.execute_script(
-        'callback = function(cellIds) {'
+        'window.callback = function(cellIds) {'
         '    if (!window.__selectionChange__) {'
         '        window.__selectionChange__ = [];'
         '    }'
@@ -1268,7 +1268,7 @@ def test_set_popup_menu_handler(graph_cases) -> None:
     vertex_id = graph.get_id(graph.get_vertex())
 
     graph.selenium.execute_script(
-        'callback = function(cellId, x, y) {'
+        'window.callback = function(cellId, x, y) {'
         '    if (!window.__popupMenu__) {'
         '        window.__popupMenu__ = [];'
         '    }'

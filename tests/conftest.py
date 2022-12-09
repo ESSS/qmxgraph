@@ -293,7 +293,7 @@ class BaseGraphCase(object):
         _wait_graph_page_ready(host=host, selenium=selenium)
 
         selenium.execute_script(
-            'callback = function(cellIds) {'
+            'window.callback = function(cellIds) {'
             '    if (!window.__added__) {'
             '        window.__added__ = [];'
             '    }'
@@ -305,7 +305,7 @@ class BaseGraphCase(object):
         )
 
         selenium.execute_script(
-            'callback = function(cellId, newLabel, oldLabel) {'
+            'window.callback = function(cellId, newLabel, oldLabel) {'
             '    if (!window.__labels__) {'
             '        window.__labels__ = [];'
             '    }'
