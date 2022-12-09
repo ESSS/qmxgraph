@@ -24,6 +24,7 @@ dependencies:
   - pytest-rerunfailures
   - pytest-selenium >=1,<2
   - pytest-timeout
+  - typing-extensions <4.2.0  # [PYTHON_VERSION=="3.6"]
   {% if sys.platform != 'win32' %}
   - pytest-xvfb
   {% endif %}
