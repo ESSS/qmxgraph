@@ -300,7 +300,9 @@ class BaseGraphCase(object):
             '    window.__added__.push.apply(window.__added__, cellIds);'
             '}'
         )
-        self.eval_js_function('api.registerCellsAddedHandler', qmxgraph.js.Variable('callback'))
+        self.eval_js_function(
+            'api.registerCellsAddedHandler', qmxgraph.js.Variable('window.callback')
+        )
 
         selenium.execute_script(
             'callback = function(cellId, newLabel, oldLabel) {'
@@ -310,7 +312,9 @@ class BaseGraphCase(object):
             '    window.__labels__.push({cellId: cellId, newLabel: newLabel, oldLabel: oldLabel});'  # noqa
             '}'
         )
-        self.eval_js_function('api.registerLabelChangedHandler', qmxgraph.js.Variable('callback'))
+        self.eval_js_function(
+            'api.registerLabelChangedHandler', qmxgraph.js.Variable('window.callback')
+        )
 
     def get_container(self):
         """

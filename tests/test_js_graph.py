@@ -683,7 +683,7 @@ def test_on_cells_removed(graph_cases) -> None:
     graph = graph_cases('2v_1e')
 
     graph.selenium.execute_script('callback = function(cellIds) {window.cellIds = cellIds;}')
-    graph.eval_js_function('api.registerCellsRemovedHandler', js.Variable('callback'))
+    graph.eval_js_function('api.registerCellsRemovedHandler', js.Variable('window.callback'))
 
     cell_ids = [
         graph.get_id(graph.get_vertices()[0]),
@@ -899,7 +899,7 @@ def test_insert_with_tags(graph_cases, cell_type) -> None:
         '   );'
         '}'
     )
-    graph.eval_js_function('api.registerCellsAddedHandler', js.Variable('callback'))
+    graph.eval_js_function('api.registerCellsAddedHandler', js.Variable('window.callback'))
     tags = {'tagTest': '1'}
 
     cell_id = insert_by_parametrized_type(graph, cell_type, tags=tags)
@@ -1194,7 +1194,9 @@ def test_set_double_click_handler(graph_cases) -> None:
         '    window.__dblClick__.push(cellId);'
         '}'
     )
-    graph.eval_js_function('api.registerDoubleClickHandler', qmxgraph.js.Variable('callback'))
+    graph.eval_js_function(
+        'api.registerDoubleClickHandler', qmxgraph.js.Variable('window.callback')
+    )
 
     actions = ActionChains(graph.selenium)
     actions.double_click(graph.get_vertex())
@@ -1220,7 +1222,9 @@ def test_add_selection_change_handler(graph_cases) -> None:
         '    window.__selectionChange__.push(cellIds);'
         '}'
     )
-    graph.eval_js_function('api.registerSelectionChangedHandler', qmxgraph.js.Variable('callback'))
+    graph.eval_js_function(
+        'api.registerSelectionChangedHandler', qmxgraph.js.Variable('window.callback')
+    )
 
     # Select all cells.
     actions = ActionChains(graph.selenium)
@@ -1271,7 +1275,7 @@ def test_set_popup_menu_handler(graph_cases) -> None:
         '    window.__popupMenu__.push([cellId, x, y]);'
         '}'
     )
-    graph.eval_js_function('api.registerPopupMenuHandler', qmxgraph.js.Variable('callback'))
+    graph.eval_js_function('api.registerPopupMenuHandler', qmxgraph.js.Variable('window.callback'))
 
     vertex_label_el = graph.get_label_element(graph.get_vertex())
     actions = ActionChains(graph.selenium)
