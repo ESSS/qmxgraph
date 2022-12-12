@@ -3,6 +3,7 @@ from typing import Any
 from typing import List
 
 import pytest
+from pytestqt.qtbot import QtBot
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver import ActionChains
@@ -1251,7 +1252,7 @@ def test_add_selection_change_handler(graph_cases) -> None:
     ]
 
 
-def test_set_popup_menu_handler(graph_cases) -> None:
+def test_set_popup_menu_handler(graph_cases, qtbot: QtBot) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
     """
@@ -1274,9 +1275,12 @@ def test_set_popup_menu_handler(graph_cases) -> None:
     actions.context_click(vertex_label_el)
     actions.perform()
 
-    x = vertex_label_el.location['x'] + vertex_label_el.size['width'] // 2
-    y = vertex_label_el.location['y'] + vertex_label_el.size['height'] // 2
-    assert graph.selenium.execute_script('return window.__popupMenu__') == [[vertex_id, x, y]]
+    def check() -> None:
+        x = vertex_label_el.location['x'] + vertex_label_el.size['width'] // 2
+        y = vertex_label_el.location['y'] + vertex_label_el.size['height'] // 2
+        assert graph.selenium.execute_script('return window.__popupMenu__') == [[vertex_id, x, y]]
+
+    qtbot.waitUntil(check)
 
 
 @pytest.mark.parametrize(
