@@ -461,7 +461,7 @@ def test_get_geometry_plain(graph_cases) -> None:
     # Table geometry is dependent on how the contents are rendered.
     # Using `pytest.approx` to account for platform differences.
     obtained_table_geometry = graph.get_geometry(graph.get_tables()[0])
-    assert pytest.approx(obtained_table_geometry, rel=0.1) == [20, 60, 108, 72]
+    assert obtained_table_geometry == pytest.approx([20, 60, 96, 72], rel=0.1)
 
 
 def test_get_geometry_error_not_found(graph_cases, selenium_extras) -> None:
