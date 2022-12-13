@@ -18,7 +18,7 @@ dependencies:
   {% if TEST_QMXGRAPH %}
   - cherrypy
   - hypothesis =3.11
-  - chromium 
+  - chromium
   - python-chromedriver-binary
   - pytest-mock
   - pytest-qt
