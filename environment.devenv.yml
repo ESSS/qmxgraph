@@ -9,7 +9,7 @@ includes:
 environment:
   # Tip: Use `--driver <driver_name>` to change driver for a single run
   {% if TEST_QMXGRAPH %}
-  PYTEST_ADDOPTS: --driver Firefox
+  PYTEST_ADDOPTS: --driver Chrome
   {% endif %}
 
 dependencies:
