@@ -18,8 +18,8 @@ dependencies:
   {% if TEST_QMXGRAPH %}
   - cherrypy
   - hypothesis =3.11
-  - firefox
-  - geckodriver
+  - chromium 
+  - python-chromedriver-binary
   - pytest-mock
   - pytest-qt
   - pytest-rerunfailures
