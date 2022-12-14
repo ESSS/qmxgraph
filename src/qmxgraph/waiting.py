@@ -81,4 +81,5 @@ def wait_until(
                     msg += f":\n{error_callback()}"
                 raise TimeoutError(msg)
 
+        time.sleep(1e-10)
         QTest.qWait(wait_interval_ms)
