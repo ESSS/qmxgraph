@@ -687,6 +687,26 @@ def loaded_graph_(graph):
     return graph
 
 
+def test_clone_cells(graph: QmxGraph, mocker: MockFixture) -> None:
+    events = graph.events_bridge
+    added_handler = mocker.Mock()
+    events.on_cells_added.connect(added_handler)
+
+    graph.load_and_wait()
+
+    foo_id = graph.api.insert_vertex(440, 40, 20, 20, 'foo')
+    bar_id = graph.api.insert_vertex(40, 140, 20, 20, 'bar')
+    edge_id = graph.api.insert_edge(foo_id, bar_id, 'edge')
+
+    cell_ids = [foo_id, bar_id, edge_id]
+    new_cell_ids = graph.clone_cells(cell_ids)
+
+    assert len(new_cell_ids) == 3
+    assert added_handler.call_args_list == [
+        mocker.call(cell_id) for cell_id in (cell_ids + new_cell_ids)
+    ]
+
+
 @pytest.fixture(name='drag_drop_events')
 def drag_drop_events_(mocker):
     """

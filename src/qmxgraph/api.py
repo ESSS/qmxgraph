@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from typing import Any
 from typing import Generator
 from typing import List
+from typing import Sequence
 
 import qmxgraph.debug
 import qmxgraph.js
@@ -570,6 +571,28 @@ class QmxGraphApi(object):
         """
         return self.call_api('removeCells', cell_ids, ignore_missing_cells)
 
+    def clone_cells(
+        self,
+        cell_ids: Sequence[str],
+        ignore_missing_cells: bool = False,
+        offset_x: int = 10,
+        offset_y: int = 10,
+    ) -> List[str]:
+        """
+        Clone cells and add them to the graph.
+
+        :param cell_ids: Ids of cells to be cloned.
+        :param ignore_missing_cells: Ids of non existent cells are ignored instead of
+            raising an error.
+        :param offset_x: Offset to be applied to the new cells in pixels
+        :param offset_y: Offset to be applied to the new cells in pixels
+        """
+        new_cell_ids = self.call_api(
+            'cloneCells', cell_ids, ignore_missing_cells, offset_x, offset_y
+        )
+        self.set_selected_cells(new_cell_ids)
+        return new_cell_ids
+
     def remove_port(self, vertex_id, port_name):
         """
         Remove an existing port from a vertex. Any edge connected to the
@@ -1006,8 +1029,7 @@ def _capture_critical_log_messages() -> Generator[List[str], None, None]:
     of type QtCriticalMsg. The context manager returns a list of captured messages,
     which can be inspected after the context manager ends.
     """
-    from PyQt5.QtCore import QtCriticalMsg
-    from PyQt5.QtCore import qInstallMessageHandler
+    from PyQt5.QtCore import QtCriticalMsg, qInstallMessageHandler
 
     messages = []
 

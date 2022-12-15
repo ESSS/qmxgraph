@@ -1126,6 +1126,272 @@ graphs.Api.prototype.removeCells = function removeCells(cellIds, ignoreMissingCe
 };
 
 /**
+ * Clone cells and add them to the graph.
+ *
+ * @param {number[]} cellIds Ids of cells to be cloned.
+ * @param {boolean} ignoreMissingCells Ids of non existent cells are ignored instead of
+ * raising an error.
+ * @returns {Array[number]} Ids of the new cells.
+ */
+graphs.Api.prototype.cloneCells = function cloneCells(
+    cellIds,
+    ignoreMissingCells,
+    offsetX,
+    offsetY
+) {
+    "use strict";
+
+    var graph = this._graphEditor.graph;
+    var model = graph.getModel();
+
+    var cells = [];
+    for (var i = 0; i < cellIds.length; ++i) {
+        var cell = this._findCell(model, cellIds[i], ignoreMissingCells);
+        if (cell) {
+            cells.push(cell);
+        }
+    }
+
+    // Removes descendants with ancestors in 'cells' to avoid cloning multiple times.
+    cells = model.getTopmostCells(cells);
+
+    model.beginUpdate();
+    try {
+        var newCells = this._cloneCells(cells);
+
+        var target = graph.getDefaultParent();
+        var index = model.getChildCount(target);
+        graph.cellsAdded(newCells, target, index, null, null, true);
+    } finally {
+        model.endUpdate();
+    }
+
+    var cellIds = [];
+    for (var i = newCells.length; i--; ) {
+        cellIds.push(newCells[i].getId());
+    }
+
+    graph.moveCells(newCells, offsetX, offsetY);
+    return cellIds;
+};
+
+/**
+ * Function: _cloneCells
+ *
+ * Returns the clones for the given cells. The clones are created recursively
+ * using <mxGraphModel.cloneCells>. If the terminal of an edge is not in the
+ * given array, then the respective end is assigned a terminal point and the
+ * terminal is removed.
+ *
+ * Parameters:
+ *
+ * cells - Array of <mxCells> to be cloned.
+ * allowInvalidEdges - Optional boolean that specifies if invalid edges
+ * should be cloned. Default is true.
+ * mapping - Optional mapping for existing clones.
+ * keepPosition - Optional boolean indicating if the position of the cells should
+ * be updated to reflect the lost parent cell. Default is false.
+ */
+graphs.Api.prototype._cloneCells = function _cloneCells(cells, allowInvalidEdges, mapping, keepPosition)
+{
+	allowInvalidEdges = (allowInvalidEdges != null) ? allowInvalidEdges : true;
+	var clones = null;
+
+	if (cells != null)
+	{
+        var graph = this._graphEditor.graph;
+
+		// Creates a dictionary for fast lookups
+		var dict = new mxDictionary();
+		var tmp = [];
+
+		for (var i = 0; i < cells.length; i++)
+		{
+			dict.put(cells[i], true);
+			tmp.push(cells[i]);
+		}
+
+		if (tmp.length > 0)
+		{
+			var scale = graph.view.scale;
+			var trans = graph.view.translate;
+			clones = this._modelCloneCells(cells, true, mapping);
+
+			for (var i = 0; i < cells.length; i++)
+			{
+				if (!allowInvalidEdges && graph.model.isEdge(clones[i]) &&
+					graph.getEdgeValidationError(clones[i],
+						graph.model.getTerminal(clones[i], true),
+						graph.model.getTerminal(clones[i], false)) != null)
+				{
+					clones[i] = null;
+				}
+				else
+				{
+					var g = graph.model.getGeometry(clones[i]);
+
+					if (g != null)
+					{
+						var state = graph.view.getState(cells[i]);
+						var pstate = graph.view.getState(graph.model.getParent(cells[i]));
+
+						if (state != null && pstate != null)
+						{
+							var dx = (keepPosition) ? 0 : pstate.origin.x;
+							var dy = (keepPosition) ? 0 : pstate.origin.y;
+
+							if (graph.model.isEdge(clones[i]))
+							{
+								var pts = state.absolutePoints;
+
+								if (pts != null)
+								{
+									// Checks if the source is cloned or sets the terminal point
+									var src = graph.model.getTerminal(cells[i], true);
+
+									while (src != null && !dict.get(src))
+									{
+										src = graph.model.getParent(src);
+									}
+
+									if (src == null && pts[0] != null)
+									{
+										g.setTerminalPoint(
+											new mxPoint(pts[0].x / scale - trans.x,
+												pts[0].y / scale - trans.y), true);
+									}
+
+									// Checks if the target is cloned or sets the terminal point
+									var trg = graph.model.getTerminal(cells[i], false);
+
+									while (trg != null && !dict.get(trg))
+									{
+										trg = graph.model.getParent(trg);
+									}
+
+									var n = pts.length - 1;
+
+									if (trg == null && pts[n] != null)
+									{
+										g.setTerminalPoint(
+											new mxPoint(pts[n].x / scale - trans.x,
+												pts[n].y / scale - trans.y), false);
+									}
+
+									// Translates the control points
+									var points = g.points;
+
+									if (points != null)
+									{
+										for (var j = 0; j < points.length; j++)
+										{
+											points[j].x += dx;
+											points[j].y += dy;
+										}
+									}
+								}
+							}
+							else
+							{
+								g.translate(dx, dy);
+							}
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			clones = [];
+		}
+	}
+
+	return clones;
+};
+
+/**
+ * Function: cloneCells
+ *
+ * Returns an array of clones for the given array of <mxCells>.
+ * Depending on the value of includeChildren, a deep clone is created for
+ * each cell. Connections are restored based if the corresponding
+ * cell is contained in the passed in array.
+ *
+ * Parameters:
+ *
+ * cells - Array of <mxCell> to be cloned.
+ * includeChildren - Optional boolean indicating if the cells should be cloned
+ * with all descendants. Default is true.
+ * mapping - Optional mapping for existing clones.
+ */
+graphs.Api.prototype._modelCloneCells = function _modelCloneCells(cells, includeChildren, mapping)
+{
+	includeChildren = (includeChildren != null) ? includeChildren : true;
+	mapping = (mapping != null) ? mapping : new Object();
+	var clones = [];
+
+    var model = this._graphEditor.graph.getModel();
+
+	for (var i = 0; i < cells.length; i++)
+	{
+		if (cells[i] != null)
+		{
+			clones.push(this._modelCloneCellImpl(cells[i], mapping, includeChildren));
+		}
+		else
+		{
+			clones.push(null);
+		}
+	}
+
+	for (var i = 0; i < clones.length; i++)
+	{
+		if (clones[i] != null)
+		{
+			model.restoreClone(clones[i], cells[i], mapping); // TODO: keep an eye on this
+		}
+	}
+
+	return clones;
+};
+
+/**
+ * Function: cloneCellImpl
+ *
+ * Inner helper method for cloning cells recursively.
+ */
+graphs.Api.prototype._modelCloneCellImpl = function _modelCloneCellImpl(cell, mapping, includeChildren)
+{
+	var ident = mxObjectIdentity.get(cell);
+	var clone = mapping[ident];
+
+	if (clone == null)
+	{
+        var model = this._graphEditor.graph.getModel();
+
+		clone = model.cellCloned(cell);
+		mapping[ident] = clone;
+
+		if (includeChildren)
+		{
+			var childCount = model.getChildCount(cell);
+
+			for (var i = 0; i < childCount; i++)
+			{
+                var child = model.getChildAt(cell, i);
+                if (child.isPort()) {
+                    continue;
+                }
+				var cloneChild = this._modelCloneCellImpl(child, mapping, true);
+                clone.insert(cloneChild);
+			}
+		}
+	}
+
+	return clone;
+};
+
+/**
  *
  * @param {number} vertexId The id of the vertex containing the port to remove.
  * @param {string} portName The name of the port to remove.

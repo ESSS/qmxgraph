@@ -8,6 +8,7 @@ from typing import Any
 from typing import Callable
 from typing import DefaultDict
 from typing import List
+from typing import Sequence
 
 from oop_ext.foundation.callback import Callback
 from PyQt5.QtCore import pyqtSignal
@@ -41,7 +42,10 @@ from qmxgraph.waiting import wait_until
 # Some ugliness to successfully build the doc on ReadTheDocs...
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if not on_rtd:
-    from qmxgraph import resource_mxgraph, resource_qmxgraph  # type:ignore[attr-defined]
+    from qmxgraph import (
+        resource_mxgraph,  # type:ignore[attr-defined]
+        resource_qmxgraph,
+    )
 
 
 class QmxGraph(QWidget):
@@ -389,6 +393,32 @@ class QmxGraph(QWidget):
         """
         with wait_signals_called(self._events_bridge.on_cells_removed):
             self.api.remove_cells(cell_ids, ignore_missing_cells=ignore_missing_cells)
+
+    def clone_cells(
+        self,
+        cell_ids: Sequence[str],
+        *,
+        ignore_missing_cells: bool = False,
+        offset_x: int = 10,
+        offset_y: int = 10,
+    ) -> List[str]:
+        """
+        Clone cells and add them to the graph.
+
+        :param cell_ids: Ids of cells to be cloned.
+        :param ignore_missing_cells: Ids of non existent cells are ignored instead of
+            raising an error.
+        :param offset_x: Offset to be applied to the new cells in pixels
+        :param offset_y: Offset to be applied to the new cells in pixels
+
+        """
+        with wait_signals_called(self._events_bridge.on_cells_added):
+            return self.api.clone_cells(
+                cell_ids,
+                ignore_missing_cells=ignore_missing_cells,
+                offset_x=offset_x,
+                offset_y=offset_y,
+            )
 
     # Accessors recommended for debugging/testing only ------------------------
 
