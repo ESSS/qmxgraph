@@ -43,6 +43,8 @@ graphs.createGraph = function createGraph(container, options, styles) {
     var editor = new mxEditor();
     editor.setGraphContainer(container);
     var graph = editor.graph;
+    // Used to avoid sending events for the operations that are a part of zooming in/out.
+    graph.view.processingMouseWheel = false;
 
     // NOTE: grid size must usually equal the size of grid GIF
     // used as background of graph's div
@@ -509,18 +511,8 @@ graphs.createGraph = function createGraph(container, options, styles) {
 
     // * Adds mouse wheel handling for zoom
     mxEvent.addMouseWheelListener(function (evt, up) {
-        // - `up = true` direction:
-        //      Moves the viewport closer to the graph;
-        //      When browsing a web page the vertical scrollbar will move up;
-        // - `up = false` direction:
-        //      Moves the viewport away from the graph;
-        //      When browsing a web page the vertical scrollbar will move down;
-        if (up) {
-            graph.zoomIn();
-        } else {
-            graph.zoomOut();
-        }
-        mxEvent.consume(evt);
+        var zoomToCursor = options["zoom_to_cursor"];
+        return graphs.handleMouseWheelEvent(graph, evt, up, zoomToCursor);
     });
 
     // DEBUG -------------------------------------------------------------------
@@ -536,6 +528,43 @@ graphs.createGraph = function createGraph(container, options, styles) {
     );
 
     return editor;
+};
+
+graphs.handleMouseWheelEvent = function handleMouseWheelEvent(graph, evt, up, zoomToCursor) {
+    // Disable snapping, to make zooming in and out smoother.
+    var gridEnabled = graph.gridEnabled;
+    graph.gridEnabled = false;
+
+    console.log(evt);
+
+    var view = graph.view;
+    view.processingMouseWheel = zoomToCursor;
+
+    var cursorBefore = graph.getPointForEvent(evt, false);
+
+    // - `up = true` direction:
+    //      Moves the viewport closer to the graph;
+    //      When browsing a web page the vertical scrollbar will move up;
+    // - `up = false` direction:
+    //      Moves the viewport away from the graph;
+    //      When browsing a web page the vertical scrollbar will move down;
+    if (up) {
+        graph.zoomIn();
+    } else {
+        graph.zoomOut();
+    }
+
+    if (zoomToCursor) {
+        view.processingMouseWheel = false;
+        var cursorAfter = graph.getPointForEvent(evt, false);
+        var deltaX = cursorAfter.x - cursorBefore.x;
+        var deltaY = cursorAfter.y - cursorBefore.y;
+        view.setTranslate(view.translate.x + deltaX, view.translate.y + deltaY);
+    }
+
+    graph.gridEnabled = gridEnabled;
+
+    mxEvent.consume(evt);
 };
 
 /**

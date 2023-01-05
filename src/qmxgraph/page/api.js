@@ -1241,6 +1241,9 @@ graphs.Api.prototype.registerViewUpdateHandler = function registerViewUpdateHand
     "use strict";
     var graph = this._graphEditor.graph;
     var listener = function (sender, evt) {
+        if (graph.getView().processingMouseWheel) {
+            return;
+        }
         handler(this.dump(), this.getScaleAndTranslation());
     }.bind(this);
     graph.getView().addListener(mxEvent.SCALE, listener);

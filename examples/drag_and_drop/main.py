@@ -14,7 +14,6 @@ from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 
 import qmxgraph.mime
-from qmxgraph.widget import EventsBridge
 from qmxgraph.widget import QmxGraph
 
 
@@ -115,9 +114,8 @@ class DragAndDropWindow(QMainWindow):
         def on_cells_bounds_changed_handler(changed_cell_bounds):
             print(f'cells bounds changed {changed_cell_bounds}')
 
-        events_bridge = EventsBridge()
         widget = self.graph_widget
-        widget.set_events_bridge(events_bridge)
+        events_bridge = widget.events_bridge
 
         events_bridge.on_cells_added.connect(on_cells_added_handler)
         events_bridge.on_cells_removed.connect(on_cells_removed_handler)

@@ -626,6 +626,40 @@ def test_last_index_of(loaded_graph) -> None:
     assert eval_js(loaded_graph, "'canal'.lastIndexOf('', 2)") == 2
 
 
+@pytest.mark.parametrize(
+    ('zoom_in', 'zoom_to_cursor'),
+    [
+        (False, False),
+        (False, True),
+        (True, False),
+        (True, True),
+    ],
+)
+def test_zoom(loaded_graph: QmxGraph, zoom_in: bool, zoom_to_cursor: bool) -> None:
+    x = 123
+    y = 234
+    width = height = 50
+    initial_geometry = (x, y, width, height)
+    node = loaded_graph.api.insert_vertex(*initial_geometry, 'Node')
+    assert tuple(loaded_graph.api.get_geometry(node)) == initial_geometry
+
+    node_center_x = x + width / 2
+    node_center_y = y + height / 2
+
+    zoom_event = {'clientX': node_center_x, 'clientY': node_center_y}
+    args = ", ".join(json.dumps(arg) for arg in [zoom_event, zoom_in, zoom_to_cursor])
+
+    eval_js(loaded_graph, f'graphs.handleMouseWheelEvent(graphEditor.graph, {args})')
+
+    new_x, new_y, new_width, new_height = loaded_graph.api.get_geometry(node)
+    assert (new_width > width) == (new_height > height) == zoom_in
+
+    new_node_center_x = new_x + new_width / 2
+    new_node_center_y = new_y + new_height / 2
+    assert (new_node_center_x == node_center_x) == zoom_to_cursor
+    assert (new_node_center_y == node_center_y) == zoom_to_cursor
+
+
 def eval_js(graph_widget, statement):
     return graph_widget.inner_web_view().eval_js(statement)
 
