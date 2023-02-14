@@ -383,6 +383,7 @@ class BaseGraphCase(object):
         :return: Graphical element representing edge between vertices,
             if found, otherwise None.
         """
+
         # An edge is represented by a SVG path, it is created from
         # right side of 'foo' vertex until it connects with 'bar'.
         def get(v, attr):

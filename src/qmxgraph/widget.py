@@ -295,7 +295,6 @@ class QmxGraph(QWidget):
         self._web_view.blank()
 
     def set_enabled(self, enabled: bool) -> None:
-
         # TODO[bruno]: tests.
         def update(api_ref, enabled):
             api = api_ref()
@@ -312,7 +311,6 @@ class QmxGraph(QWidget):
         return self._enabled
 
     def _connect_events_bridge(self):
-
         self.api.register_cells_added_handler('bridge_events_handler.cells_added_slot')
         self.api.register_cells_removed_handler('bridge_events_handler.cells_removed_slot')
         self.api.register_label_changed_handler('bridge_events_handler.label_changed_slot')
