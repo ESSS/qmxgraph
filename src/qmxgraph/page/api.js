@@ -1192,121 +1192,117 @@ graphs.Api.prototype.cloneCells = function cloneCells(
  * keepPosition - Optional boolean indicating if the position of the cells should
  * be updated to reflect the lost parent cell. Default is false.
  */
-graphs.Api.prototype._cloneCells = function _cloneCells(cells, allowInvalidEdges, mapping, keepPosition)
-{
-	allowInvalidEdges = (allowInvalidEdges != null) ? allowInvalidEdges : true;
-	var clones = null;
+graphs.Api.prototype._cloneCells = function _cloneCells(
+    cells,
+    allowInvalidEdges,
+    mapping,
+    keepPosition
+) {
+    allowInvalidEdges = allowInvalidEdges != null ? allowInvalidEdges : true;
+    var clones = null;
 
-	if (cells != null)
-	{
+    if (cells != null) {
         var graph = this._graphEditor.graph;
 
-		// Creates a dictionary for fast lookups
-		var dict = new mxDictionary();
-		var tmp = [];
+        // Creates a dictionary for fast lookups
+        var dict = new mxDictionary();
+        var tmp = [];
 
-		for (var i = 0; i < cells.length; i++)
-		{
-			dict.put(cells[i], true);
-			tmp.push(cells[i]);
-		}
+        for (var i = 0; i < cells.length; i++) {
+            dict.put(cells[i], true);
+            tmp.push(cells[i]);
+        }
 
-		if (tmp.length > 0)
-		{
-			var scale = graph.view.scale;
-			var trans = graph.view.translate;
-			clones = this._modelCloneCells(cells, true, mapping);
+        if (tmp.length > 0) {
+            var scale = graph.view.scale;
+            var trans = graph.view.translate;
+            clones = this._modelCloneCells(cells, true, mapping);
 
-			for (var i = 0; i < cells.length; i++)
-			{
-				if (!allowInvalidEdges && graph.model.isEdge(clones[i]) &&
-					graph.getEdgeValidationError(clones[i],
-						graph.model.getTerminal(clones[i], true),
-						graph.model.getTerminal(clones[i], false)) != null)
-				{
-					clones[i] = null;
-				}
-				else
-				{
-					var g = graph.model.getGeometry(clones[i]);
+            for (var i = 0; i < cells.length; i++) {
+                if (
+                    !allowInvalidEdges &&
+                    graph.model.isEdge(clones[i]) &&
+                    graph.getEdgeValidationError(
+                        clones[i],
+                        graph.model.getTerminal(clones[i], true),
+                        graph.model.getTerminal(clones[i], false)
+                    ) != null
+                ) {
+                    clones[i] = null;
+                } else {
+                    var g = graph.model.getGeometry(clones[i]);
 
-					if (g != null)
-					{
-						var state = graph.view.getState(cells[i]);
-						var pstate = graph.view.getState(graph.model.getParent(cells[i]));
+                    if (g != null) {
+                        var state = graph.view.getState(cells[i]);
+                        var pstate = graph.view.getState(graph.model.getParent(cells[i]));
 
-						if (state != null && pstate != null)
-						{
-							var dx = (keepPosition) ? 0 : pstate.origin.x;
-							var dy = (keepPosition) ? 0 : pstate.origin.y;
+                        if (state != null && pstate != null) {
+                            var dx = keepPosition ? 0 : pstate.origin.x;
+                            var dy = keepPosition ? 0 : pstate.origin.y;
 
-							if (graph.model.isEdge(clones[i]))
-							{
-								var pts = state.absolutePoints;
+                            if (graph.model.isEdge(clones[i])) {
+                                var pts = state.absolutePoints;
 
-								if (pts != null)
-								{
-									// Checks if the source is cloned or sets the terminal point
-									var src = graph.model.getTerminal(cells[i], true);
+                                if (pts != null) {
+                                    // Checks if the source is cloned or sets the terminal point
+                                    var src = graph.model.getTerminal(cells[i], true);
 
-									while (src != null && !dict.get(src))
-									{
-										src = graph.model.getParent(src);
-									}
+                                    while (src != null && !dict.get(src)) {
+                                        src = graph.model.getParent(src);
+                                    }
 
-									if (src == null && pts[0] != null)
-									{
-										g.setTerminalPoint(
-											new mxPoint(pts[0].x / scale - trans.x,
-												pts[0].y / scale - trans.y), true);
-									}
+                                    if (src == null && pts[0] != null) {
+                                        g.setTerminalPoint(
+                                            new mxPoint(
+                                                pts[0].x / scale - trans.x,
+                                                pts[0].y / scale - trans.y
+                                            ),
+                                            true
+                                        );
+                                    }
 
-									// Checks if the target is cloned or sets the terminal point
-									var trg = graph.model.getTerminal(cells[i], false);
+                                    // Checks if the target is cloned or sets the terminal point
+                                    var trg = graph.model.getTerminal(cells[i], false);
 
-									while (trg != null && !dict.get(trg))
-									{
-										trg = graph.model.getParent(trg);
-									}
+                                    while (trg != null && !dict.get(trg)) {
+                                        trg = graph.model.getParent(trg);
+                                    }
 
-									var n = pts.length - 1;
+                                    var n = pts.length - 1;
 
-									if (trg == null && pts[n] != null)
-									{
-										g.setTerminalPoint(
-											new mxPoint(pts[n].x / scale - trans.x,
-												pts[n].y / scale - trans.y), false);
-									}
+                                    if (trg == null && pts[n] != null) {
+                                        g.setTerminalPoint(
+                                            new mxPoint(
+                                                pts[n].x / scale - trans.x,
+                                                pts[n].y / scale - trans.y
+                                            ),
+                                            false
+                                        );
+                                    }
 
-									// Translates the control points
-									var points = g.points;
+                                    // Translates the control points
+                                    var points = g.points;
 
-									if (points != null)
-									{
-										for (var j = 0; j < points.length; j++)
-										{
-											points[j].x += dx;
-											points[j].y += dy;
-										}
-									}
-								}
-							}
-							else
-							{
-								g.translate(dx, dy);
-							}
-						}
-					}
-				}
-			}
-		}
-		else
-		{
-			clones = [];
-		}
-	}
+                                    if (points != null) {
+                                        for (var j = 0; j < points.length; j++) {
+                                            points[j].x += dx;
+                                            points[j].y += dy;
+                                        }
+                                    }
+                                }
+                            } else {
+                                g.translate(dx, dy);
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            clones = [];
+        }
+    }
 
-	return clones;
+    return clones;
 };
 
 /**
@@ -1324,35 +1320,28 @@ graphs.Api.prototype._cloneCells = function _cloneCells(cells, allowInvalidEdges
  * with all descendants. Default is true.
  * mapping - Optional mapping for existing clones.
  */
-graphs.Api.prototype._modelCloneCells = function _modelCloneCells(cells, includeChildren, mapping)
-{
-	includeChildren = (includeChildren != null) ? includeChildren : true;
-	mapping = (mapping != null) ? mapping : new Object();
-	var clones = [];
+graphs.Api.prototype._modelCloneCells = function _modelCloneCells(cells, includeChildren, mapping) {
+    includeChildren = includeChildren != null ? includeChildren : true;
+    mapping = mapping != null ? mapping : new Object();
+    var clones = [];
 
     var model = this._graphEditor.graph.getModel();
 
-	for (var i = 0; i < cells.length; i++)
-	{
-		if (cells[i] != null)
-		{
-			clones.push(this._modelCloneCellImpl(cells[i], mapping, includeChildren));
-		}
-		else
-		{
-			clones.push(null);
-		}
-	}
+    for (var i = 0; i < cells.length; i++) {
+        if (cells[i] != null) {
+            clones.push(this._modelCloneCellImpl(cells[i], mapping, includeChildren));
+        } else {
+            clones.push(null);
+        }
+    }
 
-	for (var i = 0; i < clones.length; i++)
-	{
-		if (clones[i] != null)
-		{
-			model.restoreClone(clones[i], cells[i], mapping); // TODO: keep an eye on this
-		}
-	}
+    for (var i = 0; i < clones.length; i++) {
+        if (clones[i] != null) {
+            model.restoreClone(clones[i], cells[i], mapping); // TODO: keep an eye on this
+        }
+    }
 
-	return clones;
+    return clones;
 };
 
 /**
@@ -1360,35 +1349,35 @@ graphs.Api.prototype._modelCloneCells = function _modelCloneCells(cells, include
  *
  * Inner helper method for cloning cells recursively.
  */
-graphs.Api.prototype._modelCloneCellImpl = function _modelCloneCellImpl(cell, mapping, includeChildren)
-{
-	var ident = mxObjectIdentity.get(cell);
-	var clone = mapping[ident];
+graphs.Api.prototype._modelCloneCellImpl = function _modelCloneCellImpl(
+    cell,
+    mapping,
+    includeChildren
+) {
+    var ident = mxObjectIdentity.get(cell);
+    var clone = mapping[ident];
 
-	if (clone == null)
-	{
+    if (clone == null) {
         var model = this._graphEditor.graph.getModel();
 
-		clone = model.cellCloned(cell);
-		mapping[ident] = clone;
+        clone = model.cellCloned(cell);
+        mapping[ident] = clone;
 
-		if (includeChildren)
-		{
-			var childCount = model.getChildCount(cell);
+        if (includeChildren) {
+            var childCount = model.getChildCount(cell);
 
-			for (var i = 0; i < childCount; i++)
-			{
+            for (var i = 0; i < childCount; i++) {
                 var child = model.getChildAt(cell, i);
                 if (child.isPort()) {
                     continue;
                 }
-				var cloneChild = this._modelCloneCellImpl(child, mapping, true);
+                var cloneChild = this._modelCloneCellImpl(child, mapping, true);
                 clone.insert(cloneChild);
-			}
-		}
-	}
+            }
+        }
+    }
 
-	return clone;
+    return clone;
 };
 
 /**
