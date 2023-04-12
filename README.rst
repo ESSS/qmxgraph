@@ -8,23 +8,11 @@ QmxGraph
 .. image:: https://coveralls.io/repos/github/ESSS/qmxgraph/badge.svg?branch=master
         :target: https://coveralls.io/github/ESSS/qmxgraph?branch=master
 
-.. image:: https://api.codacy.com/project/badge/Grade/f99a187898984854a755232cb435cf40
-        :alt: Codacy Badge
-        :target: https://app.codacy.com/app/ESSS/qmxgraph?utm_source=github.com&utm_medium=referral&utm_content=ESSS/qmxgraph&utm_campaign=badger
-
 .. image:: https://readthedocs.org/projects/qmxgraph/badge/?version=latest
         :alt: Documentation Status
         :target: https://qmxgraph.readthedocs.io/en/latest/?badge=latest
 
-
 This a Qt widget that embeds a rich and powerful graph drawing tool
-using JavaScript's mxGraph library.
-
-It makes use of Qt web view features to make this possible. Since
-current Qt version supported (<= 5.6) is still using WebKit_ as its web
-browser engine, all of its limitations apply when developing new embedded web
-features.
+using JavaScript's mxGraph library, Qt WebEngine features from Qt 5.4.
 
 Due to changes in mxgraph we are currently only supporting an old version of mxgraph (3.7.5).
-
-.. _WebKit: https://webkit.org/
