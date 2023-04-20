@@ -42,7 +42,7 @@ dependencies:
   - attrs>=17
   - colorama
   - invoke>=1.0.0
-  - jinja2==2.10
+  - jinja2>=2.10
   - pyqt=5.12.*
   - six
 
