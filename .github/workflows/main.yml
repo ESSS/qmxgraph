@@ -16,6 +16,16 @@ jobs:
       fail-fast: false
       matrix:
         CONDA_PY: ["36", "37", "38", "39"]
+        include:
+          - CONDA_PY: "36"
+            PYTHON_VERSION: "3.6"
+          - CONDA_PY: "37"
+            PYTHON_VERSION: "3.7"
+          - CONDA_PY: "38"
+            PYTHON_VERSION: "3.8"
+          - CONDA_PY: "39"
+            PYTHON_VERSION: "3.9"
+
 
     steps:
     - uses: actions/checkout@v2
@@ -33,13 +43,18 @@ jobs:
     - name: Install
       env:
         CONDA_PY: ${{ matrix.CONDA_PY }}
+        PYTHON_VERSION: ${{ matrix.PYTHON_VERSION }}
       run: |
         conda config --system --set always_yes yes --set changeps1 no
         conda install -c conda-forge conda-devenv
         conda info -a
         export TEST_QMXGRAPH=1
+        echo "=== conda devenv -n qmxgraph --print-full ==="
+        conda devenv -n qmxgraph --print-full
+        echo "=== === === === ==="
         conda devenv -n qmxgraph
         conda install -n qmxgraph coveralls pytest-cov
+        conda list -n qmxgraph
         conda init bash
     - name: Tests
       shell: bash -l {0}
