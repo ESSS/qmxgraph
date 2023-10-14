@@ -660,6 +660,26 @@ def test_remove_cells(graph_cases) -> None:
     assert graph.get_edge(*vertices) is None
 
 
+def test_clone_cells(graph_cases) -> None:
+    """
+    :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
+    """
+    graph = graph_cases('2v_1e')
+
+    vertices = graph.get_vertices()
+    cell_ids = [
+        graph.get_id(vertices[0]),
+        graph.get_id(vertices[1]),
+        graph.get_id(graph.get_edge(*vertices)),
+    ]
+    graph.eval_js_function('api.cloneCells', [cell_ids])
+
+    vertices = graph.get_vertices()
+    assert len(vertices) == 4
+    assert graph.get_edge(*vertices[:2]) is not None
+    assert graph.get_edge(*vertices[2:]) is not None
+
+
 def test_remove_cells_error_not_found(graph_cases, selenium_extras) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
