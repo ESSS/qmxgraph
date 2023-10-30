@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 
@@ -7,45 +9,16 @@ def pytest_configure(config):
     # of pytest so they can't reliably be removed by a fixture.
     config.cache.set('qmxgraph/ports', [])
 
-    import os
-
     lock_file = _get_port_lock_filename(config.rootdir)
     if os.path.isfile(lock_file):
         os.remove(lock_file)
 
-    import socket
-
-    socket.setdefaulttimeout(15.0)
-
 
 # Fixtures --------------------------------------------------------------------
-
-
 @pytest.fixture
-def phantomjs_driver(capabilities, driver_path, port):
-    """
-    Overrides default `phantomjs_driver` driver from pytest-selenium.
-
-    Default implementation uses ephemeral ports just as our tests but
-    it doesn't provide any way to configure them, for this reason we basically
-    recreate the driver fixture using port fixture.
-    """
-    kwargs = {}
-    if capabilities:
-        kwargs['desired_capabilities'] = capabilities
-    if driver_path is not None:
-        kwargs['executable_path'] = driver_path
-
-    kwargs['port'] = port.get()
-
-    from selenium.webdriver import PhantomJS
-
-    return PhantomJS(**kwargs)
-
-
-@pytest.fixture
-def driver_args():
-    return ['--debug=true']
+def firefox_options(firefox_options):
+    firefox_options.headless = True
+    return firefox_options
 
 
 @pytest.fixture(autouse=True)
@@ -320,24 +293,28 @@ class BaseGraphCase(object):
         _wait_graph_page_ready(host=host, selenium=selenium)
 
         selenium.execute_script(
-            'callback = function(cellIds) {'
+            'window.callback = function(cellIds) {'
             '    if (!window.__added__) {'
             '        window.__added__ = [];'
             '    }'
             '    window.__added__.push.apply(window.__added__, cellIds);'
             '}'
         )
-        self.eval_js_function('api.registerCellsAddedHandler', qmxgraph.js.Variable('callback'))
+        self.eval_js_function(
+            'api.registerCellsAddedHandler', qmxgraph.js.Variable('window.callback')
+        )
 
         selenium.execute_script(
-            'callback = function(cellId, newLabel, oldLabel) {'
+            'window.callback = function(cellId, newLabel, oldLabel) {'
             '    if (!window.__labels__) {'
             '        window.__labels__ = [];'
             '    }'
             '    window.__labels__.push({cellId: cellId, newLabel: newLabel, oldLabel: oldLabel});'  # noqa
             '}'
         )
-        self.eval_js_function('api.registerLabelChangedHandler', qmxgraph.js.Variable('callback'))
+        self.eval_js_function(
+            'api.registerLabelChangedHandler', qmxgraph.js.Variable('window.callback')
+        )
 
     def get_container(self):
         """
@@ -945,25 +922,24 @@ def _wait_graph_page_ready(host, selenium):
     import socket
     from selenium.common.exceptions import TimeoutException
 
-    timeout = 15
+    timeout = 30
     timeout_exceptions = (TimeoutException, TimeoutError, socket.timeout)
-    selenium.set_page_load_timeout(1)
+    selenium.set_page_load_timeout(timeout)
     refresh = True
     try:
         selenium.get(host.address)
         refresh = False
     except timeout_exceptions:
         pass
-
+    tries = 3
     if refresh:
-        for n in range(timeout):
+        for n in range(tries):
             try:
                 selenium.refresh()
                 break
             except timeout_exceptions:
-                pass
-        else:
-            raise TimeoutException("All page load tries resulted in timeout")
+                if n == tries - 1:
+                    raise
 
     from selenium.webdriver.support.wait import WebDriverWait
     from selenium.webdriver.common.by import By

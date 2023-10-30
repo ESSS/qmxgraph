@@ -69,3 +69,4 @@ resource_*.py
 environment.yml
 docs_environment.yml
 esss_environment.yml
+mxgraph/
