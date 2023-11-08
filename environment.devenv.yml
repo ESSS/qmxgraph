@@ -17,7 +17,6 @@ dependencies:
 
   {% if TEST_QMXGRAPH %}
   - cherrypy
-  - hypothesis ==3.11.0
   - pytest-mock
   - pytest-qt
   - pytest-rerunfailures
