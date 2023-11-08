@@ -1,7 +1,7 @@
-import sys
 import textwrap
 import weakref
 from contextlib import contextmanager
+from contextlib import nullcontext
 from typing import Any
 from typing import Generator
 from typing import List
@@ -1020,13 +1020,3 @@ def _capture_critical_log_messages() -> Generator[List[str], None, None]:
         yield messages
     finally:
         qInstallMessageHandler(previous_handler)
-
-
-if sys.version_info[:] < (3, 7):
-
-    @contextmanager
-    def nullcontext(enter_result=None):
-        yield enter_result
-
-else:
-    from contextlib import nullcontext

@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        CONDA_PY: ["36", "37", "38", "39"]
+        PYTHON_VERSION: ["3.7", "3.8", "3.9", "3.10"]
 
     steps:
     - uses: actions/checkout@v2
@@ -27,12 +27,12 @@ jobs:
       with:
         auto-update-conda: true
         auto-activate-base: true
-        activate-environment: ''
+        activate-environment: ""
         channels: conda-forge,esss
         channel-priority: true
     - name: Install
       env:
-        CONDA_PY: ${{ matrix.CONDA_PY }}
+        PYTHON_VERSION: ${{ matrix.PYTHON_VERSION }}
       run: |
         conda config --system --set always_yes yes --set changeps1 no
         conda install -c conda-forge conda-devenv

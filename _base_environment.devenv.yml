@@ -1,7 +1,7 @@
 name: qmxgraph
 
 dependencies:
-    - python >=3.6
+    - python >=3.7
 
     - attrs >=17
     - colorama

@@ -1,6 +1,5 @@
 {% set TEST_QMXGRAPH = os.environ.get('TEST_QMXGRAPH', '0') != '0' %}
-{% set PYTHON_VERSION = os.environ.get('PYTHON_VERSION', '3.6') %}
-{% set PYTHON_VERSION = os.environ.get('TRAVIS_PYTHON_VERSION', PYTHON_VERSION) %}
+{% set PYTHON_VERSION = os.environ.get('PYTHON_VERSION', '3.10') %}
 
 name: qmxgraph
 
