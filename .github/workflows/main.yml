@@ -35,8 +35,7 @@ jobs:
         conda info -a
         export TEST_QMXGRAPH=1
         conda devenv -n qmxgraph
-        conda install -n qmxgraph coveralls pytest-cov
-        conda init bash
+        conda list -n qmxgraph
     - name: Tests
       shell: bash -l {0}
       run: |

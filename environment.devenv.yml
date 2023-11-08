@@ -26,4 +26,7 @@ dependencies:
   - pytest-xvfb
   {% endif %}
 
+  # Not really required to run the tests but are closely related.
+  - coveralls
+  - pytest-cov
   {% endif %}
