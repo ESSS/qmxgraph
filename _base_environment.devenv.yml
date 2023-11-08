@@ -1,3 +1,4 @@
+{% set TEST_QMXGRAPH = os.environ.get('TEST_QMXGRAPH', '0') != '0' %}
 name: qmxgraph
 
 dependencies:
@@ -16,5 +17,8 @@ dependencies:
 environment:
   PYTHONPATH:
     - {{ root }}/src
+    {% if TEST_QMXGRAPH %}
+    - {{ root }}/tests
+    {% endif %}
   MYPYPATH:
     - {{ root }}/src

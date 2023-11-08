@@ -9,19 +9,21 @@ includes:
 environment:
   # Tip: Use `--driver <driver_name>` to change driver for a single run
   {% if TEST_QMXGRAPH %}
-  PYTEST_ADDOPTS: --driver PhantomJS
+  PYTEST_ADDOPTS: --driver Chrome
   {% endif %}
 
 dependencies:
   - python ={{ PYTHON_VERSION }}
 
   {% if TEST_QMXGRAPH %}
-  - cherrypy
+  - cherrypy >=18.0.0
   - pytest-mock
   - pytest-qt
   - pytest-rerunfailures
-  - pytest-selenium >=1,<2
+  - pytest-selenium >2
   - pytest-timeout
+  # Recent selenium versions (>=4.10.0) are currently incompatible with pytest-selenium (some constructor changed argument list).
+  - selenium >=4.0.0, <4.10.0
   {% if sys.platform != 'win32' %}
   - pytest-xvfb
   {% endif %}

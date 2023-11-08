@@ -1,11 +1,10 @@
 import json
 import re
 import textwrap
+from contextlib import nullcontext
 from functools import partial
 
 import pytest
-import pytestqt.exceptions
-from _pytest.compat import nullcontext
 from PyQt5.QtCore import QByteArray
 from PyQt5.QtCore import QDataStream
 from PyQt5.QtCore import QIODevice
@@ -16,6 +15,7 @@ from PyQt5.QtGui import QDragEnterEvent
 from PyQt5.QtGui import QDragMoveEvent
 from PyQt5.QtGui import QDropEvent
 from pytest_mock import MockFixture
+from pytestqt.exceptions import TimeoutError as pytestqt_TimeoutError
 
 import qmxgraph.constants
 import qmxgraph.js
@@ -72,8 +72,8 @@ def test_events_bridge_delayed_signals(graph, qtbot, mocker) -> None:
     with events.delaying_signals():
         events.cells_added_slot(["2"])
 
-        with pytest.raises(pytestqt.exceptions.TimeoutError):
-            expected = [call(["1"]), call(["2"])]
+        expected = [call(["1"]), call(["2"])]
+        with pytest.raises((AssertionError, pytestqt_TimeoutError)):
             qtbot.waitUntil(partial(check_call, expected), timeout=1000)
 
     qtbot.waitUntil(partial(check_call, expected))

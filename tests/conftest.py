@@ -1,4 +1,5 @@
 import pytest
+from selenium.webdriver.chrome.options import Options as ChromeOptions
 
 
 def pytest_configure(config):
@@ -22,30 +23,22 @@ def pytest_configure(config):
 
 
 @pytest.fixture
-def phantomjs_driver(capabilities, driver_path, port):
-    """
-    Overrides default `phantomjs_driver` driver from pytest-selenium.
-
-    Default implementation uses ephemeral ports just as our tests but
-    it doesn't provide any way to configure them, for this reason we basically
-    recreate the driver fixture using port fixture.
-    """
-    kwargs = {}
-    if capabilities:
-        kwargs['desired_capabilities'] = capabilities
-    if driver_path is not None:
-        kwargs['executable_path'] = driver_path
-
-    kwargs['port'] = port.get()
-
-    from selenium.webdriver import PhantomJS
-
-    return PhantomJS(**kwargs)
+def chrome_options(chrome_options: ChromeOptions) -> ChromeOptions:
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    # Comment `--headless` and uncomment `--auto-open-devtools-for-tabs` to be
+    # able to debug the javascript from tests using selenium.
+    chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--auto-open-devtools-for-tabs")
+    return chrome_options
 
 
 @pytest.fixture
-def driver_args():
-    return ['--debug=true']
+def driver_kwargs(driver_kwargs, port):
+    assert "port" not in driver_kwargs
+    driver_kwargs["port"] = port.get()
+    return driver_kwargs
 
 
 @pytest.fixture(autouse=True)

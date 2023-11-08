@@ -1,7 +1,6 @@
 import pytest
-
-from tests.conftest import BaseGraphCase
-from tests.conftest import GraphCaseFactory
+from conftest import BaseGraphCase
+from conftest import GraphCaseFactory
 
 
 @pytest.fixture
