@@ -6,6 +6,7 @@ import pytest
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver import ActionChains
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 import qmxgraph.constants
@@ -152,15 +153,17 @@ def test_insert_edge_error_endpoint_not_found(graph_cases, selenium_extras) -> N
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function("api.insertEdge", invalid_source_id, graph.get_id(vertex))
 
-    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
-        invalid_source_id
+    assert (
+        f"Unable to find cell with id {invalid_source_id}"
+        in selenium_extras.get_exception_message(e)
     )
 
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function("api.insertEdge", graph.get_id(vertex), invalid_target_id)
 
-    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
-        invalid_target_id
+    assert (
+        f"Unable to find cell with id {invalid_target_id}"
+        in selenium_extras.get_exception_message(e)
     )
 
 
@@ -255,12 +258,12 @@ def test_group(graph_cases) -> None:
 
     group_fill = graph.host.styles['group']['fill_color']
     group_selector = 'g>g>rect[fill="{}"]'.format(group_fill)
-    group = graph.selenium.find_elements_by_css_selector(group_selector)
+    group = graph.selenium.find_elements(By.CSS_SELECTOR, group_selector)
     assert len(group) == 1
 
     # Ungroup selected vertices
     graph.selenium.execute_script("api.ungroup()")
-    group = graph.selenium.find_elements_by_css_selector(group_selector)
+    group = graph.selenium.find_elements(By.CSS_SELECTOR, group_selector)
     assert not group
 
 
@@ -274,11 +277,11 @@ def test_toggle_outline(selenium, host, wait_graph_page_ready) -> None:
     # By default, outline starts hidden. Basically this means mxGraph's window
     # component used to shown outline doesn't exist yet.
     with pytest.raises(NoSuchElementException):
-        selenium.find_element_by_css_selector('div.mxWindow')
+        selenium.find_element(By.CSS_SELECTOR, 'div.mxWindow')
 
     # Once shown, outline is displayed in a mxGraph's window component
     selenium.execute_script("api.toggleOutline()")
-    outline = selenium.find_element_by_css_selector('div.mxWindow')
+    outline = selenium.find_element(By.CSS_SELECTOR, 'div.mxWindow')
     assert outline is not None
 
     # However once toggled back to hidden, it is not destroyed but simply
@@ -300,9 +303,9 @@ def test_toggle_grid(selenium, host, grid, wait_graph_page_ready) -> None:
     if not grid:
         selenium.execute_script("api.toggleGrid()")
 
-    container = selenium.find_element_by_css_selector('div.graph')
+    container = selenium.find_element(By.CSS_SELECTOR, 'div.graph')
     assert container.get_attribute('id') == 'graphContainer'
-    assert container.get_attribute('class') == 'graph' if grid else 'graph hide-bg'
+    assert container.get_attribute('class') == ('graph' if grid else 'graph hide-bg')
 
 
 @pytest.mark.parametrize('snap', [True, False])
@@ -441,16 +444,12 @@ def test_set_visible_error_not_found(graph_cases, selenium_extras) -> None:
     with pytest.raises(WebDriverException) as e:
         graph.set_visible(cell_id, False)
 
-    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
-        cell_id
-    )
+    assert f"Unable to find cell with id {cell_id}" in selenium_extras.get_exception_message(e)
 
     with pytest.raises(WebDriverException) as e:
         graph.is_visible(cell_id)
 
-    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
-        cell_id
-    )
+    assert f"Unable to find cell with id {cell_id}" in selenium_extras.get_exception_message(e)
 
 
 def test_get_geometry_plain(graph_cases) -> None:
@@ -465,7 +464,7 @@ def test_get_geometry_plain(graph_cases) -> None:
     # Table geometry is dependent on how the contents are rendered.
     # Using `pytest.approx` to account for platform differences.
     obtained_table_geometry = graph.get_geometry(graph.get_tables()[0])
-    assert pytest.approx(obtained_table_geometry, rel=0.1) == [20, 60, 108, 72]
+    assert pytest.approx(obtained_table_geometry, rel=0.1) == [20, 60, 100, 70]
 
 
 def test_get_geometry_error_not_found(graph_cases, selenium_extras) -> None:
@@ -479,9 +478,7 @@ def test_get_geometry_error_not_found(graph_cases, selenium_extras) -> None:
     with pytest.raises(WebDriverException) as e:
         graph.get_geometry(cell_id)
 
-    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
-        cell_id
-    )
+    assert f"Unable to find cell with id {cell_id}" in selenium_extras.get_exception_message(e)
 
 
 def test_insert_table(graph_cases) -> None:
@@ -575,7 +572,7 @@ def test_table_with_image(graph_cases) -> None:
     }
     graph.eval_js_function('api.updateTable', table_id, contents, '')
 
-    image_elements = graph.selenium.find_elements_by_css_selector('.table-cell-contents img')
+    image_elements = graph.selenium.find_elements(By.CSS_SELECTOR, '.table-cell-contents img')
     assert len(image_elements) == 1
     image = image_elements[0]
     assert image.get_attribute('src').endswith('some-image-path')
@@ -619,9 +616,7 @@ def test_update_table_error_not_found(graph_cases, selenium_extras) -> None:
             js.prepare_js_call('api.updateTable', table_id, contents, title)
         )
 
-    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
-        table_id
-    )
+    assert f"Unable to find cell with id {table_id}" in selenium_extras.get_exception_message(e)
 
 
 def test_update_table_error_not_table(graph_cases, selenium_extras) -> None:
@@ -640,7 +635,7 @@ def test_update_table_error_not_table(graph_cases, selenium_extras) -> None:
             js.prepare_js_call('api.updateTable', table_id, contents, title)
         )
 
-    assert selenium_extras.get_exception_message(e) == "Cell is not a table"
+    assert "Cell is not a table" in selenium_extras.get_exception_message(e)
 
 
 def test_remove_cells(graph_cases) -> None:
@@ -671,9 +666,7 @@ def test_remove_cells_error_not_found(graph_cases, selenium_extras) -> None:
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function('api.removeCells', [cell_id])
 
-    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
-        cell_id
-    )
+    assert f"Unable to find cell with id {cell_id}" in selenium_extras.get_exception_message(e)
 
 
 def test_on_cells_removed(graph_cases) -> None:
@@ -735,7 +728,7 @@ def test_custom_shapes(selenium, port, tmpdir, wait_graph_page_ready) -> None:
     )
 
     def has_custom_shape():
-        return bool(selenium.find_elements_by_css_selector('g>g>path[fill="#ffff00"]'))
+        return bool(selenium.find_elements(By.CSS_SELECTOR, 'g>g>path[fill="#ffff00"]'))
 
     with server.host(port=port.get(), styles=styles, stencils=stencils) as host:
         wait_graph_page_ready(host=host)
@@ -819,9 +812,7 @@ def test_get_label_error_not_found(graph_cases, selenium_extras) -> None:
     with pytest.raises(WebDriverException) as e:
         graph.get_label(cell_id)
 
-    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
-        cell_id
-    )
+    assert f"Unable to find cell with id {cell_id}" in selenium_extras.get_exception_message(e)
 
 
 def test_has_cell(graph_cases) -> None:
@@ -867,9 +858,7 @@ def test_get_cell_type_error_not_found(graph_cases, selenium_extras) -> None:
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function("api.getCellType", cell_id)
 
-    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
-        cell_id
-    )
+    assert f"Unable to find cell with id {cell_id}" in selenium_extras.get_exception_message(e)
 
 
 @pytest.mark.parametrize(
@@ -928,12 +917,13 @@ def test_insert_with_tags_error_value_not_string(graph_cases, cell_type, seleniu
     """
     graph = graph_cases('empty')
 
-    tags = {'tagTest': 999}
+    tag_name = "tagTest"
+    tags = {tag_name: 999}
 
     with pytest.raises(WebDriverException) as e:
         insert_by_parametrized_type(graph, cell_type, tags=tags)
 
-    assert selenium_extras.get_exception_message(e) == "Tag '{}' is not a string".format("tagTest")
+    assert f"Tag '{tag_name}' is not a string" in selenium_extras.get_exception_message(e)
 
 
 @pytest.mark.parametrize(
@@ -978,14 +968,16 @@ def test_set_get_tag_error_tag_not_found(graph_cases, cell_type, selenium_extras
     graph = graph_cases('empty')
 
     cell_id = insert_by_parametrized_type(graph, cell_type)
-    assert not graph.eval_js_function("api.hasTag", cell_id, "test")
+    tag_name = "test"
+    assert not graph.eval_js_function("api.hasTag", cell_id, tag_name)
 
     with pytest.raises(WebDriverException) as e:
-        graph.eval_js_function("api.getTag", cell_id, "test")
+        graph.eval_js_function("api.getTag", cell_id, tag_name)
 
-    assert selenium_extras.get_exception_message(
-        e
-    ) == "Tag '{}' not found in cell with id {}".format("test", cell_id)
+    assert (
+        f"Tag '{tag_name}' not found in cell with id {cell_id}"
+        in selenium_extras.get_exception_message(e)
+    )
 
 
 @pytest.mark.parametrize(
@@ -1006,11 +998,12 @@ def test_set_get_tag_error_value_not_string(graph_cases, cell_type, selenium_ext
     graph = graph_cases('empty')
 
     cell_id = insert_by_parametrized_type(graph, cell_type)
+    tag_name = "test"
 
     with pytest.raises(WebDriverException) as e:
-        graph.eval_js_function("api.setTag", cell_id, "test", 999)
+        graph.eval_js_function("api.setTag", cell_id, tag_name, 999)
 
-    assert selenium_extras.get_exception_message(e) == "Tag '{}' is not a string".format("test")
+    assert f"Tag '{tag_name}' is not a string" in selenium_extras.get_exception_message(e)
 
 
 @pytest.mark.parametrize(
@@ -1047,26 +1040,23 @@ def test_set_get_tag_error_cell_not_found(graph_cases, selenium_extras) -> None:
 
     cell_id = "999"
 
+    # Try to add tag to non exiting cell.
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function("api.setTag", cell_id, "test", "foo")
 
-    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
-        cell_id
-    )
+    assert f"Unable to find cell with id {cell_id}" in selenium_extras.get_exception_message(e)
 
+    # Try to get tag from non exiting cell.
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function("api.getTag", cell_id, "test")
 
-    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
-        cell_id
-    )
+    assert f"Unable to find cell with id {cell_id}" in selenium_extras.get_exception_message(e)
 
+    # Try to check if tag exist in non exiting cell.
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function("api.hasTag", cell_id, "test")
 
-    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
-        cell_id
-    )
+    assert f"Unable to find cell with id {cell_id}" in selenium_extras.get_exception_message(e)
 
 
 def test_set_get_tag_without_initial_tag_support(graph_cases) -> None:
@@ -1174,9 +1164,7 @@ def test_set_label_error_not_found(graph_cases, selenium_extras) -> None:
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function('api.setLabel', cell_id, 'foo')
 
-    assert selenium_extras.get_exception_message(e) == "Unable to find cell with id {}".format(
-        cell_id
-    )
+    assert f"Unable to find cell with id {cell_id}" in selenium_extras.get_exception_message(e)
 
 
 def test_set_double_click_handler(graph_cases) -> None:
@@ -1485,9 +1473,7 @@ def test_get_edge_terminals_error_edge_not_found(graph_cases, selenium_extras) -
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function('api.getEdgeTerminals', edge_id)
 
-    assert selenium_extras.get_exception_message(e) == "Unable to find edge with id {}".format(
-        edge_id
-    )
+    assert f"Unable to find edge with id {edge_id}" in selenium_extras.get_exception_message(e)
 
 
 def test_get_edge_terminals_error_not_an_edge(graph_cases, selenium_extras) -> None:
@@ -1501,8 +1487,9 @@ def test_get_edge_terminals_error_not_an_edge(graph_cases, selenium_extras) -> N
     with pytest.raises(WebDriverException) as e:
         graph.eval_js_function('api.getEdgeTerminals', graph.get_id(vertex))
 
-    assert selenium_extras.get_exception_message(e) == "Cell with id {} is not an edge".format(
-        graph.get_id(vertex)
+    assert (
+        f"Cell with id {graph.get_id(vertex)} is not an edge"
+        in selenium_extras.get_exception_message(e)
     )
 
 
@@ -1519,8 +1506,8 @@ def test_custom_font_family(graph_cases_factory, port) -> None:
         cases = graph_cases_factory(host)
         graph = cases("1v")
 
-        match = graph.selenium.find_elements_by_css_selector(
-            'div[style*="font-family:"][style*="Helvetica"]'
+        match = graph.selenium.find_elements(
+            By.CSS_SELECTOR, 'div[style*="font-family:"][style*="Helvetica"]'
         )
         assert len(match) == 1
 

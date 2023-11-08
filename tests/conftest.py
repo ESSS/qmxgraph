@@ -1,5 +1,6 @@
 import pytest
 from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.common.by import By
 
 
 def pytest_configure(config):
@@ -218,14 +219,7 @@ class SeleniumExtras(object):
         :return: Error messaged extracted from an `WebDriverException`,
             raised when errors happen during tests using Selenium.
         """
-        if self.selenium.name == 'phantomjs':
-            # PhantomJS driver for whatever reason encodes error message
-            # in JSON...
-            import json
-
-            return json.loads(e.value.msg)["errorMessage"]
-        else:
-            return e.value.msg
+        return e.value.msg
 
 
 @pytest.fixture
@@ -337,7 +331,7 @@ class BaseGraphCase(object):
         :rtype: selenium.webdriver.remote.webelement.WebElement
         :return: DIV element containing graph drawing widget.
         """
-        return self.selenium.find_element_by_id('graphContainer')
+        return self.selenium.find_element(By.ID, 'graphContainer')
 
     def get_container_size(self):
         """
@@ -400,8 +394,8 @@ class BaseGraphCase(object):
         )
         color = color.lower()
 
-        edge = self.selenium.find_elements_by_css_selector(
-            'path[stroke="{}"][d~="M"][d~="{}"][d~="{}"]'.format(color, h_right, v_center)
+        edge = self.selenium.find_elements(
+            By.CSS_SELECTOR, f'path[stroke="{color}"][d~="M"][d~="{h_right}"][d~="{v_center}"]'
         )
         assert len(edge) <= 1
         return edge[0] if len(edge) == 1 else None
@@ -417,14 +411,14 @@ class BaseGraphCase(object):
         # vertices aren't child to cell drawing node in SVG of mxGraph, they
         # actually share a same parent node which contains both cell drawing
         # and text at a same level.
-        common = cell.find_element_by_xpath('../..')
+        common = cell.find_element(By.XPATH, '../..')
         if self.selenium.execute_script('return graphEditor.graph.isHtmlLabel()'):
             # If HTML labels are enabled, label is a bit more complicated...
-            g = common.find_element_by_css_selector('g[style]>g[transform]')
-            label = g.find_element_by_tag_name('div')
-            label = label.find_element_by_tag_name('div')
+            g = common.find_element(By.CSS_SELECTOR, 'g[style]>g[transform]')
+            label = g.find_element(By.TAG_NAME, 'div')
+            label = label.find_element(By.TAG_NAME, 'div')
         else:
-            label = common.find_element_by_css_selector('g>g>text')
+            label = common.find_element(By.CSS_SELECTOR, 'g>g>text')
         return label
 
     def get_edge_position(self, edge):
@@ -513,8 +507,8 @@ class BaseGraphCase(object):
         :rtype: str
         :return: Table title.
         """
-        title = table.find_element_by_css_selector('table.table-cell-title')
-        return title.find_element_by_tag_name('tr').text
+        title = table.find_element(By.CSS_SELECTOR, 'table.table-cell-title')
+        return title.find_element(By.TAG_NAME, 'tr').text
 
     def get_table_contents(self, table):
         """
@@ -523,8 +517,8 @@ class BaseGraphCase(object):
         :rtype: str
         :return: Table contents.
         """
-        contents = table.find_element_by_css_selector('table.table-cell-contents')
-        return [i.text for i in contents.find_elements_by_tag_name('td')]
+        contents = table.find_element(By.CSS_SELECTOR, 'table.table-cell-contents')
+        return [i.text for i in contents.find_elements(By.TAG_NAME, 'td')]
 
     def select_vertex(self, vertex):
         """
@@ -539,9 +533,10 @@ class BaseGraphCase(object):
         # because of element mismatch. This is an attempt to click in the
         # bottom right part of vertex that *usually* doesn't seem to have
         # anything over it.
-        actions.move_to_element_with_offset(
-            vertex, int(vertex.get_attribute('width')) - 5, int(vertex.get_attribute('height')) - 5
-        )
+        x_offset = int(vertex.get_attribute('width')) // 2
+        y_offset = int(vertex.get_attribute('height')) // 2
+        assert (x_offset > 0) and (y_offset > 0)
+        actions.move_to_element_with_offset(vertex, x_offset, y_offset)
         actions.click()
         actions.perform()
 
@@ -660,7 +655,7 @@ class BaseGraphCase(object):
             "return graphEditor.graph.getStylesheet().getDefaultVertexStyle()[mxConstants.STYLE_FILLCOLOR]"  # noqa
         )
         color = color.lower()
-        vertices = self.selenium.find_elements_by_css_selector('g>g>rect[fill="{}"]'.format(color))
+        vertices = self.selenium.find_elements(By.CSS_SELECTOR, f'g>g>rect[fill="{color}"]')
         return vertices
 
     def remove_cells(self, *cell_ids):
@@ -735,7 +730,7 @@ class Graph1Vertex(BaseGraphCase):
         #  <g> tags);
         # * A <text> tag with its label in SVG (which is a grandchild of two
         # consecutive <g> tags)
-        rect = self.selenium.find_elements_by_css_selector('g>g>rect[fill="{}"]'.format(color))
+        rect = self.selenium.find_elements(By.CSS_SELECTOR, f'g>g>rect[fill="{color}"]')
         assert len(rect) <= 1
         return rect[0] if rect else None
 
@@ -753,8 +748,8 @@ class Graph1Vertex1Port(Graph1Vertex):
         )
 
     def get_port(self):
-        port_elements = self.selenium.find_elements_by_css_selector(
-            f'g>g>ellipse[fill="{self.port_color}"]'
+        port_elements = self.selenium.find_elements(
+            By.CSS_SELECTOR, f'g>g>ellipse[fill="{self.port_color}"]'
         )
         assert len(port_elements) <= 1
         return port_elements[0] if port_elements else None
@@ -782,7 +777,7 @@ class Graph1VertexWithStyle(BaseGraphCase):
         #  <g> tags);
         # * A <text> tag with its label in SVG (which is a grandchild of two
         # consecutive <g> tags)
-        rect = self.selenium.find_elements_by_css_selector('g>g>rect[fill="{}"]'.format(color))
+        rect = self.selenium.find_elements(By.CSS_SELECTOR, f'g>g>rect[fill="{color}"]')
         assert len(rect) <= 1
         return rect[0] if rect else None
 
@@ -862,7 +857,7 @@ class Graph2Vertices1Edge1Decoration(Graph2Vertices1EdgeByCode):
     def get_decorations(self):
         style = 'purple'
         selector = 'g>g>rect[fill="{}"]'.format(self.host.styles[style]['fill_color'])
-        decoration = self.selenium.find_elements_by_css_selector(selector)
+        decoration = self.selenium.find_elements(By.CSS_SELECTOR, selector)
         return decoration
 
 
@@ -893,8 +888,8 @@ class Graph2Vertices1Edge1Decoration1Table(Graph2Vertices1Edge1Decoration):
         ]
 
     def get_tables(self):
-        titles = self.selenium.find_elements_by_css_selector('div>table.table-cell-title')
-        return [web_el.find_element_by_xpath('../..') for web_el in titles]
+        titles = self.selenium.find_elements(By.CSS_SELECTOR, 'div>table.table-cell-title')
+        return [web_el.find_element(By.XPATH, '../..') for web_el in titles]
 
 
 class Graph1Table(BaseGraphCase):
@@ -924,8 +919,8 @@ class Graph1Table(BaseGraphCase):
         ]
 
     def get_tables(self):
-        titles = self.selenium.find_elements_by_css_selector('div>table.table-cell-title')
-        return [web_el.find_element_by_xpath('../..') for web_el in titles]
+        titles = self.selenium.find_elements(By.CSS_SELECTOR, 'div>table.table-cell-title')
+        return [web_el.find_element(By.XPATH, '../..') for web_el in titles]
 
 
 def _wait_graph_page_ready(host, selenium):
