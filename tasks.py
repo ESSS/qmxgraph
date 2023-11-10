@@ -155,7 +155,7 @@ def docs(ctx, python_version=None):
 @invoke.task
 def test(ctx):
     print_message('test'.format(), color=Fore.BLUE, bright=True)
-    cmd = 'pytest --cov=qmxgraph --timeout=30 -v --durations=10'
+    cmd = 'pytest --cov=qmxgraph --timeout=30 -v --durations=10 --color=yes'
 
     import subprocess
 
