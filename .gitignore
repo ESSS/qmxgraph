@@ -62,6 +62,9 @@ target/
 # PyCharm files
 .idea/
 
+# Underling mxgraph library that could have been cloned.
+/mxgraph/
+
 # Generate Qt resource files
 resource_*.qrc
 resource_*.py

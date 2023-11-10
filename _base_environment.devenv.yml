@@ -1,7 +1,8 @@
+{% set TEST_QMXGRAPH = os.environ.get('TEST_QMXGRAPH', '0') != '0' %}
 name: qmxgraph
 
 dependencies:
-    - python >=3.6
+    - python >=3.7
 
     - attrs >=17
     - colorama
@@ -16,5 +17,8 @@ dependencies:
 environment:
   PYTHONPATH:
     - {{ root }}/src
+    {% if TEST_QMXGRAPH %}
+    - {{ root }}/tests
+    {% endif %}
   MYPYPATH:
     - {{ root }}/src

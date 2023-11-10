@@ -60,11 +60,29 @@ def qrc(
         print_message('{}* generated {}'.format(indent * 2, py_file))
 
     mxgraph = os.environ.get('MXGRAPHPATH', None)
-    if mxgraph is None:
+    if mxgraph is not None:
+        if not os.path.isdir(mxgraph):
+            raise IOError(
+                "Unable to determine MxGraph to use:"
+                " directory obtained from `MXGRAPHPATH` env var does not exist"
+            )
+
+    else:
         env_dir = deploy.get_conda_env_path()
         if env_dir is None:
-            raise IOError("Unable to determine MxGraph mxgraph in " "environment")
+            raise IOError(
+                "Unable to determine MxGraph to use:"
+                " no `MXGRAPHPATH` env var defined"
+                " and no conda environment active"
+            )
+
         mxgraph = '{env_dir}/mxgraph'.format(env_dir=env_dir)
+        if not os.path.isdir(mxgraph):
+            raise IOError(
+                "Unable to determine MxGraph to use:"
+                " no `MXGRAPHPATH` env var defined"
+                " and not located in active conda environment"
+            )
 
     create_web_resource(
         resource_name='mxgraph', src_dir='{folder}/javascript/src'.format(folder=mxgraph)
@@ -137,7 +155,7 @@ def docs(ctx, python_version=None):
 @invoke.task
 def test(ctx):
     print_message('test'.format(), color=Fore.BLUE, bright=True)
-    cmd = 'pytest --cov=qmxgraph --timeout=30 -v --durations=10'
+    cmd = 'pytest --cov=qmxgraph --timeout=30 -v --durations=10 --color=yes'
 
     import subprocess
 
