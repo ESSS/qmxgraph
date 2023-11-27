@@ -22,10 +22,9 @@ dependencies:
   - pytest-mock
   - pytest-qt
   - pytest-rerunfailures
-  - pytest-selenium >2
+  - pytest-selenium >=4.0.2
   - pytest-timeout
-  # Recent selenium versions (>=4.10.0) are currently incompatible with pytest-selenium (some constructor changed argument list).
-  - selenium >=4.0.0, <4.10.0
+  - selenium >=4.10.0
   {% if sys.platform != 'win32' %}
   - pytest-xvfb
   {% endif %}
