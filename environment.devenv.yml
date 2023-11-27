@@ -15,8 +15,6 @@ environment:
 dependencies:
   - python ={{ PYTHON_VERSION }}
 
-  - more-itertools <10.0.0  # [PYTHON_VERSION == '3.7']
-
   {% if TEST_QMXGRAPH %}
   - cherrypy >=18.0.0
   - pytest-mock
