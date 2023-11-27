@@ -32,11 +32,10 @@ dependencies:
   - cherrypy>=18.0.0
   - pytest-mock>=1.4.0
   - pytest-qt>=2.1.0
-  - pytest-selenium>2
+  - pytest-selenium>=4.0.2
   - pytest-timeout>=1.0.0
   - pytest-xdist>=1.15
-  # Recent selenium versions (>=4.10.0) are currently incompatible with pytest-selenium (some constructor changed argument list).
-  - selenium >=4.0.0, <4.10.0
+  - selenium >=4.10.0
   {% if sys.platform != 'win32' %}
   - pytest-xvfb
   {% endif %}

@@ -37,8 +37,7 @@ def chrome_options(chrome_options: ChromeOptions) -> ChromeOptions:
 
 @pytest.fixture
 def driver_kwargs(driver_kwargs, port):
-    assert "port" not in driver_kwargs
-    driver_kwargs["port"] = port.get()
+    driver_kwargs["service"].port = port.get()
     return driver_kwargs
 
 
