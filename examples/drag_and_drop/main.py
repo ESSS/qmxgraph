@@ -22,7 +22,7 @@ def create_drag_button(text, qmx_style, parent=None):
     button.setText(text)
     # # You can set an icon to the button with:
     # button.setIcon(...)
-    button.setProperty('qmx_style', qmx_style)
+    button.setProperty("qmx_style", qmx_style)
     button.setToolTip("Drag me into the graph widget")
     return button
 
@@ -35,14 +35,14 @@ class DragButton(QPushButton):
     def mousePressEvent(self, event):
         mime_data = qmxgraph.mime.create_qt_mime_data(
             {
-                'vertices': [
+                "vertices": [
                     {
-                        'dx': 0,
-                        'dy': 0,
-                        'width': 120,
-                        'height': 40,
-                        'label': self.text(),
-                        'style': self.property('qmx_style'),
+                        "dx": 0,
+                        "dy": 0,
+                        "width": 120,
+                        "height": 40,
+                        "label": self.text(),
+                        "style": self.property("qmx_style"),
                     }
                 ]
             }
@@ -63,7 +63,7 @@ class DragAndDropWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
 
-        self.setProperty('name', 'adas')
+        self.setProperty("name", "adas")
         self.setMinimumSize(QSize(640, 480))
         self.setWindowTitle("Drag&Drop Styles")
 
@@ -72,9 +72,9 @@ class DragAndDropWindow(QMainWindow):
 
         self.button_pane = QWidget(self)
         self.button_pane.setEnabled(False)
-        red_button = create_drag_button('RED', 'fillColor=#D88', self.button_pane)
-        green_button = create_drag_button('GREEN', 'fillColor=#8D8', self.button_pane)
-        blue_button = create_drag_button('BLUE', 'fillColor=#88D', self.button_pane)
+        red_button = create_drag_button("RED", "fillColor=#D88", self.button_pane)
+        green_button = create_drag_button("GREEN", "fillColor=#8D8", self.button_pane)
+        blue_button = create_drag_button("BLUE", "fillColor=#88D", self.button_pane)
 
         self.graph_widget = QmxGraph(parent=central_widget)
         self.events_bridge = self.create_events_bridge()
@@ -96,23 +96,23 @@ class DragAndDropWindow(QMainWindow):
         # Based in `EventsBridge` docstring.
 
         def on_cells_added_handler(cell_ids):
-            print(f'added {cell_ids}')
+            print(f"added {cell_ids}")
             qmx = widget.api
             for cid in cell_ids:
                 label = qmx.get_label(cid)
-                qmx.set_label(cid, f'{label} ({cid})')
+                qmx.set_label(cid, f"{label} ({cid})")
 
         def on_terminal_changed_handler(cell_id, terminal_type, new_terminal_id, old_terminal_id):
             print(
-                f'{terminal_type} of {cell_id} changed from'
-                f' {old_terminal_id} to {new_terminal_id}'
+                f"{terminal_type} of {cell_id} changed from"
+                f" {old_terminal_id} to {new_terminal_id}"
             )
 
         def on_cells_removed_handler(cell_ids):
-            print(f'removed {cell_ids}')
+            print(f"removed {cell_ids}")
 
         def on_cells_bounds_changed_handler(changed_cell_bounds):
-            print(f'cells bounds changed {changed_cell_bounds}')
+            print(f"cells bounds changed {changed_cell_bounds}")
 
         widget = self.graph_widget
         events_bridge = widget.events_bridge

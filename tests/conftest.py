@@ -7,7 +7,7 @@ def pytest_configure(config):
     # During warm up, clean up the temporary files/objects used by ports
     # fixture from previous runs. Note these files are shared among ALL slaves
     # of pytest so they can't reliably be removed by a fixture.
-    config.cache.set('qmxgraph/ports', [])
+    config.cache.set("qmxgraph/ports", [])
 
     import os
 
@@ -54,7 +54,7 @@ def enable_qgraph_debug():
     qmxgraph.debug.set_qmxgraph_debug(False)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def port(request):
     """
     Each process hosting a graph page must use an unique port. This fixture
@@ -106,7 +106,7 @@ class Port(object):
                 # On Windows it seems to sometimes to fail because of lack of
                 # privileges, for some reason.
                 if e.errno == errno.EEXIST or (
-                    sys.platform.startswith('win') and e.errno == errno.EACCES
+                    sys.platform.startswith("win") and e.errno == errno.EACCES
                 ):
                     time.sleep(0.1)
                     continue
@@ -117,15 +117,15 @@ class Port(object):
                 import socket
 
                 s = socket.socket()
-                s.bind(('', 0))
+                s.bind(("", 0))
                 port_ = s.getsockname()[1]
                 s.close()
 
-                ports_ = self.cache.get('qmxgraph/ports', [])
+                ports_ = self.cache.get("qmxgraph/ports", [])
                 unique = port_ not in ports_
 
                 if unique:
-                    self.cache.set('qmxgraph/ports', ports_ + [port_])
+                    self.cache.set("qmxgraph/ports", ports_ + [port_])
                     break
                 else:
                     attempts -= 1
@@ -138,7 +138,7 @@ class Port(object):
         return port_
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def host(port):
     """
     Hosts a graph page, with a series of simple default options and styles.
@@ -151,21 +151,21 @@ def host(port):
 
     styles = GraphStyles(
         {
-            'group': {
-                'shape': 'rectangle',
-                'fill_color': '#ff93ba',
-                'dashed': True,
+            "group": {
+                "shape": "rectangle",
+                "fill_color": "#ff93ba",
+                "dashed": True,
             },
-            'table': {
-                'fill_color': '#ffffff',
-                'stroke_opacity': 0,
-                'fill_opacity': 0,
+            "table": {
+                "fill_color": "#ffffff",
+                "stroke_opacity": 0,
+                "fill_opacity": 0,
             },
-            'yellow': {
-                'fill_color': '#ffff00',
+            "yellow": {
+                "fill_color": "#ffff00",
             },
-            'purple': {
-                'fill_color': '#ff00ff',
+            "purple": {
+                "fill_color": "#ff00ff",
             },
         }
     )
@@ -256,10 +256,10 @@ def pytest_collection_modifyitems(items):
     """
     import os
 
-    if os.environ.get('CI', 'false') != 'true':
+    if os.environ.get("CI", "false") != "true":
         return
     for item in items:
-        if 'graph_cases' in getattr(item, 'fixturenames', []):
+        if "graph_cases" in getattr(item, "fixturenames", []):
             item.add_marker(pytest.mark.flaky(reruns=3))
 
 
@@ -306,31 +306,31 @@ class BaseGraphCase(object):
         _wait_graph_page_ready(host=host, selenium=selenium)
 
         selenium.execute_script(
-            'callback = function(cellIds) {'
-            '    if (!window.__added__) {'
-            '        window.__added__ = [];'
-            '    }'
-            '    window.__added__.push.apply(window.__added__, cellIds);'
-            '}'
+            "callback = function(cellIds) {"
+            "    if (!window.__added__) {"
+            "        window.__added__ = [];"
+            "    }"
+            "    window.__added__.push.apply(window.__added__, cellIds);"
+            "}"
         )
-        self.eval_js_function('api.registerCellsAddedHandler', qmxgraph.js.Variable('callback'))
+        self.eval_js_function("api.registerCellsAddedHandler", qmxgraph.js.Variable("callback"))
 
         selenium.execute_script(
-            'callback = function(cellId, newLabel, oldLabel) {'
-            '    if (!window.__labels__) {'
-            '        window.__labels__ = [];'
-            '    }'
-            '    window.__labels__.push({cellId: cellId, newLabel: newLabel, oldLabel: oldLabel});'  # noqa
-            '}'
+            "callback = function(cellId, newLabel, oldLabel) {"
+            "    if (!window.__labels__) {"
+            "        window.__labels__ = [];"
+            "    }"
+            "    window.__labels__.push({cellId: cellId, newLabel: newLabel, oldLabel: oldLabel});"  # noqa
+            "}"
         )
-        self.eval_js_function('api.registerLabelChangedHandler', qmxgraph.js.Variable('callback'))
+        self.eval_js_function("api.registerLabelChangedHandler", qmxgraph.js.Variable("callback"))
 
     def get_container(self):
         """
         :rtype: selenium.webdriver.remote.webelement.WebElement
         :return: DIV element containing graph drawing widget.
         """
-        return self.selenium.find_element(By.ID, 'graphContainer')
+        return self.selenium.find_element(By.ID, "graphContainer")
 
     def get_container_size(self):
         """
@@ -339,7 +339,7 @@ class BaseGraphCase(object):
             element, respectively.
         """
         container = self.get_container()
-        return container.size['width'], container.size['height']
+        return container.size["width"], container.size["height"]
 
     def get_vertex_position(self, vertex):
         """
@@ -348,7 +348,7 @@ class BaseGraphCase(object):
         :rtype: tuple[float, float]
         :return: Left/X and top/Y screen coordinates of vertex, respectively.
         """
-        return float(vertex.get_attribute('x')), float(vertex.get_attribute('y'))
+        return float(vertex.get_attribute("x")), float(vertex.get_attribute("y"))
 
     def get_vertex_size(self, vertex):
         """
@@ -357,7 +357,7 @@ class BaseGraphCase(object):
         :rtype: tuple[int, int]
         :return: Width and height in pixels of vertex, respectively.
         """
-        return int(vertex.get_attribute('width')), int(vertex.get_attribute('height'))
+        return int(vertex.get_attribute("width")), int(vertex.get_attribute("height"))
 
     def get_edge(self, source, target):
         """
@@ -378,12 +378,12 @@ class BaseGraphCase(object):
         from selenium.common.exceptions import StaleElementReferenceException
 
         try:
-            if get(source, 'x') < get(target, 'x'):
-                h_right = get(source, 'x') + get(source, 'width')
-                v_center = get(source, 'y') + get(source, 'height') // 2
+            if get(source, "x") < get(target, "x"):
+                h_right = get(source, "x") + get(source, "width")
+                v_center = get(source, "y") + get(source, "height") // 2
             else:
-                h_right = get(target, 'x') + get(target, 'width')
-                v_center = get(target, 'y') + get(target, 'height') // 2
+                h_right = get(target, "x") + get(target, "width")
+                v_center = get(target, "y") + get(target, "height") // 2
         except StaleElementReferenceException:
             # If any of vertices is not longer in page, edge is also removed
             return None
@@ -410,14 +410,14 @@ class BaseGraphCase(object):
         # vertices aren't child to cell drawing node in SVG of mxGraph, they
         # actually share a same parent node which contains both cell drawing
         # and text at a same level.
-        common = cell.find_element(By.XPATH, '../..')
-        if self.selenium.execute_script('return graphEditor.graph.isHtmlLabel()'):
+        common = cell.find_element(By.XPATH, "../..")
+        if self.selenium.execute_script("return graphEditor.graph.isHtmlLabel()"):
             # If HTML labels are enabled, label is a bit more complicated...
-            g = common.find_element(By.CSS_SELECTOR, 'g[style]>g[transform]')
-            label = g.find_element(By.TAG_NAME, 'div')
-            label = label.find_element(By.TAG_NAME, 'div')
+            g = common.find_element(By.CSS_SELECTOR, "g[style]>g[transform]")
+            label = g.find_element(By.TAG_NAME, "div")
+            label = label.find_element(By.TAG_NAME, "div")
         else:
-            label = common.find_element(By.CSS_SELECTOR, 'g>g>text')
+            label = common.find_element(By.CSS_SELECTOR, "g>g>text")
         return label
 
     def get_edge_position(self, edge):
@@ -430,7 +430,7 @@ class BaseGraphCase(object):
         """
         import re
 
-        edge_coords = re.search(r'M (\d+) (\d+)', edge.get_attribute('d'))
+        edge_coords = re.search(r"M (\d+) (\d+)", edge.get_attribute("d"))
         return int(edge_coords.group(1)), int(edge_coords.group(2))
 
     def get_id(self, cell):
@@ -452,7 +452,7 @@ class BaseGraphCase(object):
         tolerance = self.selenium.execute_script("return graphEditor.graph.tolerance") / 2.0
 
         id_ = self.eval_js_function(
-            'api.getCellIdAt', cell.location['x'] + tolerance, cell.location['y'] + tolerance
+            "api.getCellIdAt", cell.location["x"] + tolerance, cell.location["y"] + tolerance
         )
         return id_
 
@@ -464,7 +464,7 @@ class BaseGraphCase(object):
         :return: Cell type at position. See `QmxGraphApi.getCellTypeAt` for
             details about possible types.
         """
-        return self.eval_js_function('api.getCellTypeAt', x, y)
+        return self.eval_js_function("api.getCellTypeAt", x, y)
 
     def get_geometry(self, cell):
         """
@@ -473,7 +473,7 @@ class BaseGraphCase(object):
         :rtype: list[int, int, int, int]
         :return: List composed, respectively, by x, y, width and height.
         """
-        return self.eval_js_function('api.getGeometry', self._as_cell_id(cell))
+        return self.eval_js_function("api.getGeometry", self._as_cell_id(cell))
 
     def get_label(self, cell):
         """
@@ -482,7 +482,7 @@ class BaseGraphCase(object):
         :rtype: str
         :return: Label of cell.
         """
-        return self.eval_js_function('api.getLabel', self._as_cell_id(cell))
+        return self.eval_js_function("api.getLabel", self._as_cell_id(cell))
 
     def set_visible(self, cell, visible):
         """
@@ -490,14 +490,14 @@ class BaseGraphCase(object):
             Graphical element of a cell or its id.
         :param bool visible: New visibility state.
         """
-        self.eval_js_function('api.setVisible', self._as_cell_id(cell), visible)
+        self.eval_js_function("api.setVisible", self._as_cell_id(cell), visible)
 
     def is_visible(self, cell):
         """
         :param selenium.webdriver.remote.webelement.WebElement|str cell:
             Graphical element of a cell or its id.
         """
-        return self.eval_js_function('api.isVisible', self._as_cell_id(cell))
+        return self.eval_js_function("api.isVisible", self._as_cell_id(cell))
 
     def get_table_title(self, table):
         """
@@ -506,8 +506,8 @@ class BaseGraphCase(object):
         :rtype: str
         :return: Table title.
         """
-        title = table.find_element(By.CSS_SELECTOR, 'table.table-cell-title')
-        return title.find_element(By.TAG_NAME, 'tr').text
+        title = table.find_element(By.CSS_SELECTOR, "table.table-cell-title")
+        return title.find_element(By.TAG_NAME, "tr").text
 
     def get_table_contents(self, table):
         """
@@ -516,8 +516,8 @@ class BaseGraphCase(object):
         :rtype: str
         :return: Table contents.
         """
-        contents = table.find_element(By.CSS_SELECTOR, 'table.table-cell-contents')
-        return [i.text for i in contents.find_elements(By.TAG_NAME, 'td')]
+        contents = table.find_element(By.CSS_SELECTOR, "table.table-cell-contents")
+        return [i.text for i in contents.find_elements(By.TAG_NAME, "td")]
 
     def select_vertex(self, vertex):
         """
@@ -532,8 +532,8 @@ class BaseGraphCase(object):
         # because of element mismatch. This is an attempt to click in the
         # bottom right part of vertex that *usually* doesn't seem to have
         # anything over it.
-        x_offset = int(vertex.get_attribute('width')) // 2
-        y_offset = int(vertex.get_attribute('height')) // 2
+        x_offset = int(vertex.get_attribute("width")) // 2
+        y_offset = int(vertex.get_attribute("height")) // 2
         assert (x_offset > 0) and (y_offset > 0)
         actions.move_to_element_with_offset(vertex, x_offset, y_offset)
         actions.click()
@@ -556,7 +556,7 @@ class BaseGraphCase(object):
         :return: Id of every cell added to graph, captured by using
             `registerCellsAddedHandler` event.
         """
-        return self.selenium.execute_script('return window.__added__')
+        return self.selenium.execute_script("return window.__added__")
 
     def get_label_changes(self):
         """
@@ -564,9 +564,9 @@ class BaseGraphCase(object):
         :return: Event object of every time a cell was renamed in graph,
             captured by using `onLabelChanged` event.
         """
-        return self.selenium.execute_script('return window.__labels__')
+        return self.selenium.execute_script("return window.__labels__")
 
-    def insert_vertex(self, x=10, y=10, width=25, height=25, label='label', style=None, tags=None):
+    def insert_vertex(self, x=10, y=10, width=25, height=25, label="label", style=None, tags=None):
         """
         Inserts a vertex with sensible, empirical defaults.
 
@@ -576,7 +576,7 @@ class BaseGraphCase(object):
         """
         return self.eval_js_function("api.insertVertex", x, y, width, height, label, style, tags)
 
-    def insert_table(self, x=20, y=60, width=100, contents=None, title='Hitchhikers', tags=None):
+    def insert_table(self, x=20, y=60, width=100, contents=None, title="Hitchhikers", tags=None):
         """
         Inserts a table with sensible, empirical defaults.
 
@@ -587,17 +587,17 @@ class BaseGraphCase(object):
 
         if contents is None:
             contents = {  # graphs.utils.TableRowDescription
-                'contents': [
+                "contents": [
                     # graphs.utils.TableDataDescription
-                    {'contents': ['arthur', 'dent']},
+                    {"contents": ["arthur", "dent"]},
                     # graphs.utils.TableDataDescription
-                    {'contents': ['ford', 'prefect']},
+                    {"contents": ["ford", "prefect"]},
                 ]
             }
-        return self.eval_js_function('api.insertTable', x, y, width, contents, title, tags)
+        return self.eval_js_function("api.insertTable", x, y, width, contents, title, tags)
 
     def insert_decoration(
-        self, x, y, width=10, height=10, style=None, label='decoration', tags=None
+        self, x, y, width=10, height=10, style=None, label="decoration", tags=None
     ):
         """
         Inserts a decoration with sensible, empirical defaults for most
@@ -609,7 +609,7 @@ class BaseGraphCase(object):
         :return: New decoration id.
         """
         return self.eval_js_function(
-            'api.insertDecoration', x, y, width, height, label, style, tags
+            "api.insertDecoration", x, y, width, height, label, style, tags
         )
 
     def insert_edge_by_drag_drop(self, source, target):
@@ -627,7 +627,7 @@ class BaseGraphCase(object):
         actions.drag_and_drop(source, target)
         actions.perform()
 
-    def insert_edge(self, source, target, label='', style=None, tags=None):
+    def insert_edge(self, source, target, label="", style=None, tags=None):
         """
         Inserts an edge programatically.
 
@@ -661,7 +661,7 @@ class BaseGraphCase(object):
         """
         :param iterable[str] cell_ids: Id of cells to be removed.
         """
-        return self.eval_js_function('api.removeCells', list(cell_ids))
+        return self.eval_js_function("api.removeCells", list(cell_ids))
 
     def eval_js_function(self, fn, *args):
         """
@@ -675,7 +675,7 @@ class BaseGraphCase(object):
         # Unlike Qt JS evaluation, Selenium doesn't include return by default,
         # it is necessary to include it in statement.
         return self.selenium.execute_script(
-            'return {}'.format(qmxgraph.js.prepare_js_call(fn, *args))
+            "return {}".format(qmxgraph.js.prepare_js_call(fn, *args))
         )
 
     def _as_cell_id(self, cell):
@@ -712,11 +712,11 @@ class Graph1Vertex(BaseGraphCase):
         selenium.execute_script("api.insertVertex(10, 10, 25, 25, 'label', null)")
 
         vertex = self.get_vertex()
-        assert vertex.get_attribute('x') == '10'
-        assert vertex.get_attribute('y') == '10'
-        assert vertex.get_attribute('width') == '25'
-        assert vertex.get_attribute('height') == '25'
-        assert self.get_label_element(vertex).text == 'label'
+        assert vertex.get_attribute("x") == "10"
+        assert vertex.get_attribute("y") == "10"
+        assert vertex.get_attribute("width") == "25"
+        assert vertex.get_attribute("height") == "25"
+        assert self.get_label_element(vertex).text == "label"
 
     def get_vertex(self):
         color = self.selenium.execute_script(
@@ -738,7 +738,7 @@ class Graph1Vertex1Port(Graph1Vertex):
     def __init__(self, selenium, host):
         Graph1Vertex.__init__(self, selenium, host)
         vertex_id = self.get_id(self.get_vertex())
-        self.port_color = '#987654'
+        self.port_color = "#987654"
         selenium.execute_script(
             f"api.insertPort("
             f"  {vertex_id}, 'foo',"
@@ -762,14 +762,14 @@ class Graph1VertexWithStyle(BaseGraphCase):
         selenium.execute_script("api.insertVertex(10, 10, 25, 25, 'yellow', 'yellow')")
 
         vertex = self.get_vertex()
-        assert vertex.get_attribute('x') == '10'
-        assert vertex.get_attribute('y') == '10'
-        assert vertex.get_attribute('width') == '25'
-        assert vertex.get_attribute('height') == '25'
-        assert self.get_label_element(vertex).text == 'yellow'
+        assert vertex.get_attribute("x") == "10"
+        assert vertex.get_attribute("y") == "10"
+        assert vertex.get_attribute("width") == "25"
+        assert vertex.get_attribute("height") == "25"
+        assert self.get_label_element(vertex).text == "yellow"
 
     def get_vertex(self):
-        color = self.host.styles['yellow']['fill_color']
+        color = self.host.styles["yellow"]["fill_color"]
 
         # The vertex basically is composed of two parts:
         # * A <rect> tag drawn in SVG (which is a grandchild of two consecutive
@@ -785,8 +785,8 @@ class Graph2Vertices(BaseGraphCase):
     def __init__(self, selenium, host):
         BaseGraphCase.__init__(self, selenium, host)
 
-        self.vertex1_id = self.insert_vertex(10, 10, 30, 30, 'foo', None)
-        self.vertex2_id = self.insert_vertex(90, 10, 30, 30, 'bar', None)
+        self.vertex1_id = self.insert_vertex(10, 10, 30, 30, "foo", None)
+        self.vertex2_id = self.insert_vertex(90, 10, 30, 30, "bar", None)
 
 
 class Graph2Vertices1EdgeByCode(Graph2Vertices):
@@ -795,27 +795,27 @@ class Graph2Vertices1EdgeByCode(Graph2Vertices):
 
         self.source_id = self.vertex1_id
         self.target_id = self.vertex2_id
-        self.edge_id = self.insert_edge(self.source_id, self.target_id, 'edge')
+        self.edge_id = self.insert_edge(self.source_id, self.target_id, "edge")
 
 
 class Graph3Vertices1EdgeByCode(Graph2Vertices1EdgeByCode):
     def __init__(self, selenium, host):
         Graph2Vertices1EdgeByCode.__init__(self, selenium, host)
 
-        self.vertex3_id = self.insert_vertex(10, 90, 30, 30, 'fuz', None)
+        self.vertex3_id = self.insert_vertex(10, 90, 30, 30, "fuz", None)
 
 
 class Graph3Vertices3EdgesByCode(BaseGraphCase):
     def __init__(self, selenium, host):
         BaseGraphCase.__init__(self, selenium, host)
 
-        self.vertex1_id = self.insert_vertex(0, 0, 1, 1, label='foo')
-        self.vertex2_id = self.insert_vertex(100, 0, 1, 1, label='bar')
-        self.vertex3_id = self.insert_vertex(200, 0, 1, 1, label='fuz')
+        self.vertex1_id = self.insert_vertex(0, 0, 1, 1, label="foo")
+        self.vertex2_id = self.insert_vertex(100, 0, 1, 1, label="bar")
+        self.vertex3_id = self.insert_vertex(200, 0, 1, 1, label="fuz")
 
-        self.edge1_id = self.insert_edge(self.vertex1_id, self.vertex2_id, 'edge1')
-        self.edge2_id = self.insert_edge(self.vertex1_id, self.vertex3_id, 'edge2')
-        self.edge3_id = self.insert_edge(self.vertex2_id, self.vertex3_id, 'edge3')
+        self.edge1_id = self.insert_edge(self.vertex1_id, self.vertex2_id, "edge1")
+        self.edge2_id = self.insert_edge(self.vertex1_id, self.vertex3_id, "edge2")
+        self.edge3_id = self.insert_edge(self.vertex2_id, self.vertex3_id, "edge3")
 
 
 class Graph2Vertices1EdgeByDragDrop(Graph2Vertices):
@@ -843,9 +843,9 @@ class Graph2Vertices1Edge1Decoration(Graph2Vertices1EdgeByCode):
         y = vertices_top_border + vertices_width / 2  # edge's y coordinate.
         w = 10
         h = 10
-        style = 'purple'
-        label = 'decoration'
-        self.eval_js_function('api.insertDecoration', x, y, w, h, label, style)
+        style = "purple"
+        label = "decoration"
+        self.eval_js_function("api.insertDecoration", x, y, w, h, label, style)
 
         decoration = self.get_decorations()[0]
         assert int(decoration.get_attribute("x")) == x - (w // 2)
@@ -854,8 +854,8 @@ class Graph2Vertices1Edge1Decoration(Graph2Vertices1EdgeByCode):
         assert int(decoration.get_attribute("height")) == h
 
     def get_decorations(self):
-        style = 'purple'
-        selector = 'g>g>rect[fill="{}"]'.format(self.host.styles[style]['fill_color'])
+        style = "purple"
+        selector = 'g>g>rect[fill="{}"]'.format(self.host.styles[style]["fill_color"])
         decoration = self.selenium.find_elements(By.CSS_SELECTOR, selector)
         return decoration
 
@@ -868,27 +868,27 @@ class Graph2Vertices1Edge1Decoration1Table(Graph2Vertices1Edge1Decoration):
         y = 60
         w = 100
         contents = {  # graphs.utils.TableDescription
-            'contents': [
+            "contents": [
                 # graphs.utils.TableDataDescription
-                {'contents': ['arthur', 'dent']},
+                {"contents": ["arthur", "dent"]},
                 # graphs.utils.TableDataDescription
-                {'contents': ['ford', 'prefect']},
+                {"contents": ["ford", "prefect"]},
             ]
         }
-        title = 'Hitchhikers'
-        self.table_id = self.eval_js_function('api.insertTable', x, y, w, contents, title)
+        title = "Hitchhikers"
+        self.table_id = self.eval_js_function("api.insertTable", x, y, w, contents, title)
 
-        assert self.get_table_title(self.get_tables()[0]) == 'Hitchhikers'
+        assert self.get_table_title(self.get_tables()[0]) == "Hitchhikers"
         assert self.get_table_contents(self.get_tables()[0]) == [
-            'arthur',
-            'dent',
-            'ford',
-            'prefect',
+            "arthur",
+            "dent",
+            "ford",
+            "prefect",
         ]
 
     def get_tables(self):
-        titles = self.selenium.find_elements(By.CSS_SELECTOR, 'div>table.table-cell-title')
-        return [web_el.find_element(By.XPATH, '../..') for web_el in titles]
+        titles = self.selenium.find_elements(By.CSS_SELECTOR, "div>table.table-cell-title")
+        return [web_el.find_element(By.XPATH, "../..") for web_el in titles]
 
 
 class Graph1Table(BaseGraphCase):
@@ -899,27 +899,27 @@ class Graph1Table(BaseGraphCase):
         y = 60
         w = 100
         contents = {  # graphs.utils.TableDescription
-            'contents': [
+            "contents": [
                 # graphs.utils.TableDataDescription
-                {'contents': ['arthur', 'dent']},
+                {"contents": ["arthur", "dent"]},
                 # graphs.utils.TableDataDescription
-                {'contents': ['ford', 'prefect']},
+                {"contents": ["ford", "prefect"]},
             ]
         }
-        title = 'Hitchhikers'
-        self.eval_js_function('api.insertTable', x, y, w, contents, title)
+        title = "Hitchhikers"
+        self.eval_js_function("api.insertTable", x, y, w, contents, title)
 
-        assert self.get_table_title(self.get_tables()[0]) == 'Hitchhikers'
+        assert self.get_table_title(self.get_tables()[0]) == "Hitchhikers"
         assert self.get_table_contents(self.get_tables()[0]) == [
-            'arthur',
-            'dent',
-            'ford',
-            'prefect',
+            "arthur",
+            "dent",
+            "ford",
+            "prefect",
         ]
 
     def get_tables(self):
-        titles = self.selenium.find_elements(By.CSS_SELECTOR, 'div>table.table-cell-title')
-        return [web_el.find_element(By.XPATH, '../..') for web_el in titles]
+        titles = self.selenium.find_elements(By.CSS_SELECTOR, "div>table.table-cell-title")
+        return [web_el.find_element(By.XPATH, "../..") for web_el in titles]
 
 
 def _wait_graph_page_ready(host, selenium):
@@ -962,12 +962,13 @@ def _wait_graph_page_ready(host, selenium):
         )
     except timeout_exceptions as e:
         raise TimeoutException(
-            "Graph page wasn't ready in address {} after a timeout of {}"
-            " seconds".format(host.address, timeout)
+            "Graph page wasn't ready in address {} after a timeout of {}" " seconds".format(
+                host.address, timeout
+            )
         ) from e
 
     for n in range(timeout):
-        has_api = selenium.execute_script('return !!window.api')
+        has_api = selenium.execute_script("return !!window.api")
         if has_api:
             break
         else:
@@ -980,4 +981,4 @@ def _wait_graph_page_ready(host, selenium):
 
 
 def _get_port_lock_filename(rootdir):
-    return '{}/.port.lock'.format(rootdir)
+    return "{}/.port.lock".format(rootdir)

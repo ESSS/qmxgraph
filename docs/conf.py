@@ -16,5 +16,5 @@ extensions = [
     "sphinx.ext.autosummary",
 ]
 
-autodoc_default_flags = ['members']
+autodoc_default_flags = ["members"]
 autosummary_generate = True

@@ -20,15 +20,15 @@ class Household:
 
 
 def test_tuple_of_validator() -> None:
-    Household(silverware=(Cutlery(name='fork'),))
+    Household(silverware=(Cutlery(name="fork"),))
 
     with pytest.raises(TypeError) as execinfo:
-        Household(silverware=Cutlery(name='fork'))
+        Household(silverware=Cutlery(name="fork"))
     msg = "'silverware' must be a tuple but got Cutlery(name='fork')"
     assert msg in str(execinfo.value)
 
     with pytest.raises(TypeError) as execinfo:
-        Household(silverware=(Cutlery(name='fork'), Door()))
+        Household(silverware=(Cutlery(name="fork"), Door()))
     assert "'silverware' must be a tuple of " in str(execinfo.value)
     msg = (
         "but got (Cutlery(name='fork'), Door()) and item in index 1 is not"
@@ -42,19 +42,19 @@ def test_contents_after() -> None:
 
     table = Table(
         [
-            TableRow([TableData(['Cutlery'])]),
-            TableRow(['Spoons', '2']),
-            TableRow(['Knifes', '5']),
-            TableRow([TableData(['Bathroom'])]),
-            TableRow(['Soap', '2']),
-            TableRow(['Toothpaste', '1']),
+            TableRow([TableData(["Cutlery"])]),
+            TableRow(["Spoons", "2"]),
+            TableRow(["Knifes", "5"]),
+            TableRow([TableData(["Bathroom"])]),
+            TableRow(["Soap", "2"]),
+            TableRow(["Toothpaste", "1"]),
         ]
     )
-    assert table.contents_after('Bathroom') == (
-        TableRow(['Soap', '2']),
-        TableRow(['Toothpaste', '1']),
+    assert table.contents_after("Bathroom") == (
+        TableRow(["Soap", "2"]),
+        TableRow(["Toothpaste", "1"]),
     )
-    assert table.contents_after('Soap') == (TableRow(['Toothpaste', '1']),)
+    assert table.contents_after("Soap") == (TableRow(["Toothpaste", "1"]),)
 
 
 def test_content_converter() -> None:
@@ -62,17 +62,17 @@ def test_content_converter() -> None:
 
     table = Table(
         [
-            dict(tag='tr', contents=['1', 'Cutlery']),  # type:ignore[list-item]
+            dict(tag="tr", contents=["1", "Cutlery"]),  # type:ignore[list-item]
             TableRow(
                 [
-                    '',
-                    'Spoon',
+                    "",
+                    "Spoon",
                     dict(  # type:ignore[list-item]
-                        tag='td',
+                        tag="td",
                         contents=[
                             dict(
-                                tag='img',
-                                src='spoon.gif',
+                                tag="img",
+                                src="spoon.gif",
                                 height=5,
                                 width=10,
                             )
@@ -84,7 +84,7 @@ def test_content_converter() -> None:
     )
     assert table == Table(
         [
-            TableRow(['1', 'Cutlery']),
-            TableRow(['', 'Spoon', TableData([Image(src='spoon.gif', height=5, width=10)])]),
+            TableRow(["1", "Cutlery"]),
+            TableRow(["", "Spoon", TableData([Image(src="spoon.gif", height=5, width=10)])]),
         ]
     )

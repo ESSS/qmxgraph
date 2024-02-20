@@ -61,10 +61,10 @@ def create_qt_mime_data(data):
     data_stream = QDataStream(item_data, QIODevice.WriteOnly)
 
     qgraph_mime = {
-        'version': qmxgraph.constants.QGRAPH_DD_MIME_VERSION,
+        "version": qmxgraph.constants.QGRAPH_DD_MIME_VERSION,
     }
     qgraph_mime.update(data)
-    data_stream.writeString(json.dumps(qgraph_mime).encode('utf8'))
+    data_stream.writeString(json.dumps(qgraph_mime).encode("utf8"))
 
     mime_data = QMimeData()
     mime_data.setData(qmxgraph.constants.QGRAPH_DD_MIME_TYPE, item_data)

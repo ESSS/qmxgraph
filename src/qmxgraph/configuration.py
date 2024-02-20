@@ -22,7 +22,7 @@ def _is_image_configuration(inst, attr, value):
         and isinstance(value[1], int)
         and isinstance(value[2], int)
     ):
-        msg = '{} must be a tuple of `(str, int, int)` but got {}'
+        msg = "{} must be a tuple of `(str, int, int)` but got {}"
         raise TypeError(msg.format(attr.name, repr(value)))
 
 
@@ -155,27 +155,27 @@ class GraphStyles(object):
 
     def validate(self):
         known_keys = {
-            'dashed',
-            'decoration_base_rotation',
-            'deletable',
-            'end_arrow',
-            'fill_color',
-            'fill_opacity',
-            'foldable',
-            'image',
-            'label_position',
-            'label_rotatable',
-            'no_label',
-            'resizable',
-            'rotatable',
-            'selectable',
-            'shape',
-            'start_arrow',
-            'stroke_color',
-            'stroke_width',
-            'stroke_opacity',
-            'vertical_align',
-            'vertical_label_position',
+            "dashed",
+            "decoration_base_rotation",
+            "deletable",
+            "end_arrow",
+            "fill_color",
+            "fill_opacity",
+            "foldable",
+            "image",
+            "label_position",
+            "label_rotatable",
+            "no_label",
+            "resizable",
+            "rotatable",
+            "selectable",
+            "shape",
+            "start_arrow",
+            "stroke_color",
+            "stroke_width",
+            "stroke_opacity",
+            "vertical_align",
+            "vertical_label_position",
         }
 
         invalid = {}

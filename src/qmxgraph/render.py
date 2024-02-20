@@ -19,7 +19,7 @@ def render_embedded_html(options, styles, stencils, mxgraph_path, own_path):
     """
     from PyQt5.QtCore import QFile
 
-    html_file = QFile(own_path + '/graph.html')
+    html_file = QFile(own_path + "/graph.html")
 
     from PyQt5.QtCore import QIODevice
 
@@ -30,12 +30,12 @@ def render_embedded_html(options, styles, stencils, mxgraph_path, own_path):
         from jinja2 import Template
 
         html_data = html_file.readAll().data()
-        template = Template(html_data.decode('utf8'))
+        template = Template(html_data.decode("utf8"))
     finally:
         html_file.close()
 
     def qrc_prefixed(path):
-        return 'qrc{}'.format(path)
+        return "qrc{}".format(path)
 
     mxgraph_path = qrc_prefixed(mxgraph_path)
     own_path = qrc_prefixed(own_path)
@@ -67,7 +67,7 @@ def render_hosted_html(options, styles, stencils, mxgraph_path, own_path, templa
 
     env = Environment()
     env.loader = FileSystemLoader(template_path)
-    template = env.get_template('graph.html')
+    template = env.get_template("graph.html")
 
     return _render(template, options, styles, stencils, mxgraph_path, own_path, embedded=False)
 

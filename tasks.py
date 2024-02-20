@@ -31,35 +31,35 @@ def qrc(
     from qmxgraph import deploy
 
     WEB_EXTENSIONS = (
-        '.js',
-        '.gif',
-        '.png',
-        '.html',
-        '.css',
-        '.txt',  # used by mxGraph resources
-        '.xml',  # used by mxGraph resources
+        ".js",
+        ".gif",
+        ".png",
+        ".html",
+        ".css",
+        ".txt",  # used by mxGraph resources
+        ".xml",  # used by mxGraph resources
     )
 
-    indent = '  '
-    print_message('qrc', color=Fore.BLUE, bright=True)
+    indent = "  "
+    print_message("qrc", color=Fore.BLUE, bright=True)
 
     def create_web_resource(resource_name, src_dir):
         print_message(
-            '{}- resource: {}'.format(indent, resource_name), color=Fore.BLUE, bright=True
+            "{}- resource: {}".format(indent, resource_name), color=Fore.BLUE, bright=True
         )
 
         target_dir = os.path.dirname(qmxgraph.__file__)
         qrc_file, py_file = generate_qrc_from_folder(
-            basename='resource_{}'.format(resource_name),
+            basename="resource_{}".format(resource_name),
             alias=resource_name,
             source_dir=src_dir,
             target_dir=target_dir,
             include=WEB_EXTENSIONS,
         )
-        print_message('{}* generated {}'.format(indent * 2, qrc_file))
-        print_message('{}* generated {}'.format(indent * 2, py_file))
+        print_message("{}* generated {}".format(indent * 2, qrc_file))
+        print_message("{}* generated {}".format(indent * 2, py_file))
 
-    mxgraph = os.environ.get('MXGRAPHPATH', None)
+    mxgraph = os.environ.get("MXGRAPHPATH", None)
     if mxgraph is not None:
         if not os.path.isdir(mxgraph):
             raise IOError(
@@ -76,7 +76,7 @@ def qrc(
                 " and no conda environment active"
             )
 
-        mxgraph = '{env_dir}/mxgraph'.format(env_dir=env_dir)
+        mxgraph = "{env_dir}/mxgraph".format(env_dir=env_dir)
         if not os.path.isdir(mxgraph):
             raise IOError(
                 "Unable to determine MxGraph to use:"
@@ -85,20 +85,20 @@ def qrc(
             )
 
     create_web_resource(
-        resource_name='mxgraph', src_dir='{folder}/javascript/src'.format(folder=mxgraph)
+        resource_name="mxgraph", src_dir="{folder}/javascript/src".format(folder=mxgraph)
     )
 
     qgraph_root = os.path.dirname(qmxgraph.__file__)
     create_web_resource(
-        resource_name='qmxgraph',
-        src_dir=os.path.join(qgraph_root, 'page'),
+        resource_name="qmxgraph",
+        src_dir=os.path.join(qgraph_root, "page"),
     )
 
 
 @invoke.task(
     help={
-        'python-version': (
-            'Can be used to define the python version used when creating the' ' work environment'
+        "python-version": (
+            "Can be used to define the python version used when creating the" " work environment"
         ),
     }
 )
@@ -111,34 +111,34 @@ def docs(ctx, python_version=None):
     import tempfile
     from pathlib import Path
 
-    conda_info_json = subprocess.check_output(['conda', 'info', '--json'])
+    conda_info_json = subprocess.check_output(["conda", "info", "--json"])
     conda_info = json.loads(conda_info_json)
     current_env_name = conda_info["active_prefix_name"]
-    if current_env_name in (None, 'base'):
+    if current_env_name in (None, "base"):
         raise invoke.Exit("Activate the project's conda environment first")
     else:
-        docs_env_name = f'{current_env_name}-docs'
+        docs_env_name = f"{current_env_name}-docs"
 
     new_environ = os.environ.copy()
-    new_environ['TEST_QMXGRAPH'] = '0'
+    new_environ["TEST_QMXGRAPH"] = "0"
     if python_version is not None:
-        new_environ['PYTHON_VERSION'] = python_version
+        new_environ["PYTHON_VERSION"] = python_version
 
     script = [
-        '',  # To have a new line at the start (see windows new line).
-        f'conda devenv --name {docs_env_name} --file docs_environment.devenv.yml',
-        f'conda activate {docs_env_name}',
-        'cd docs',
-        'sphinx-build . _build -W',
+        "",  # To have a new line at the start (see windows new line).
+        f"conda devenv --name {docs_env_name} --file docs_environment.devenv.yml",
+        f"conda activate {docs_env_name}",
+        "cd docs",
+        "sphinx-build . _build -W",
     ]
-    if sys.platform == 'win32':
-        suffix = '.bat'
-        new_line = '\n@echo on\ncall '
-        command = ['cmd', '/C']
+    if sys.platform == "win32":
+        suffix = ".bat"
+        new_line = "\n@echo on\ncall "
+        command = ["cmd", "/C"]
     else:
-        suffix = '.bash'
-        new_line = '\n'
-        command = ['bash', '-x']
+        suffix = ".bash"
+        new_line = "\n"
+        command = ["bash", "-x"]
 
     script_file = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
     try:
@@ -154,8 +154,8 @@ def docs(ctx, python_version=None):
 
 @invoke.task
 def test(ctx):
-    print_message('test'.format(), color=Fore.BLUE, bright=True)
-    cmd = 'pytest --cov=qmxgraph --timeout=30 -v --durations=10 --color=yes'
+    print_message("test".format(), color=Fore.BLUE, bright=True)
+    cmd = "pytest --cov=qmxgraph --timeout=30 -v --durations=10 --color=yes"
 
     import subprocess
 
@@ -164,8 +164,8 @@ def test(ctx):
 
 @invoke.task
 def linting(ctx):
-    print_message('lint'.format(), color=Fore.BLUE, bright=True)
-    cmd = 'flake8 -v qmxgraph'
+    print_message("lint".format(), color=Fore.BLUE, bright=True)
+    cmd = "flake8 -v qmxgraph"
 
     import subprocess
 
@@ -174,7 +174,7 @@ def linting(ctx):
 
 @invoke.task(
     help={
-        'svg_path': 'A SVG file',
+        "svg_path": "A SVG file",
     }
 )
 def svgtostencil(ctx, svg_path):
@@ -182,12 +182,12 @@ def svgtostencil(ctx, svg_path):
     Converts a SVG file to a stencil file compatible with mxGraph, output is printed in standard
     output.
     """
-    qmxgraph_scripts = os.path.join(os.getcwd(), 'scripts')
+    qmxgraph_scripts = os.path.join(os.getcwd(), "scripts")
 
     import subprocess
 
-    svg_to_stencil_script = os.path.join(qmxgraph_scripts, 'svg_to_stencil.py')
-    raise invoke.Exit(subprocess.call(['python', svg_to_stencil_script, svg_path]))
+    svg_to_stencil_script = os.path.join(qmxgraph_scripts, "svg_to_stencil.py")
+    raise invoke.Exit(subprocess.call(["python", svg_to_stencil_script, svg_path]))
 
 
 def generate_qrc(target_filename, file_map):
@@ -242,7 +242,7 @@ def generate_qrc(target_filename, file_map):
     # https://forum.qt.io/topic/42641/the-qt-resource-system-compile-error/4).
     import io
 
-    with io.open(target_filename, 'w', encoding='utf8') as f:
+    with io.open(target_filename, "w", encoding="utf8") as f:
         f.write(contents)
 
 
@@ -265,9 +265,9 @@ def generate_qrc_contents(file_map, target_dir):
     def create_entry(alias_, path_):
         path_ = follow_subst(path_)
         rel_path = os.path.relpath(path_, target_dir)
-        return '    ' + QRC_ENTRY_TEMPLATE.format(alias=alias_, path=rel_path)
+        return "    " + QRC_ENTRY_TEMPLATE.format(alias=alias_, path=rel_path)
 
-    entries = '\n'.join([create_entry(alias, path) for (alias, path) in file_map])
+    entries = "\n".join([create_entry(alias, path) for (alias, path) in file_map])
     return QRC_FILE_TEMPLATE.format(entries=entries)
 
 
@@ -294,10 +294,10 @@ def generate_qrc_py(qrc_filename, target_filename):
     subprocess.check_call(
         [
             sys.executable,
-            '-m',
-            'PyQt5.pyrcc_main',
+            "-m",
+            "PyQt5.pyrcc_main",
             local_filename,
-            '-o',
+            "-o",
             target_filename,
         ],
         cwd=cwd,
@@ -325,9 +325,7 @@ def generate_qrc_from_folder(basename, alias, source_dir, target_dir, include=No
     With a call like:
 
     ```python
-    generate_qrc_from_folder(
-        "resource_foo", "rsc_foo", "/home/dent/foo/", "/home/dent/foo/"
-    )
+    generate_qrc_from_folder("resource_foo", "rsc_foo", "/home/dent/foo/", "/home/dent/foo/")
     ```
 
     It would result in a .qrc like:
@@ -361,10 +359,10 @@ def generate_qrc_from_folder(basename, alias, source_dir, target_dir, include=No
     if not os.path.isdir(target_dir):
         raise IOError("Invalid target directory: {}".format(target_dir))
 
-    if sys.platform.startswith('win'):
+    if sys.platform.startswith("win"):
 
         def fix_alias(a):
-            return a.replace('\\', '/')
+            return a.replace("\\", "/")
 
     else:
 
@@ -374,7 +372,7 @@ def generate_qrc_from_folder(basename, alias, source_dir, target_dir, include=No
     files = [
         (
             fix_alias(
-                '{alias}/{rel_file}'.format(alias=alias, rel_file=os.path.relpath(f, source_dir))
+                "{alias}/{rel_file}".format(alias=alias, rel_file=os.path.relpath(f, source_dir))
             ),
             f,
         )
@@ -385,10 +383,10 @@ def generate_qrc_from_folder(basename, alias, source_dir, target_dir, include=No
             "Unable to collect anything for " ".qrc file in folder {}".format(source_dir)
         )
 
-    qrc_filename = os.path.join(target_dir, '{basename}{ext}'.format(basename=basename, ext='.qrc'))
+    qrc_filename = os.path.join(target_dir, "{basename}{ext}".format(basename=basename, ext=".qrc"))
     generate_qrc(qrc_filename, files)
 
-    py_filename = os.path.join(target_dir, '{basename}{ext}'.format(basename=basename, ext='.py'))
+    py_filename = os.path.join(target_dir, "{basename}{ext}".format(basename=basename, ext=".py"))
     generate_qrc_py(qrc_filename, py_filename)
 
     return qrc_filename, py_filename
@@ -404,7 +402,7 @@ def collect_files_in_folder(folder, include=None):
     return collected
 
 
-def print_message(message, color=None, bright=True, endline='\n'):
+def print_message(message, color=None, bright=True, endline="\n"):
     """
     Print a message to the standard output.
 
@@ -421,7 +419,7 @@ def print_message(message, color=None, bright=True, endline='\n'):
 
     if color is not None:
         style = Style.BRIGHT if bright else Style.DIM
-        message = '{color}{style}{msg}{reset}'.format(
+        message = "{color}{style}{msg}{reset}".format(
             color=color,
             style=style,
             reset=Style.RESET_ALL,
@@ -437,7 +435,7 @@ def print_message(message, color=None, bright=True, endline='\n'):
     sys.stderr.flush()
 
 
-if sys.platform.startswith('win'):
+if sys.platform.startswith("win"):
 
     def follow_subst(path, deep=True):
         """
@@ -462,7 +460,7 @@ if sys.platform.startswith('win'):
 
         path = os.path.abspath(path)
         while True:
-            drive = path[0] + ':'
+            drive = path[0] + ":"
             universal_drive = drive.lower()
             subst = parse_subst()
             if universal_drive in subst:
@@ -479,7 +477,7 @@ if sys.platform.startswith('win'):
         import re
         import subprocess
 
-        output = subprocess.check_output('subst')
+        output = subprocess.check_output("subst")
 
         def parse_subst_line(line):
             import locale
@@ -487,7 +485,7 @@ if sys.platform.startswith('win'):
             if not isinstance(line, str):
                 line = line.decode(locale.getpreferredencoding(False))
 
-            match = re.match(r'^(\w:)\\: => (.+)$', line)
+            match = re.match(r"^(\w:)\\: => (.+)$", line)
             drive = match.group(1)
             replace = match.group(2)
             return drive.lower(), replace
@@ -510,7 +508,7 @@ else:
 
 
 QRC_ENTRY_TEMPLATE = '<file alias="{alias}">{path}</file>'
-QRC_FILE_TEMPLATE = '''\
+QRC_FILE_TEMPLATE = """\
 <!DOCTYPE RCC>
 <RCC version="1.0">
 
@@ -518,7 +516,7 @@ QRC_FILE_TEMPLATE = '''\
 {entries}
 </qresource>
 
-</RCC>'''
+</RCC>"""
 
 
 # Only task registered in this global collection will be detected by invoke.

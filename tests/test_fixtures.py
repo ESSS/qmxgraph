@@ -1,6 +1,6 @@
 import os
 
-pytest_plugins = 'pytester'
+pytest_plugins = "pytester"
 
 
 def test_port_fixture(testdir) -> None:
@@ -10,10 +10,10 @@ def test_port_fixture(testdir) -> None:
     """
     import shutil
 
-    shutil.copy(os.path.join(os.path.dirname(__file__), 'conftest.py'), str(testdir.tmpdir))
+    shutil.copy(os.path.join(os.path.dirname(__file__), "conftest.py"), str(testdir.tmpdir))
 
     testdir.makepyfile(
-        test_port='''
+        test_port="""
         import pytest
 
         def test_port(port) -> None:
@@ -23,7 +23,7 @@ def test_port_fixture(testdir) -> None:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             with pytest.raises(socket.error):
                 s.connect(('localhost', port_))
-    '''
+    """
     )
     result = testdir.runpytest()
-    result.stdout.fnmatch_lines(['*1 passed*'])
+    result.stdout.fnmatch_lines(["*1 passed*"])

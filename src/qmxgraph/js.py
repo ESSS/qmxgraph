@@ -16,9 +16,9 @@ def prepare_js_call(fn, *args):
     :rtype: object
     :return: A JavaScript statement ready to be evaluated.
     """
-    return '{fn}({args})'.format(
+    return "{fn}({args})".format(
         fn=fn,
-        args=', '.join(_js_dump(v) for v in args),
+        args=", ".join(_js_dump(v) for v in args),
     )
 
 
