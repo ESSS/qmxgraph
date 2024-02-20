@@ -19,16 +19,16 @@ class StyleWindow(QMainWindow):
         self.setWindowTitle("Qmx Styles")
 
         styles_cfg = {
-            'round_node': {
-                'shape': 'ellipse',
-                'fill_color': '#D88',
-                'vertical_label_position': 'bottom',
-                'vertical_align': 'top',
+            "round_node": {
+                "shape": "ellipse",
+                "fill_color": "#D88",
+                "vertical_label_position": "bottom",
+                "vertical_align": "top",
             },
-            'bold_edge': {
-                'end_arrow': 'classic',
-                'shape': 'connector',
-                'stroke_width': 5.0,
+            "bold_edge": {
+                "end_arrow": "classic",
+                "shape": "connector",
+                "stroke_width": 5.0,
             },
         }
 
@@ -48,7 +48,7 @@ class StyleWindow(QMainWindow):
             width=100,
             height=50,
             label="BBB",
-            style='round_node',
+            style="round_node",
         )
         # Style by explicit values.
         v2_id = qmx.insert_vertex(
@@ -57,11 +57,11 @@ class StyleWindow(QMainWindow):
             width=50,
             height=100,
             label="CCC",
-            style='fillColor=#8D8',
+            style="fillColor=#8D8",
         )
 
-        qmx.insert_edge(source_id=v0_id, target_id=v1_id, label='normal')
-        qmx.insert_edge(source_id=v1_id, target_id=v2_id, label='bold', style='bold_edge')
+        qmx.insert_edge(source_id=v0_id, target_id=v1_id, label="normal")
+        qmx.insert_edge(source_id=v1_id, target_id=v2_id, label="bold", style="bold_edge")
 
 
 if __name__ == "__main__":

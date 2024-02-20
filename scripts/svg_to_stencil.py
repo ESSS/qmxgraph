@@ -50,36 +50,36 @@ class SvgParser:
         self.svg_path = svg_path
 
     def read(self):
-        ident = ' ' * 4
+        ident = " " * 4
         tree = xml.etree.ElementTree.parse(self.svg_path)
         root = tree.getroot()
 
         ns = {
-            'default': "http://www.w3.org/2000/svg",
-            'sodipodi': "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd",
-            'inkscape': "http://www.inkscape.org/namespaces/inkscape",
+            "default": "http://www.w3.org/2000/svg",
+            "sodipodi": "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd",
+            "inkscape": "http://www.inkscape.org/namespaces/inkscape",
         }
 
-        sodipodi_docname = '{{{}}}docname'.format(ns['sodipodi'])
+        sodipodi_docname = "{{{}}}docname".format(ns["sodipodi"])
         if sodipodi_docname in root.attrib:
-            name = root.attrib[sodipodi_docname].replace('.svg', '')
+            name = root.attrib[sodipodi_docname].replace(".svg", "")
         else:
-            name = os.path.basename(self.svg_path).replace('.svg', '')
-        width = root.attrib['width'].replace('px', '')
-        height = root.attrib['height'].replace('px', '')
+            name = os.path.basename(self.svg_path).replace(".svg", "")
+        width = root.attrib["width"].replace("px", "")
+        height = root.attrib["height"].replace("px", "")
 
-        default_ns = '{{{}}}'.format(ns['default'])
+        default_ns = "{{{}}}".format(ns["default"])
         svg_elements = (c for c in root if c.tag.startswith(default_ns))
 
         drawing_cmds = []
         for svg_element in svg_elements:
-            tag = svg_element.tag.replace(default_ns, '')
+            tag = svg_element.tag.replace(default_ns, "")
             parser = None
-            if tag == 'path':
+            if tag == "path":
                 parser = PathParser(ident)
-            elif tag == 'polygon':
+            elif tag == "polygon":
                 parser = PolygonParser(ident)
-            elif tag == 'rect':
+            elif tag == "rect":
                 parser = RectParser(ident)
 
             if parser is not None:
@@ -93,19 +93,19 @@ class SvgParser:
             name=name,
             width=width,
             height=height,
-            drawing='\n'.join(
-                '{}{}'.format(ident * 2, c) for c in itertools.chain.from_iterable(drawing_cmds)
+            drawing="\n".join(
+                "{}{}".format(ident * 2, c) for c in itertools.chain.from_iterable(drawing_cmds)
             ),
         )
 
     def _parse_size(self, value, unit):
-        return value.replace(unit, '')
+        return value.replace(unit, "")
 
 
 class DrawingParser:
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, ident=''):
+    def __init__(self, ident=""):
         self.ident = ident
         self.cmds = []
         self.styles = {}
@@ -124,16 +124,16 @@ class DrawingParser:
         added = self.styles
 
         tag_map = {
-            'fill': ('fillcolor', 'color'),
-            'stroke': ('strokecolor', 'color'),
-            'stroke-width': ('strokewidth', 'width'),
-            'stroke-miterlimit': ('miterlimit', 'limit'),
+            "fill": ("fillcolor", "color"),
+            "stroke": ("strokecolor", "color"),
+            "stroke-width": ("strokewidth", "width"),
+            "stroke-miterlimit": ("miterlimit", "limit"),
         }
 
-        if 'style' in value.attrib:
-            style = value.attrib['style']
-            for style_attr in style.split(';'):
-                style_tag, style_value = style_attr.split(':')
+        if "style" in value.attrib:
+            style = value.attrib["style"]
+            for style_attr in style.split(";"):
+                style_tag, style_value = style_attr.split(":")
 
                 if style_tag in tag_map:
                     el_name, attr = tag_map[style_tag]
@@ -147,18 +147,18 @@ class DrawingParser:
                 added[style_tag] = self._add_if_not_none(el_name, attr, value.attrib[style_tag])
 
     def _add_fill_stroke_command(self):
-        has_stroke = self.styles.get('stroke')
-        has_fill = self.styles.get('fill')
+        has_stroke = self.styles.get("stroke")
+        has_fill = self.styles.get("fill")
         if has_fill and has_stroke:
-            self.cmds.append('<fillstroke/>')
+            self.cmds.append("<fillstroke/>")
         elif has_fill:
-            self.cmds.append('<fill/>')
+            self.cmds.append("<fill/>")
         elif has_stroke:
-            self.cmds.append('<stroke/>')
+            self.cmds.append("<stroke/>")
 
     def _add_if_not_none(self, el_name, attr, value):
         added = False
-        if value != 'none':
+        if value != "none":
             self.cmds.append('<{} {}="{}"/>'.format(el_name, attr, value))
             added = True
         return added
@@ -174,18 +174,18 @@ class PolygonParser(DrawingParser):
         # * for each subsequent coordinate pair, perform an absolute `lineto`
         # operation to that coordinate pair
         # * perform a `closepath` command
-        points = value.attrib['points']
+        points = value.attrib["points"]
         pos = 0
 
-        self.cmds.append('<path>')
-        m = re.match(r'(\d+(?:\.\d+)?),(\d+(?:\.\d+)?) +', points[pos:])
+        self.cmds.append("<path>")
+        m = re.match(r"(\d+(?:\.\d+)?),(\d+(?:\.\d+)?) +", points[pos:])
         x0 = m.group(1)
         y0 = m.group(2)
         self.cmds.append('{}<move x="{}" y="{}"/>'.format(self.ident, x0, y0))
         pos += len(m.group(0))
 
         while True:
-            m = re.match(r'(\d+(?:\.\d+)?),(\d+(?:\.\d+)?) +', points[pos:])
+            m = re.match(r"(\d+(?:\.\d+)?),(\d+(?:\.\d+)?) +", points[pos:])
             if m is None:
                 break
 
@@ -194,12 +194,12 @@ class PolygonParser(DrawingParser):
 
         # Close polygon
         self.cmds.append('{}<line x="{}" y="{}"/>'.format(self.ident, x0, y0))
-        self.cmds.append('</path>')
+        self.cmds.append("</path>")
 
 
 class PathParser(DrawingParser):
     def _add_drawing_commands(self, value):
-        drawing = value.attrib['d']
+        drawing = value.attrib["d"]
         state = self.wait_command_state
         pos = 0
 
@@ -207,23 +207,23 @@ class PathParser(DrawingParser):
         while state is not None:
             state, pos = state(drawing, pos)
 
-        self.cmds.insert(cmds_offset, '<path>')
-        self.cmds.append('</path>')
+        self.cmds.insert(cmds_offset, "<path>")
+        self.cmds.append("</path>")
 
     def wait_command_state(self, value, pos):
         if pos >= len(value):
             return None, pos
-        elif value[pos] == 'M':
+        elif value[pos] == "M":
             return self.move_state, pos + 1
-        elif value[pos] == 'C':
+        elif value[pos] == "C":
             return self.curve_state, pos + 1
-        elif value[pos] == ' ':
+        elif value[pos] == " ":
             return self.wait_command_state, pos + 1
 
         raise ValueError("Could not parse {}".format(value[pos]))
 
     def move_state(self, value, pos):
-        m = re.match(r' +(\d+(\.\d+)?),(\d+(\.\d+)?) +', value[pos:])
+        m = re.match(r" +(\d+(\.\d+)?),(\d+(\.\d+)?) +", value[pos:])
         if m is None:
             raise ValueError("Could not parse {}".format(value[pos]))
 
@@ -233,22 +233,22 @@ class PathParser(DrawingParser):
     def curve_state(self, svg, pos):
         index = 1
 
-        cmd = ''
+        cmd = ""
         while True:
-            m = re.match(r' *(\d+(\.\d+)?),(\d+(\.\d+)?) *(Z)?', svg[pos:])
+            m = re.match(r" *(\d+(\.\d+)?),(\d+(\.\d+)?) *(Z)?", svg[pos:])
             if m is None:
                 raise ValueError("Could not parse {}".format(svg[pos]))
 
             pos += len(m.group(0))
 
             if index == 1:
-                cmd = '{}<curve'.format(self.ident)
+                cmd = "{}<curve".format(self.ident)
 
             cmd += ' x{index}="{x}" y{index}="{y}"'.format(index=index, x=m.group(1), y=m.group(3))
             index += 1
             if index > 3:
                 index = 1
-                cmd += '/>'
+                cmd += "/>"
                 self.cmds.append(cmd)
 
             if m.group(5) is not None:
@@ -262,20 +262,20 @@ class PathParser(DrawingParser):
 class RectParser(DrawingParser):
     def _add_drawing_commands(self, value):
         svg_to_stencil_attr_map = {
-            'x': 'x',
-            'y': 'y',
-            'width': 'w',
-            'height': 'h',
+            "x": "x",
+            "y": "y",
+            "width": "w",
+            "height": "h",
         }
-        rect_stencil_tag = '<rect'
+        rect_stencil_tag = "<rect"
         for svg, stencil in svg_to_stencil_attr_map.items():
             rect_stencil_tag += ' {}="{}"'.format(stencil, value.attrib[svg])
 
-        rect_stencil_tag += '/>'
+        rect_stencil_tag += "/>"
         self.cmds.append(rect_stencil_tag)
 
 
-_SHAPE_TEMPLATE = '''\
+_SHAPE_TEMPLATE = """\
 <shape aspect="fixed" h="{width}" name="{name}" w="{height}">
     <connections>
         <constraint name="N" perimeter="0" x="0.5" y="0"/>
@@ -293,20 +293,20 @@ _SHAPE_TEMPLATE = '''\
     <background>
     </background>
 </shape>
-'''
+"""
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
 
     arg_parser = argparse.ArgumentParser(
-        description='Converts a SVG file to a stencil file ' 'compatible with mxGraph.'
+        description="Converts a SVG file to a stencil file " "compatible with mxGraph."
     )
     arg_parser.add_argument(
-        'svg',
-        metavar='SVG_FILE',
+        "svg",
+        metavar="SVG_FILE",
         nargs=1,
-        help='A SVG file',
+        help="A SVG file",
     )
     args = sys.argv[1:]
     args = arg_parser.parse_args(args=args)

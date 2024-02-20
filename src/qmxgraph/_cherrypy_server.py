@@ -38,7 +38,7 @@ class CherryPyServer(object):
         cherrypy_server = Process(target=_do_start_server, args=(q, page, config))
         cherrypy_server.start()
 
-        if sys.platform.startswith('win'):  # pragma: no cover
+        if sys.platform.startswith("win"):  # pragma: no cover
             timeout = 0.1
             fail_on_timeout = False
         else:
@@ -48,9 +48,9 @@ class CherryPyServer(object):
         try:
             error_msg = q.get(timeout=timeout)
         except queue.Empty:  # pragma: no cover
-            address = '{}:{}'.format(
-                config['global']['server.socket_host'],
-                config['global']['server.socket_port'],
+            address = "{}:{}".format(
+                config["global"]["server.socket_host"],
+                config["global"]["server.socket_port"],
             )
             msg = "Server unable to start at {} after a timeout of {} seconds"
             assert not fail_on_timeout, msg.format(address, timeout)
@@ -79,7 +79,7 @@ class CherryPyServer(object):
                 # If already dead for any reason, just let it go
                 if e.winerror != 5:
                     raise
-            if not sys.platform.startswith('win'):
+            if not sys.platform.startswith("win"):
                 os.waitpid(self.server_pid, 0)
 
         self.server_pid = None
@@ -106,12 +106,12 @@ class CherryPyServer(object):
 def _do_start_server(queue, page, config):
     import cherrypy
 
-    if not sys.platform.startswith('win'):
+    if not sys.platform.startswith("win"):
         # 'main' event is more reliable than 'start' event, as 'start' is
         # fired just BEFORE server started, so it may not be necessarily be
         # ready for access yet. 'main' though is only fired during server
         # loop so it is already set up when reaches that point.
-        channel = 'main'
+        channel = "main"
 
         def callback():
             cherrypy.engine.unsubscribe(channel, callback)

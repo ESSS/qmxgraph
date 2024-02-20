@@ -36,7 +36,7 @@ def _register_decoration_class(class_):
         "tag" `attr.ib`.
     """
     for attr_name in class_.__attrs_attrs__:
-        if attr_name.name == 'tag':
+        if attr_name.name == "tag":
             if not isinstance(attr_name.default, str):
                 raise ValueError(f"{class_}'s `tag` default must be a `str`")
             if attr_name.init:
@@ -64,14 +64,14 @@ def _convert_decoration_content_item(raw_data):
         return raw_data
     else:
         if not isinstance(raw_data, dict):
-            raise TypeError(f'`raw_data` must be `str` or `dict` but got {type(raw_data)}')
+            raise TypeError(f"`raw_data` must be `str` or `dict` but got {type(raw_data)}")
         raw_data = raw_data.copy()
-        tag = raw_data.pop('tag', None)
+        tag = raw_data.pop("tag", None)
         if tag is None:
             raise ValueError('`raw_data` must have a `"tag"´ item')
         class_ = _tag_to_class.get(tag)
         if class_ is None:
-            raise ValueError(f"Can't locate a class for tag \"{tag}\"")
+            raise ValueError(f'Can\'t locate a class for tag "{tag}"')
 
         return class_(**raw_data)
 
@@ -109,7 +109,7 @@ class Image:
     :ivar int height: The desired height for the image.
     """
 
-    tag = attr.ib(default='img', init=False)
+    tag = attr.ib(default="img", init=False)
     src = attr.ib(validator=_is_str)
     width = attr.ib(validator=_is_int)
     height = attr.ib(validator=_is_int)
@@ -131,7 +131,7 @@ class TableData:
     :ivar optional[str] style: A inline style for the element.
     """
 
-    tag: str = attr.ib(default='td', init=False)
+    tag: str = attr.ib(default="td", init=False)
     contents: List[Union[str, Image]] = attrib_table_contents(str, Image)
     colspan: int = attr.ib(default=1, validator=_is_int)
     rowspan: int = attr.ib(default=1, validator=_is_int)
@@ -154,7 +154,7 @@ class TableRow:
         `str` used).
     """
 
-    tag: str = attr.ib(default='tr', init=False)
+    tag: str = attr.ib(default="tr", init=False)
     contents: Sequence[Union[str, TableData]] = attrib_table_contents(str, TableData)
 
 
@@ -171,7 +171,7 @@ class Table:
     :ivar tuple[TableRow] contents: The table rows.
     """
 
-    tag: str = attr.ib(default='table', init=False)
+    tag: str = attr.ib(default="table", init=False)
     contents: Sequence[TableRow] = attrib_table_contents(TableRow)
 
     def contents_after(self, caption):

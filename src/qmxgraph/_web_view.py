@@ -86,11 +86,11 @@ class QWebViewWithDragDrop(QWebEngineView):
             options=options,
             styles=styles,
             stencils=stencils,
-            mxgraph_path=':/mxgraph',
-            own_path=':/qmxgraph',
+            mxgraph_path=":/mxgraph",
+            own_path=":/qmxgraph",
         )
         self._view_state = ViewState.LoadingGraph
-        self.setHtml(html, baseUrl=QUrl('qrc:/'))
+        self.setHtml(html, baseUrl=QUrl("qrc:/"))
 
     def blank(self):
         """
@@ -98,7 +98,7 @@ class QWebViewWithDragDrop(QWebEngineView):
         content.
         """
         self._view_state = ViewState.LoadingBlank
-        self.setHtml('')
+        self.setHtml("")
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self.stop()

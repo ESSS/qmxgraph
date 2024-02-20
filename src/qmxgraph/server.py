@@ -63,7 +63,7 @@ def gen_config(port, mxgraph_path, own_path, stencils_path=None, debug=False):
         config["global"].update(
             {
                 # http://docs.cherrypy.org/en/latest/basics.html#disable-logging
-                'log.screen': False,
+                "log.screen": False,
             }
         )
 
@@ -72,14 +72,14 @@ def gen_config(port, mxgraph_path, own_path, stencils_path=None, debug=False):
     # any reason server is unable to be started, for instance.
     log_path = os.path.dirname(__file__)
 
-    server_logs_dir = '{}/.server_logs'.format(log_path)
+    server_logs_dir = "{}/.server_logs".format(log_path)
     if not os.path.isdir(server_logs_dir):
         os.makedirs(server_logs_dir)
 
     config["global"].update(
         {
-            'log.access_file': '{}/cherrypy_port{}_access.log'.format(server_logs_dir, port),
-            'log.error_file': '{}/cherrypy_port{}_error.log'.format(server_logs_dir, port),
+            "log.access_file": "{}/cherrypy_port{}_access.log".format(server_logs_dir, port),
+            "log.error_file": "{}/cherrypy_port{}_error.log".format(server_logs_dir, port),
         }
     )
 
@@ -132,8 +132,8 @@ class GraphPage(object):
             stencils=self.stencils,
             # Environment of mxGraph static files is served together with
             # page (see config generation in this module)
-            mxgraph_path='mxgraph',
-            own_path='own',
+            mxgraph_path="mxgraph",
+            own_path="own",
             template_path=self.template_path,
         )
         return html
@@ -151,7 +151,7 @@ def host(port, options=None, styles=None, stencils=tuple()):
     :param iterable[str] stencils: Sequence of paths in file system
         referring to stencil files.
     """
-    mxgraph_path = os.environ.get('MXGRAPHPATH', None)
+    mxgraph_path = os.environ.get("MXGRAPHPATH", None)
     if mxgraph_path is None:
         conda_env_path = deploy.get_conda_env_path()
         if conda_env_path is None:
@@ -160,9 +160,9 @@ def host(port, options=None, styles=None, stencils=tuple()):
                 "server. Set MXGRAPHPATH environment variable or "
                 "use a conda environment."
             )
-        mxgraph_path = os.path.join(conda_env_path, 'mxgraph')
-    mxgraph_path = os.path.join(mxgraph_path, 'javascript', 'src')
-    own_path = os.path.join(os.path.dirname(__file__), 'page')
+        mxgraph_path = os.path.join(conda_env_path, "mxgraph")
+    mxgraph_path = os.path.join(mxgraph_path, "javascript", "src")
+    own_path = os.path.join(os.path.dirname(__file__), "page")
 
     stencils_path = None
     stencils_ = []
@@ -172,7 +172,7 @@ def host(port, options=None, styles=None, stencils=tuple()):
             "Due to simplification, expects " "all stencils in same folder"
         )
         stencils_path = candidate
-        stencils_.append('stencils/{}'.format(os.path.basename(stencil)))
+        stencils_.append("stencils/{}".format(os.path.basename(stencil)))
 
     config = gen_config(
         port=port,
@@ -189,7 +189,7 @@ def host(port, options=None, styles=None, stencils=tuple()):
     cherrypy_server = CherryPyServer()
     with cherrypy_server.single_shot(page=page, config=config):
         yield Host(
-            address='http://localhost:{}'.format(config['global']['server.socket_port']),
+            address="http://localhost:{}".format(config["global"]["server.socket_port"]),
             options=page.options,
             styles=page.styles,
             stencils=stencils_,
@@ -233,14 +233,14 @@ def portable_path(path):
     """
     import sys
 
-    if sys.platform.startswith('win'):
-        path = path.replace('\\', '/')
+    if sys.platform.startswith("win"):
+        path = path.replace("\\", "/")
     return path
 
 
-if __name__ == '__main__':
-    mxgraph_path = os.path.join(deploy.get_conda_env_path(), 'mxgraph', 'javascript', 'src')
-    own_path = os.path.join(os.path.dirname(__file__), 'page')
+if __name__ == "__main__":
+    mxgraph_path = os.path.join(deploy.get_conda_env_path(), "mxgraph", "javascript", "src")
+    own_path = os.path.join(os.path.dirname(__file__), "page")
 
     config = gen_config(
         port=60066,

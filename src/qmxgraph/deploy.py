@@ -9,12 +9,12 @@ def get_conda_env_path():
     """
     import sys
 
-    conda_prefix = os.environ.get('CONDA_PREFIX', None)
+    conda_prefix = os.environ.get("CONDA_PREFIX", None)
     env_path = None
     if conda_prefix is not None:
-        if sys.platform.startswith('win'):
+        if sys.platform.startswith("win"):
             env_path = conda_prefix
         else:
-            env_path = os.path.join(conda_prefix, 'usr', 'local')
+            env_path = os.path.join(conda_prefix, "usr", "local")
 
     return env_path

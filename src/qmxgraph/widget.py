@@ -39,7 +39,7 @@ from qmxgraph.waiting import wait_signals_called
 from qmxgraph.waiting import wait_until
 
 # Some ugliness to successfully build the doc on ReadTheDocs...
-on_rtd = os.environ.get('READTHEDOCS') == 'True'
+on_rtd = os.environ.get("READTHEDOCS") == "True"
 if not on_rtd:
     from qmxgraph import resource_mxgraph, resource_qmxgraph  # type:ignore[attr-defined]
 
@@ -130,10 +130,10 @@ class QmxGraph(QWidget):
         self._double_click_bridge = _DoubleClickBridge()
         self._popup_menu_bridge = _PopupMenuBridge()
         self._channel = QWebChannel()
-        self._channel.registerObject('bridge_error_handler', self._error_bridge)
-        self._channel.registerObject('bridge_events_handler', self._events_bridge)
-        self._channel.registerObject('bridge_double_click_handler', self._double_click_bridge)
-        self._channel.registerObject('bridge_popup_menu_handler', self._popup_menu_bridge)
+        self._channel.registerObject("bridge_error_handler", self._error_bridge)
+        self._channel.registerObject("bridge_events_handler", self._events_bridge)
+        self._channel.registerObject("bridge_double_click_handler", self._double_click_bridge)
+        self._channel.registerObject("bridge_popup_menu_handler", self._popup_menu_bridge)
         self._web_view.setWebChannel(self._channel)
 
         self._layout.addWidget(self._web_view, 0, 0, 1, 1)
@@ -311,24 +311,24 @@ class QmxGraph(QWidget):
         return self._enabled
 
     def _connect_events_bridge(self):
-        self.api.register_cells_added_handler('bridge_events_handler.cells_added_slot')
-        self.api.register_cells_removed_handler('bridge_events_handler.cells_removed_slot')
-        self.api.register_label_changed_handler('bridge_events_handler.label_changed_slot')
-        self.api.register_selection_changed_handler('bridge_events_handler.selection_changed_slot')
-        self.api.register_terminal_changed_handler('bridge_events_handler.terminal_changed_slot')
+        self.api.register_cells_added_handler("bridge_events_handler.cells_added_slot")
+        self.api.register_cells_removed_handler("bridge_events_handler.cells_removed_slot")
+        self.api.register_label_changed_handler("bridge_events_handler.label_changed_slot")
+        self.api.register_selection_changed_handler("bridge_events_handler.selection_changed_slot")
+        self.api.register_terminal_changed_handler("bridge_events_handler.terminal_changed_slot")
         self.api.register_terminal_with_port_changed_handler(
-            'bridge_events_handler.terminal_with_port_changed_slot'
+            "bridge_events_handler.terminal_with_port_changed_slot"
         )
         self.api.register_cells_bounds_changed_handler(
-            'bridge_events_handler.cells_bounds_changed_slot'
+            "bridge_events_handler.cells_bounds_changed_slot"
         )
-        self.api.register_view_update_handler('bridge_events_handler.view_update_slot')
+        self.api.register_view_update_handler("bridge_events_handler.view_update_slot")
 
     def _connect_double_click_handler(self):
-        self.api.register_double_click_handler('bridge_double_click_handler.double_click_slot')
+        self.api.register_double_click_handler("bridge_double_click_handler.double_click_slot")
 
     def _connect_popup_menu_handler(self):
-        self.api.register_popup_menu_handler('bridge_popup_menu_handler.popup_menu_slot')
+        self.api.register_popup_menu_handler("bridge_popup_menu_handler.popup_menu_slot")
 
     @property
     def api(self):
@@ -465,10 +465,10 @@ class QmxGraph(QWidget):
         data = event.mimeData().data(constants.QGRAPH_DD_MIME_TYPE)
         if not data.isNull():
             data_stream = QDataStream(data, QIODevice.ReadOnly)
-            parsed = json.loads(data_stream.readString().decode('utf8'))
+            parsed = json.loads(data_stream.readString().decode("utf8"))
 
             # Refer to `mime.py` for docs about format
-            version = parsed['version']
+            version = parsed["version"]
             if version not in (1, 2):
                 raise ValueError("Unsupported version of QmxGraph MIME data: {}".format(version))
 
@@ -476,34 +476,34 @@ class QmxGraph(QWidget):
             y = event.pos().y()
 
             if version in (1, 2):
-                vertices = parsed.get('vertices', [])
+                vertices = parsed.get("vertices", [])
                 scale = self.api.get_zoom_scale()
                 for v in vertices:
                     # place vertices with an offset so their center falls
                     # in the event point.
-                    vertex_x = x + (v['dx'] - v['width'] * 0.5) * scale
-                    vertex_y = y + (v['dy'] - v['height'] * 0.5) * scale
+                    vertex_x = x + (v["dx"] - v["width"] * 0.5) * scale
+                    vertex_y = y + (v["dy"] - v["height"] * 0.5) * scale
                     self.api.insert_vertex(
                         x=vertex_x,
                         y=vertex_y,
-                        width=v['width'],
-                        height=v['height'],
-                        label=v['label'],
-                        style=v.get('style', None),
-                        tags=v.get('tags', {}),
+                        width=v["width"],
+                        height=v["height"],
+                        label=v["label"],
+                        style=v.get("style", None),
+                        tags=v.get("tags", {}),
                     )
 
             if version in (2,):
-                decorations = parsed.get('decorations', [])
+                decorations = parsed.get("decorations", [])
                 for v in decorations:
                     self.api.insert_decoration(
                         x=x,
                         y=y,
-                        width=v['width'],
-                        height=v['height'],
-                        label=v['label'],
-                        style=v.get('style', None),
-                        tags=v.get('tags', {}),
+                        width=v["width"],
+                        height=v["height"],
+                        label=v["label"],
+                        style=v.get("style", None),
+                        tags=v.get("tags", {}),
                     )
 
             event.acceptProposedAction()
@@ -537,14 +537,14 @@ class DelayedSignalsBridge(QObject):
         for k, v in list(cls.__dict__.items()):
             if isinstance(v, pyqtSignal):
                 (signature,) = v.signatures
-                m = re.match(r'^([^(]+)\(([^)]*)\)$', signature)
+                m = re.match(r"^([^(]+)\(([^)]*)\)$", signature)
                 assert m is not None
 
                 signal_name = m.group(1)
-                assert signal_name.startswith('on_')
-                slot_name = signal_name[len('on_') :] + '_slot'
+                assert signal_name.startswith("on_")
+                slot_name = signal_name[len("on_") :] + "_slot"
                 parameters = m.group(2)
-                parameters = parameters.split(',') if parameters else []
+                parameters = parameters.split(",") if parameters else []
                 slot_method = _make_async_pyqt_slot(slot_name, signal_name, parameters)
                 setattr(cls, slot_name, slot_method)
 
@@ -603,7 +603,7 @@ class ErrorHandlingBridge(DelayedSignalsBridge):
     # url: str
     # line: int
     # column: int
-    on_error = pyqtSignal(str, str, int, int, name='on_error')
+    on_error = pyqtSignal(str, str, int, int, name="on_error")
 
 
 class EventsBridge(DelayedSignalsBridge):
@@ -693,16 +693,16 @@ class EventsBridge(DelayedSignalsBridge):
 
     """
 
-    on_cells_removed = pyqtSignal('QVariantList', name='on_cells_removed')
-    on_cells_added = pyqtSignal('QVariantList', name='on_cells_added')
-    on_label_changed = pyqtSignal(str, str, str, name='on_label_changed')
-    on_selection_changed = pyqtSignal('QVariantList', name='on_selection_changed')
-    on_terminal_changed = pyqtSignal(str, str, str, str, name='on_terminal_changed')
+    on_cells_removed = pyqtSignal("QVariantList", name="on_cells_removed")
+    on_cells_added = pyqtSignal("QVariantList", name="on_cells_added")
+    on_label_changed = pyqtSignal(str, str, str, name="on_label_changed")
+    on_selection_changed = pyqtSignal("QVariantList", name="on_selection_changed")
+    on_terminal_changed = pyqtSignal(str, str, str, str, name="on_terminal_changed")
     on_terminal_with_port_changed = pyqtSignal(
-        str, str, str, str, str, str, name='on_terminal_with_port_changed'
+        str, str, str, str, str, str, name="on_terminal_with_port_changed"
     )
-    on_view_update = pyqtSignal(str, 'QVariantList', name='on_view_update')
-    on_cells_bounds_changed = pyqtSignal('QVariant', name='on_cells_bounds_changed')
+    on_view_update = pyqtSignal(str, "QVariantList", name="on_view_update")
+    on_cells_bounds_changed = pyqtSignal("QVariant", name="on_cells_bounds_changed")
 
 
 class _DoubleClickBridge(DelayedSignalsBridge):
@@ -716,7 +716,7 @@ class _DoubleClickBridge(DelayedSignalsBridge):
 
     # Arguments:
     # cell_id: str
-    on_double_click = pyqtSignal(str, name='on_double_click')
+    on_double_click = pyqtSignal(str, name="on_double_click")
 
 
 class _PopupMenuBridge(DelayedSignalsBridge):
@@ -732,7 +732,7 @@ class _PopupMenuBridge(DelayedSignalsBridge):
     # cell_id: str
     # x: int
     # y: int
-    on_popup_menu = pyqtSignal(str, int, int, name='on_popup_menu')
+    on_popup_menu = pyqtSignal(str, int, int, name="on_popup_menu")
 
 
 @contextmanager

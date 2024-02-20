@@ -43,13 +43,13 @@ def test_error_redirection(loaded_graph) -> None:
     assert cb.args is not None
     msg, url, line, column = cb.args
     expected = textwrap.dedent(
-        '''\
+        """\
         Uncaught Error: test
         stack:
         Error: test
-            at <anonymous>:1:7'''
+            at <anonymous>:1:7"""
     )
-    assert (url, line, column) == ('qrc:/', 1, 1)
+    assert (url, line, column) == ("qrc:/", 1, 1)
 
 
 def test_events_bridge_delayed_signals(graph, qtbot, mocker) -> None:
@@ -108,7 +108,7 @@ def test_events_bridge_plain(graph, mocker) -> None:
     graph.load_and_wait()
     # on_cells_added
     with wait_signals_called(events.on_cells_added):
-        vertex_id = graph.api.insert_vertex(40, 40, 20, 20, 'test')
+        vertex_id = graph.api.insert_vertex(40, 40, 20, 20, "test")
     assert added_handler.call_args_list == [mocker.call([vertex_id])]
     # on_selection_changed
     assert selections_handler.call_args_list == []
@@ -117,13 +117,13 @@ def test_events_bridge_plain(graph, mocker) -> None:
     assert selections_handler.call_args_list == [mocker.call([vertex_id])]
     # on_label_changed
     with wait_signals_called(events.on_label_changed):
-        graph.api.set_label(vertex_id, 'TOTALLY NEW LABEL')
-    assert labels_handler.call_args_list == [mocker.call(vertex_id, 'TOTALLY NEW LABEL', 'test')]
+        graph.api.set_label(vertex_id, "TOTALLY NEW LABEL")
+    assert labels_handler.call_args_list == [mocker.call(vertex_id, "TOTALLY NEW LABEL", "test")]
     # on_terminal_changed, on_terminal_with_port_changed
-    foo_id = graph.api.insert_vertex(440, 40, 20, 20, 'foo')
-    bar_id = graph.api.insert_vertex(40, 140, 20, 20, 'bar')
-    edge_id = graph.api.insert_edge(vertex_id, foo_id, 'edge')
-    bar_port_name = 'a-port'
+    foo_id = graph.api.insert_vertex(440, 40, 20, 20, "foo")
+    bar_id = graph.api.insert_vertex(40, 140, 20, 20, "bar")
+    edge_id = graph.api.insert_edge(vertex_id, foo_id, "edge")
+    bar_port_name = "a-port"
     assert not graph.api.has_port(bar_id, bar_port_name)
     graph.api.insert_port(bar_id, bar_port_name, 0, 0, 5, 5)
     assert graph.api.has_port(bar_id, bar_port_name)
@@ -152,15 +152,15 @@ def test_events_bridge_plain(graph, mocker) -> None:
             bar_id,
             bar_port_name,
             foo_id,
-            '',
+            "",
         ),
         mocker.call(
             edge_id,
             QmxGraphApi.SOURCE_TERMINAL_CELL,
             foo_id,
-            '',
+            "",
             vertex_id,
-            '',
+            "",
         ),
     ]
     # on_cells_removed
@@ -187,7 +187,7 @@ def test_bridges_signal_handlers_can_call_api(loaded_graph) -> None:
     events = loaded_graph.events_bridge
     events.on_cells_added.connect(handler_that_call_api)
     with wait_signals_called(events.on_cells_added):
-        loaded_graph.api.insert_vertex(40, 40, 20, 20, 'test')
+        loaded_graph.api.insert_vertex(40, 40, 20, 20, "test")
 
     assert zoom_scale_obtained == [1]
 
@@ -269,7 +269,7 @@ def test_container_resize(loaded_graph) -> None:
     def get_container_dimensions():
         width = eval_js(loaded_graph, """document.getElementById('graphContainer').style.width""")
         height = eval_js(loaded_graph, """document.getElementById('graphContainer').style.height""")
-        return int(width.replace('px', '')), int(height.replace('px', ''))
+        return int(width.replace("px", "")), int(height.replace("px", ""))
 
     width, height = get_container_dimensions()
     assert width == expected_width
@@ -289,8 +289,8 @@ def test_web_inspector(loaded_graph, mocker) -> None:
     """
     from PyQt5.QtWidgets import QDialog
 
-    mocker.patch.object(QDialog, 'show')
-    mocker.patch.object(QDialog, 'hide')
+    mocker.patch.object(QDialog, "show")
+    mocker.patch.object(QDialog, "hide")
 
     loaded_graph.show_inspector()
     QDialog.show.assert_called_once_with()
@@ -382,21 +382,21 @@ def test_drag_drop(loaded_graph, drag_drop_events) -> None:
     """
     mime_data = qmxgraph.mime.create_qt_mime_data(
         {
-            'vertices': [
+            "vertices": [
                 {
-                    'dx': 0,
-                    'dy': 0,
-                    'width': 64,
-                    'height': 64,
-                    'label': 'test 1',
+                    "dx": 0,
+                    "dy": 0,
+                    "width": 64,
+                    "height": 64,
+                    "label": "test 1",
                 },
                 {
-                    'dx': 50,
-                    'dy': 50,
-                    'width': 32,
-                    'height': 32,
-                    'label': 'test 2',
-                    'tags': {'foo': '1', 'bar': 'a'},
+                    "dx": 50,
+                    "dy": 50,
+                    "width": 32,
+                    "height": 32,
+                    "label": "test 2",
+                    "tags": {"foo": "1", "bar": "a"},
                 },
             ],
         }
@@ -417,14 +417,14 @@ def test_drag_drop(loaded_graph, drag_drop_events) -> None:
     cell_id = loaded_graph.api.get_cell_id_at(100, 100)
     assert loaded_graph.api.get_cell_type(cell_id) == qmxgraph.constants.CELL_TYPE_VERTEX
     assert loaded_graph.api.get_geometry(cell_id) == [100.0 - 64 / 2, 100.0 - 64 / 2, 64.0, 64.0]
-    assert loaded_graph.api.get_label(cell_id) == 'test 1'
+    assert loaded_graph.api.get_label(cell_id) == "test 1"
 
     cell_id = loaded_graph.api.get_cell_id_at(150, 150)
     assert loaded_graph.api.get_cell_type(cell_id) == qmxgraph.constants.CELL_TYPE_VERTEX
     assert loaded_graph.api.get_geometry(cell_id) == [150.0 - 32 / 2, 150.0 - 32 / 2, 32.0, 32.0]
-    assert loaded_graph.api.get_label(cell_id) == 'test 2'
-    assert loaded_graph.api.get_tag(cell_id, 'foo') == '1'
-    assert loaded_graph.api.get_tag(cell_id, 'bar') == 'a'
+    assert loaded_graph.api.get_label(cell_id) == "test 2"
+    assert loaded_graph.api.get_tag(cell_id, "foo") == "1"
+    assert loaded_graph.api.get_tag(cell_id, "bar") == "a"
 
 
 def test_drag_drop_invalid_mime_type(loaded_graph, drag_drop_events) -> None:
@@ -438,11 +438,11 @@ def test_drag_drop_invalid_mime_type(loaded_graph, drag_drop_events) -> None:
     item_data = QByteArray()
     data_stream = QDataStream(item_data, QIODevice.WriteOnly)
     data_stream.writeString(
-        json.dumps('<?xml version="1.0"?><message>Hello World!</message>').encode('utf8')
+        json.dumps('<?xml version="1.0"?><message>Hello World!</message>').encode("utf8")
     )
 
     mime_data = QMimeData()
-    mime_data.setData('application/xml', item_data)
+    mime_data.setData("application/xml", item_data)
 
     drag_enter_event = drag_drop_events.drag_enter(mime_data)
     loaded_graph.inner_web_view().dragEnterEvent(drag_enter_event)
@@ -465,7 +465,7 @@ def test_drag_drop_invalid_version(loaded_graph, drag_drop_events) -> None:
     """
     mime_data = qmxgraph.mime.create_qt_mime_data(
         {
-            'version': -1,
+            "version": -1,
         }
     )
 
@@ -483,8 +483,8 @@ def test_drag_drop_invalid_version(loaded_graph, drag_drop_events) -> None:
 
     print(
         (
-            'This test will cause an exception in a Qt event loop:\n'
-            '    ValueError: Unsupported version of QmxGraph MIME data: -1'
+            "This test will cause an exception in a Qt event loop:\n"
+            "    ValueError: Unsupported version of QmxGraph MIME data: -1"
         ),
         file=sys.stderr,
     )
@@ -498,7 +498,7 @@ def test_drag_drop_invalid_version(loaded_graph, drag_drop_events) -> None:
     assert str(exceptions[0][1]) == "Unsupported version of QmxGraph MIME data: -1"
 
 
-@pytest.mark.parametrize('debug', (True, False))
+@pytest.mark.parametrize("debug", (True, False))
 def test_invalid_api_call(loaded_graph, debug) -> None:
     """
     :type loaded_graph: qmxgraph.widget.qmxgraph
@@ -515,33 +515,33 @@ def test_invalid_api_call(loaded_graph, debug) -> None:
                 'Uncaught Error: [QmxGraph] unable to find function "BOOM" in javascript api'
             )
             with pytest.raises(InvalidJavaScriptError, match=expected_message):
-                loaded_graph.api.call_api('BOOM')
+                loaded_graph.api.call_api("BOOM")
         else:
             # When debug feature is disabled, code will raise on JavaScript
             # side, but unless an error bridge is configured that could go
             # unnoticed, as call would return None and could easily be
             # mistaken by an OK call.
-            assert loaded_graph.api.call_api('BOOM') is None
+            assert loaded_graph.api.call_api("BOOM") is None
     finally:
         qmxgraph.debug.set_qmxgraph_debug(old_debug)
 
 
-@pytest.mark.parametrize('enabled', (True, False))
+@pytest.mark.parametrize("enabled", (True, False))
 def test_graph_api_calls(loaded_graph, enabled) -> None:
     """
     Tests the available calls to the graph api.
     """
     graph_api_functions = [
-        ('is_cells_deletable', 'set_cells_deletable'),
-        ('is_cells_disconnectable', 'set_cells_disconnectable'),
-        ('is_cells_editable', 'set_cells_editable'),
+        ("is_cells_deletable", "set_cells_deletable"),
+        ("is_cells_disconnectable", "set_cells_disconnectable"),
+        ("is_cells_editable", "set_cells_editable"),
         (
-            'is_cells_movable',
-            'set_cells_movable',
+            "is_cells_movable",
+            "set_cells_movable",
         ),
         (
-            'is_cells_connectable',
-            'set_cells_connectable',
+            "is_cells_connectable",
+            "set_cells_connectable",
         ),
     ]
 
@@ -559,16 +559,16 @@ def test_tags(loaded_graph) -> None:
     """
     :type loaded_graph: qmxgraph.widget.qmxgraph
     """
-    no_tags_id = loaded_graph.api.insert_vertex(10, 10, 20, 20, 'test')
+    no_tags_id = loaded_graph.api.insert_vertex(10, 10, 20, 20, "test")
 
-    assert not loaded_graph.api.has_tag(no_tags_id, 'foo')
-    loaded_graph.api.set_tag(no_tags_id, 'foo', '1')
-    assert loaded_graph.api.has_tag(no_tags_id, 'foo')
-    assert loaded_graph.api.get_tag(no_tags_id, 'foo') == '1'
+    assert not loaded_graph.api.has_tag(no_tags_id, "foo")
+    loaded_graph.api.set_tag(no_tags_id, "foo", "1")
+    assert loaded_graph.api.has_tag(no_tags_id, "foo")
+    assert loaded_graph.api.get_tag(no_tags_id, "foo") == "1"
 
-    with_tags_id = loaded_graph.api.insert_vertex(50, 50, 20, 20, 'test', tags={'bar': '2'})
-    assert loaded_graph.api.has_tag(with_tags_id, 'bar')
-    assert loaded_graph.api.get_tag(with_tags_id, 'bar') == '2'
+    with_tags_id = loaded_graph.api.insert_vertex(50, 50, 20, 20, "test", tags={"bar": "2"})
+    assert loaded_graph.api.has_tag(with_tags_id, "bar")
+    assert loaded_graph.api.get_tag(with_tags_id, "bar") == "2"
 
 
 def test_get_cell_count(loaded_graph) -> None:
@@ -577,13 +577,13 @@ def test_get_cell_count(loaded_graph) -> None:
     """
     from qmxgraph.common_testing import get_cell_count
 
-    node_a = loaded_graph.api.insert_vertex(10, 10, 50, 50, 'A')
-    node_b = loaded_graph.api.insert_vertex(400, 300, 50, 50, 'B')
-    loaded_graph.api.insert_edge(node_a, node_b, 'AB')
+    node_a = loaded_graph.api.insert_vertex(10, 10, 50, 50, "A")
+    node_b = loaded_graph.api.insert_vertex(400, 300, 50, 50, "B")
+    loaded_graph.api.insert_edge(node_a, node_b, "AB")
 
-    assert get_cell_count(loaded_graph, 'function(cell){ return false }') == 0
-    assert get_cell_count(loaded_graph, 'function(cell){ return cell.isEdge() }') == 1
-    assert get_cell_count(loaded_graph, 'function(cell){ return cell.isVertex() }') == 2
+    assert get_cell_count(loaded_graph, "function(cell){ return false }") == 0
+    assert get_cell_count(loaded_graph, "function(cell){ return cell.isEdge() }") == 1
+    assert get_cell_count(loaded_graph, "function(cell){ return cell.isVertex() }") == 2
 
 
 def test_get_cell_ids(loaded_graph) -> None:
@@ -592,17 +592,17 @@ def test_get_cell_ids(loaded_graph) -> None:
     """
     from qmxgraph.common_testing import get_cell_ids
 
-    node_a = loaded_graph.api.insert_vertex(10, 10, 50, 50, 'A')
-    node_b = loaded_graph.api.insert_vertex(400, 300, 50, 50, 'B')
-    loaded_graph.api.insert_edge(node_a, node_b, 'AB')
+    node_a = loaded_graph.api.insert_vertex(10, 10, 50, 50, "A")
+    node_b = loaded_graph.api.insert_vertex(400, 300, 50, 50, "B")
+    loaded_graph.api.insert_edge(node_a, node_b, "AB")
 
-    assert get_cell_ids(loaded_graph, 'function(cell){ return false }') == []
-    assert get_cell_ids(loaded_graph, 'function(cell){ return cell.isEdge() }') == ['4']
-    assert get_cell_ids(loaded_graph, 'function(cell){ return cell.isVertex() }') == ['2', '3']
+    assert get_cell_ids(loaded_graph, "function(cell){ return false }") == []
+    assert get_cell_ids(loaded_graph, "function(cell){ return cell.isEdge() }") == ["4"]
+    assert get_cell_ids(loaded_graph, "function(cell){ return cell.isVertex() }") == ["2", "3"]
 
 
 def test_cell_bounds(loaded_graph) -> None:
-    node_a = loaded_graph.api.insert_vertex(10, 10, 50, 50, 'A')
+    node_a = loaded_graph.api.insert_vertex(10, 10, 50, 50, "A")
 
     bounds = loaded_graph.api.get_cell_bounds(node_a)
     assert bounds == CellBounds(x=10, y=10, width=50, height=50)
@@ -627,7 +627,7 @@ def test_last_index_of(loaded_graph) -> None:
 
 
 @pytest.mark.parametrize(
-    ('zoom_in', 'zoom_to_cursor'),
+    ("zoom_in", "zoom_to_cursor"),
     [
         (False, False),
         (False, True),
@@ -640,16 +640,16 @@ def test_zoom(loaded_graph: QmxGraph, zoom_in: bool, zoom_to_cursor: bool) -> No
     y = 234
     width = height = 50
     initial_geometry = (x, y, width, height)
-    node = loaded_graph.api.insert_vertex(*initial_geometry, 'Node')
+    node = loaded_graph.api.insert_vertex(*initial_geometry, "Node")
     assert tuple(loaded_graph.api.get_geometry(node)) == initial_geometry
 
     node_center_x = x + width / 2
     node_center_y = y + height / 2
 
-    zoom_event = {'clientX': node_center_x, 'clientY': node_center_y}
+    zoom_event = {"clientX": node_center_x, "clientY": node_center_y}
     args = ", ".join(json.dumps(arg) for arg in [zoom_event, zoom_in, zoom_to_cursor])
 
-    eval_js(loaded_graph, f'graphs.handleMouseWheelEvent(graphEditor.graph, {args})')
+    eval_js(loaded_graph, f"graphs.handleMouseWheelEvent(graphEditor.graph, {args})")
 
     new_x, new_y, new_width, new_height = loaded_graph.api.get_geometry(node)
     assert (new_width > width) == (new_height > height) == zoom_in
@@ -664,7 +664,7 @@ def eval_js(graph_widget, statement):
     return graph_widget.inner_web_view().eval_js(statement)
 
 
-@pytest.fixture(name='graph')
+@pytest.fixture(name="graph")
 def graph_(qtbot) -> QmxGraph:
     """
     :type qtbot: pytestqt.plugin.QtBot
@@ -677,7 +677,7 @@ def graph_(qtbot) -> QmxGraph:
     return graph_
 
 
-@pytest.fixture(name='loaded_graph')
+@pytest.fixture(name="loaded_graph")
 def loaded_graph_(graph):
     """
     :type graph: qmxgraph.widget.qmxgraph
@@ -687,7 +687,7 @@ def loaded_graph_(graph):
     return graph
 
 
-@pytest.fixture(name='drag_drop_events')
+@pytest.fixture(name="drag_drop_events")
 def drag_drop_events_(mocker):
     """
     :type mocker: pyest_mock.MockFixture
@@ -719,8 +719,8 @@ class DragDropEventsFactory(object):
         position = position or (100, 100)
         dd_args = QPoint(*position), Qt.MoveAction, mime_data, Qt.LeftButton, Qt.NoModifier
         dd_event = event_type(*dd_args)
-        self.mocker.spy(dd_event, 'acceptProposedAction')
-        self.mocker.spy(dd_event, 'ignore')
+        self.mocker.spy(dd_event, "acceptProposedAction")
+        self.mocker.spy(dd_event, "ignore")
         return dd_event
 
 
@@ -758,7 +758,7 @@ class _HandlerFixture:
             10,
             20,
             20,
-            'handler fixture test',
+            "handler fixture test",
         )
         js_script = js_script.format(
             vertex=f"graphEditor.graph.model.getCell({vertex_id})",
@@ -778,7 +778,7 @@ class _HandlerFixture:
         self.calls.clear()
 
 
-@pytest.fixture(name='handler')
+@pytest.fixture(name="handler")
 def handler_(graph, qtbot):
     """
     :type graph: qmxgraph.widget.qmxgraph

@@ -7,7 +7,7 @@ from typing import List
 from qmxgraph.widget import QmxGraph
 
 
-RETURN_ALL_CELLS_FILTER = 'function(cell) { return true }'
+RETURN_ALL_CELLS_FILTER = "function(cell) { return true }"
 
 
 def get_cell_count(widget: QmxGraph, filter_function: str = RETURN_ALL_CELLS_FILTER) -> int:
@@ -30,7 +30,7 @@ def get_cell_ids(widget: QmxGraph, filter_function: str = RETURN_ALL_CELLS_FILTE
     :return: A list with the id's of the selected cells.
     """
     cells_ids = widget.inner_web_view().eval_js(
-        f'''
+        f"""
         (function(){{
             var all_cells = api._graphEditor.graph.model.cells;
             var cells = Object.keys(all_cells).map(
@@ -39,6 +39,6 @@ def get_cell_ids(widget: QmxGraph, filter_function: str = RETURN_ALL_CELLS_FILTE
 
             cells = cells.filter({filter_function});
             return cells.map(function(aCell){{ return aCell.getId(); }});
-        }})()'''
+        }})()"""
     )
     return cast(List[str], cells_ids)
