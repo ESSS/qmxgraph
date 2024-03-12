@@ -1,6 +1,7 @@
 """
 We all love "hello world" examples =)
 """
+
 import sys
 
 from PyQt5 import QtWidgets

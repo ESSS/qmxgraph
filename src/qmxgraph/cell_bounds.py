@@ -7,6 +7,7 @@ Classes used to represent bounds in:
 - :attr:`qmxgraph.widget.EventsBridge.on_cell_geometry_changed`
 
 """
+
 from typing import Any
 from typing import Optional
 

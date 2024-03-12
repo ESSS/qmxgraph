@@ -1,6 +1,7 @@
 """
 Those are helper tools that could help in applications' tests.
 """
+
 from typing import cast
 from typing import List
 

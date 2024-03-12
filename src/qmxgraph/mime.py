@@ -41,6 +41,7 @@ QmxGraph drag & drop is a JSON object. Format spec is found below:
     }
 
 """
+
 import json
 
 import qmxgraph.constants

@@ -1,6 +1,7 @@
 """
 Display the use of styles. This is similar to the hello world sample.
 """
+
 import sys
 
 from PyQt5 import QtWidgets

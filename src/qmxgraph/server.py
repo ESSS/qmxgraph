@@ -3,6 +3,7 @@ Helper methods to serve a page with same graph drawing widget as the one
 used embedded with QGraphWidget. Helpful to test graph widget features using
 Selenium, for instance.
 """
+
 import os
 from contextlib import contextmanager
 

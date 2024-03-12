@@ -2,6 +2,7 @@
 Display drag from the app into the graph widget and the event bridge.
 This is similar to the hello world sample.
 """
+
 import sys
 
 from PyQt5 import QtWidgets
