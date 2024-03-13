@@ -37,6 +37,7 @@ Known issues
 * it isn't feature complete, as it is evolving according new SVGs are created
  and converted to stencils.
 """
+
 import abc
 import itertools
 import os

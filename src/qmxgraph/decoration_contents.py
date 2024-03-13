@@ -5,6 +5,7 @@ Classes to used to represent content in:
 - :meth:`qmxgraph.api.QmxGraphApi.update_table`
 
 """
+
 from functools import lru_cache
 from typing import Dict
 from typing import List
