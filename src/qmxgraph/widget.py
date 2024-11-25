@@ -737,7 +737,12 @@ class _PopupMenuBridge(DelayedSignalsBridge):
 
 @contextmanager
 def delayed_bridges_context(error_bridge, events_bridge, popup_menu_bridge, double_click_bridge):
-    with error_bridge.delaying_signals(), events_bridge.delaying_signals(), popup_menu_bridge.delaying_signals(), double_click_bridge.delaying_signals():
+    with (
+        error_bridge.delaying_signals(),
+        events_bridge.delaying_signals(),
+        popup_menu_bridge.delaying_signals(),
+        double_click_bridge.delaying_signals(),
+    ):
         yield
 
 
