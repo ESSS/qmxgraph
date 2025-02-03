@@ -98,7 +98,7 @@ def qrc(
 @invoke.task(
     help={
         "python-version": (
-            "Can be used to define the python version used when creating the" " work environment"
+            "Can be used to define the python version used when creating the work environment"
         ),
     }
 )
@@ -380,7 +380,7 @@ def generate_qrc_from_folder(basename, alias, source_dir, target_dir, include=No
     ]
     if not files:
         raise RuntimeError(
-            "Unable to collect anything for " ".qrc file in folder {}".format(source_dir)
+            "Unable to collect anything for .qrc file in folder {}".format(source_dir)
         )
 
     qrc_filename = os.path.join(target_dir, "{basename}{ext}".format(basename=basename, ext=".qrc"))

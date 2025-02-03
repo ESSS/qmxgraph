@@ -170,7 +170,7 @@ def host(port, options=None, styles=None, stencils=tuple()):
     for stencil in stencils:
         candidate = os.path.dirname(stencil)
         assert candidate != stencils_path, (
-            "Due to simplification, expects " "all stencils in same folder"
+            "Due to simplification, expects all stencils in same folder"
         )
         stencils_path = candidate
         stencils_.append("stencils/{}".format(os.path.basename(stencil)))

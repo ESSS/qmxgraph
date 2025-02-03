@@ -301,7 +301,7 @@ if __name__ == "__main__":
     import argparse
 
     arg_parser = argparse.ArgumentParser(
-        description="Converts a SVG file to a stencil file " "compatible with mxGraph."
+        description="Converts a SVG file to a stencil file compatible with mxGraph."
     )
     arg_parser.add_argument(
         "svg",

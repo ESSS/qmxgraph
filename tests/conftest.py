@@ -133,7 +133,7 @@ class Port(object):
                 os.remove(lock_file)
 
         if attempts == 0:
-            raise IOError("Unable to obtain unique port after " "{} attempts".format(attempts))
+            raise IOError("Unable to obtain unique port after {} attempts".format(attempts))
 
         return port_
 
@@ -962,7 +962,7 @@ def _wait_graph_page_ready(host, selenium):
         )
     except timeout_exceptions as e:
         raise TimeoutException(
-            "Graph page wasn't ready in address {} after a timeout of {}" " seconds".format(
+            "Graph page wasn't ready in address {} after a timeout of {} seconds".format(
                 host.address, timeout
             )
         ) from e
