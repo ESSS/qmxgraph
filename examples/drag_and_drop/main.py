@@ -105,8 +105,7 @@ class DragAndDropWindow(QMainWindow):
 
         def on_terminal_changed_handler(cell_id, terminal_type, new_terminal_id, old_terminal_id):
             print(
-                f"{terminal_type} of {cell_id} changed from"
-                f" {old_terminal_id} to {new_terminal_id}"
+                f"{terminal_type} of {cell_id} changed from {old_terminal_id} to {new_terminal_id}"
             )
 
         def on_cells_removed_handler(cell_ids):

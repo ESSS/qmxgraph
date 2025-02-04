@@ -15,7 +15,7 @@ setup(
     name="qmxgraph",
     use_scm_version=True,
     setup_requires=["setuptools_scm"],
-    description="A Qt graph drawing widget using JavaScript's mxGraph " "library.",
+    description="A Qt graph drawing widget using JavaScript's mxGraph library.",
     long_description=readme + "\n\n" + history,
     author="Rafael Bertoldi",
     author_email="tochaman@gmail.com",
