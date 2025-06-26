@@ -12,7 +12,8 @@ dependencies:
     - oop-ext
     - pip
     - pre-commit
-    - pyqt =5.12
+    - pyqt >=5.12,<6.0
+    - pyqtwebengine
 
 environment:
   PYTHONPATH:
