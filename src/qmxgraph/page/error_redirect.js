@@ -22,6 +22,10 @@ window.onerror = function (msg, url, lineNo, columnNo, error) {
     if (columnNo === undefined) {
         columnNo = -1;
     }
-    msg = msg + "\nstack:\n" + error.stack;
+
+    if (error !== null) {
+        msg = msg + "\nstack:\n" + error.stack;
+    }
+
     bridge_error_handler.error_slot(msg, url, lineNo, columnNo);
 };
