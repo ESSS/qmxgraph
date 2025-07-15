@@ -20,7 +20,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - uses: browser-actions/setup-chrome@v2.0.0
+    - uses: browser-actions/setup-chrome@v2.1.0
     - uses: conda-incubator/setup-miniconda@v3
       with:
         auto-update-conda: true
