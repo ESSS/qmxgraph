@@ -50,6 +50,7 @@ def test_error_redirection(loaded_graph) -> None:
             at <anonymous>:1:7"""
     )
     assert (url, line, column) == ("qrc:/", 1, 1)
+    assert msg == expected
 
 
 def test_events_bridge_delayed_signals(graph, qtbot, mocker) -> None:

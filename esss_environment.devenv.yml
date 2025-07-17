@@ -17,14 +17,8 @@ dependencies:
   - python>=3.10
   - mxgraph>=3.7.5
 
-  - esss-pylupdate5>=5.6.0+1
-
-  - attrs>=17
-  - colorama
   - invoke>=1.0.0
   - jinja2>=2.10
-  - pyqt=5.12.*
-  - six
 
   {% if TEST_QMXGRAPH %}
   - conda-wrappers
