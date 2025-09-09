@@ -4,7 +4,7 @@ export MXGRAPHPATH=mxgraph
 
 export LIBGL_ALWAYS_SOFTWARE=1
 export GALLIUM_DRIVER=llvmpipe
-export ENABLE_LLVMPIPE_GL=1
+export ESSS_SOFTWARE_RENDERING=1
 export QT_QUICK_BACKEND=software
 export QTWEBENGINE_CHROMIUM_FLAGS="--disable-gpu --no-sandbox"
 
