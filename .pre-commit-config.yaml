@@ -8,7 +8,7 @@ repos:
     language: python
     files: \.py$
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: "v0.14.7"
+  rev: "v0.14.8"
   hooks:
   - id: ruff-format
 - repo: https://github.com/pre-commit/mirrors-prettier
