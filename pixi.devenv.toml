@@ -1,0 +1,18 @@
+[devenv.dependencies]
+python = ">=3.10"
+attrs = ">=17"
+colorama = "*"
+flake8 = "*"
+invoke = ">=1.0.0"
+jinja2 = ">=2.10"
+oop-ext = "*"
+pip = "*"
+pre-commit = "*"
+pyqt = ">=5.12,<6.0"
+pyqtwebengine = "*"
+mxgraph = ">=3.7.5"
+
+[devenv.env-vars]
+PYTHONPATH = ["${{ devenv_project_dir }}/src"]
+MYPYPATH = ["${{ devenv_project_dir }}/src"]
+
