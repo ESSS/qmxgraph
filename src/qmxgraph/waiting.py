@@ -22,9 +22,8 @@ def wait_signals_called(
     yield callback
 
     def success() -> bool:
-        return callback.was_called() and (
-            check_params_cb is None or check_params_cb(*callback.args)
-        )
+        args = callback.args or ()
+        return callback.was_called() and (check_params_cb is None or check_params_cb(*args))
 
     wait_until(success, timeout_ms=timeout_ms)
 
