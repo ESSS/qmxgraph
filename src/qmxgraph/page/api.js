@@ -929,7 +929,7 @@ graphs.Api.prototype.setSelectedCells = function setSelectedCells(cellIds) {
     var cellsToSelect = [];
     var model = this._graphEditor.graph.getModel();
     var cell = null;
-    for (var i = cellIds.length; i--; ) {
+    for (var i = cellIds.length; i--;) {
         cell = model.getCell(cellIds[i]);
         cellsToSelect.push(cell);
     }
@@ -947,7 +947,7 @@ graphs.Api.prototype.getSelectedCells = function getSelectedCells() {
     var selectionModel = this._graphEditor.graph.getSelectionModel();
     var cells = selectionModel.cells;
     var cellIds = [];
-    for (var i = cells.length; i--; ) {
+    for (var i = cells.length; i--;) {
         cellIds.push(cells[i].getId());
     }
     return cellIds;
@@ -1144,7 +1144,7 @@ graphs.Api.prototype.removePort = function removePort(vertexId, portName) {
     // This array will contain the port and edges connected on the parent vertex using the port.
     var cellsToRemove = [port];
     var edges = graph.getEdges(parent);
-    for (var i = edges.length; i--; ) {
+    for (var i = edges.length; i--;) {
         var terminals = this._getMxEdgeTerminalsWithPorts(edges[i]);
         var source_terminal = terminals[0];
         var target_terminal = terminals[1];
@@ -1297,7 +1297,7 @@ graphs.Api.prototype.registerSelectionChangedHandler = function registerSelectio
     var selectionHandler = function (source, event) {
         var selectedCells = source.cells;
         var selectedCellsIds = [];
-        for (var i = selectedCells.length; i--; ) {
+        for (var i = selectedCells.length; i--;) {
             selectedCellsIds.push(selectedCells[i].getId());
         }
         handler(selectedCellsIds);

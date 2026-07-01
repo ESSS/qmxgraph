@@ -448,7 +448,7 @@ graphs.createGraph = function createGraph(container, options, styles) {
 
         sender.__moved = [];
 
-        for (var c = cells.length; c--; ) {
+        for (var c = cells.length; c--;) {
             var cell = cells[c];
             if (!cell.isEdge()) {
                 var edges = sender.model.getEdges(cell);
