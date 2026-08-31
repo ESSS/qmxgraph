@@ -24,7 +24,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
-    - uses: browser-actions/setup-chrome@v2.1.2
+    - uses: browser-actions/setup-chrome@v2.2.0
     - uses: conda-incubator/setup-miniconda@v4
       with:
         auto-update-conda: true
