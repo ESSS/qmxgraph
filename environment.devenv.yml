@@ -23,6 +23,7 @@ dependencies:
   - pytest-selenium >=4.0.2
   - pytest-timeout
   - selenium >=4.10.0
+  - setuptools  # TEST TO FIX BUILD TIMEOUT
   {% if sys.platform != 'win32' %}
   - pytest-xvfb
   {% endif %}
