@@ -254,6 +254,7 @@ def pytest_collection_modifyitems(items):
 
     See pytest-rerunfailures plugin for more information.
     """
+    return
     import os
 
     if os.environ.get("CI", "false") != "true":
