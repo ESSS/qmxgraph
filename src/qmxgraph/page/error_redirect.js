@@ -29,3 +29,19 @@ window.onerror = function (msg, url, lineNo, columnNo, error) {
 
     bridge_error_handler.error_slot(msg, url, lineNo, columnNo);
 };
+
+/**
+ * Evaluates a script on behalf of Python, returning the value of its last statement.
+ *
+ * Chromium reports uncaught errors from scripts injected by `runJavaScript` as a bare
+ * "Script error." with no details. Evaluated from here, the code counts as the page's own,
+ * so `onerror` above receives its message and stack.
+ *
+ * @param {string} source The script to evaluate, in global scope.
+ * @returns {*} The value of the script's last statement.
+ */
+window.qmxgraphEval = function (source) {
+    "use strict";
+    /* jshint evil: true */
+    return (0, eval)(source);
+};

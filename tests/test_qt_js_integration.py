@@ -29,15 +29,12 @@ from qmxgraph.waiting import wait_signals_called
 from qmxgraph.widget import QmxGraph
 
 
-# TODO(ASIM-6921): Remove once JS errors are no longer muted.
-@pytest.mark.xfail(
-    reason="QtWebEngine 5.15.15 reports JS errors as a bare 'Script error.'", strict=True
-)
-def test_error_redirection(loaded_graph) -> None:
+def test_error_redirection(loaded_graph: QmxGraph) -> None:
     """
     It is possible to redirect errors in JS code to Python/Qt side.
 
-    :type loaded_graph: qmxgraph.widget.qmxgraph
+    The stack is only checked up to the error's position in the evaluated code, as the frames
+    after it belong to the evaluation machinery.
     """
     error_redirection = loaded_graph.error_bridge
 
@@ -46,15 +43,40 @@ def test_error_redirection(loaded_graph) -> None:
 
     assert cb.args is not None
     msg, url, line, column = cb.args
-    expected = textwrap.dedent(
+    expected_start = textwrap.dedent(
         """\
         Uncaught Error: test
         stack:
         Error: test
-            at <anonymous>:1:7"""
+        """
     )
     assert (url, line, column) == ("qrc:/", 1, 1)
-    assert msg == expected
+    assert msg.startswith(expected_start)
+    assert "<anonymous>:1:7" in msg
+
+
+@pytest.mark.parametrize(
+    "statement, expected_error",
+    [
+        ("api.noSuchFunction(1)", "TypeError: api.noSuchFunction is not a function"),
+        ("api.updateTable(", "SyntaxError: Unexpected end of input"),
+    ],
+)
+def test_error_redirection_from_evaluated_code(
+    loaded_graph: QmxGraph, statement: str, expected_error: str
+) -> None:
+    """
+    Regression test for ASIM-6921: errors raised by the evaluated code itself, like calling a
+    function that doesn't exist or a syntax error, reached Python as a bare "Script error.",
+    as Chromium hides the details of errors from scripts injected by `runJavaScript`.
+    """
+    with wait_signals_called(loaded_graph.error_bridge.on_error) as cb:
+        eval_js(loaded_graph, statement)
+
+    assert cb.args is not None
+    msg, url, line, column = cb.args
+    assert msg.startswith(f"Uncaught {expected_error}\nstack:\n")
+    assert (url, line) == ("qrc:/", 1)
 
 
 def test_events_bridge_delayed_signals(graph, qtbot, mocker) -> None:
