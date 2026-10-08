@@ -11,7 +11,6 @@ To install the required dependencies and build the necessary static resources:
     git clone https://github.com/ESSS/qmxgraph.git
     cd qmxgraph
     git clone --depth=1 --branch v3.7.5 https://github.com/jgraph/mxgraph.git
-    export MXGRAPHPATH=mxgraph
     pixi run inv qrc
 
 If you want to run the tests, which need Google Chrome installed:

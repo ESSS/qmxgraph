@@ -37,6 +37,8 @@ pytest-xvfb = "*"
 [devenv.feature.test.env-vars]
 # Feature env-vars replace the main ones instead of extending them.
 PYTHONPATH = ["${{ devenv_project_dir }}/src", "${{ devenv_project_dir }}/tests"]
+# Where `inv qrc` and the test server find mxgraph, cloned as the docs explain.
+MXGRAPHPATH = "${{ devenv_project_dir }}/mxgraph"
 
 # Keep in sync with docs/requirements.txt, used by Read the Docs.
 [devenv.feature.docs.dependencies]

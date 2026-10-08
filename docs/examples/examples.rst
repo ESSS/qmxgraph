@@ -18,7 +18,6 @@ To run the examples you will need `pixi`_ to setup the environment.
     git clone https://github.com/ESSS/qmxgraph.git
     cd qmxgraph
     git clone --depth=1 --branch v3.7.5 https://github.com/jgraph/mxgraph.git
-    export MXGRAPHPATH=mxgraph
     pixi run inv qrc
     # Hello world example.
     pixi run python examples/hello_world/main.py

@@ -45,9 +45,11 @@ selenium = ">=4.10.0" # From: qmxgraph
 pytest-xvfb = "*" # From: qmxgraph
 
 [feature.test.target.unix.activation.env] # Managed by devenv
+MXGRAPHPATH = "${PIXI_PROJECT_ROOT}/mxgraph"
 PYTHONPATH = "${PIXI_PROJECT_ROOT}/src:${PIXI_PROJECT_ROOT}/tests:${PYTHONPATH}"
 
 [feature.test.target.win.activation.env] # Managed by devenv
+MXGRAPHPATH = "%PIXI_PROJECT_ROOT%/mxgraph"
 PYTHONPATH = "%PIXI_PROJECT_ROOT%/src;%PIXI_PROJECT_ROOT%/tests;%PYTHONPATH%"
 
 [feature.docs.dependencies] # Managed by devenv
