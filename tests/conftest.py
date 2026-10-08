@@ -44,6 +44,12 @@ def _chrome_session() -> Iterator[Chrome]:
     # options.add_argument("--auto-open-devtools-for-tabs")
     driver = Chrome(options=options)
     driver.set_page_load_timeout(15)
+    # Headless window sizes give different viewports per platform, which shifts expected
+    # coordinates, so fix the viewport itself.
+    driver.execute_cdp_cmd(
+        "Emulation.setDeviceMetricsOverride",
+        {"width": 800, "height": 600, "deviceScaleFactor": 1, "mobile": False},
+    )
     yield driver
     driver.quit()
 
