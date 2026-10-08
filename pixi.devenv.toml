@@ -3,7 +3,7 @@ channels = ["conda-forge"]
 platforms = ["win-64", "linux-64"]
 
 [devenv.dependencies]
-python = ">=3.10"
+python = ">=3.12"
 attrs = ">=17"
 colorama = "*"
 flake8 = "*"
@@ -22,7 +22,6 @@ PYTHONPATH = ["${{ devenv_project_dir }}/src"]
 MYPYPATH = ["${{ devenv_project_dir }}/src"]
 
 [devenv.feature.test.dependencies]
-python = "3.12.*"
 cherrypy = ">=18.0.0"
 coveralls = "*"
 pytest = "*"
@@ -43,3 +42,12 @@ PYTHONPATH = ["${{ devenv_project_dir }}/src", "${{ devenv_project_dir }}/tests"
 [devenv.feature.docs.dependencies]
 sphinx = "*"
 sphinx_rtd_theme = "*"
+
+[devenv.feature.python312.dependencies]
+python = "3.12.*"
+
+[devenv.feature.python313.dependencies]
+python = "3.13.*"
+
+[devenv.feature.python314.dependencies]
+python = "3.14.*"

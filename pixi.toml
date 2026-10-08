@@ -4,11 +4,13 @@ channels = ["conda-forge"] # Managed by devenv
 platforms = ["win-64", "linux-64"] # Managed by devenv
 
 [environments]
-default = ["test"]
-docs = ["docs"]
+default = { features = ["test", "python312"], solve-group = "py312" }
+docs = { features = ["docs", "python312"], solve-group = "py312" }
+py313 = { features = ["test", "python313"], solve-group = "py313" }
+py314 = { features = ["test", "python314"], solve-group = "py314" }
 
 [dependencies] # Managed by devenv
-python = ">=3.10" # From: qmxgraph
+python = ">=3.12" # From: qmxgraph
 attrs = ">=17" # From: qmxgraph
 colorama = "*" # From: qmxgraph
 flake8 = "*" # From: qmxgraph
@@ -30,7 +32,6 @@ MYPYPATH = "%PIXI_PROJECT_ROOT%/src;%MYPYPATH%"
 PYTHONPATH = "%PIXI_PROJECT_ROOT%/src;%PYTHONPATH%"
 
 [feature.test.dependencies] # Managed by devenv
-python = "3.12.*" # From: qmxgraph
 cherrypy = ">=18.0.0" # From: qmxgraph
 coveralls = "*" # From: qmxgraph
 pytest = "*" # From: qmxgraph
@@ -52,3 +53,12 @@ PYTHONPATH = "%PIXI_PROJECT_ROOT%/src;%PIXI_PROJECT_ROOT%/tests;%PYTHONPATH%"
 [feature.docs.dependencies] # Managed by devenv
 sphinx = "*" # From: qmxgraph
 sphinx_rtd_theme = "*" # From: qmxgraph
+
+[feature.python312.dependencies] # Managed by devenv
+python = "3.12.*" # From: qmxgraph
+
+[feature.python313.dependencies] # Managed by devenv
+python = "3.13.*" # From: qmxgraph
+
+[feature.python314.dependencies] # Managed by devenv
+python = "3.14.*" # From: qmxgraph

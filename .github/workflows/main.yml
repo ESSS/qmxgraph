@@ -17,15 +17,23 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        # Pixi environments, one per supported Python version (`default` is 3.12).
+        environment: [default, py313, py314]
+
     steps:
     - uses: actions/checkout@v7
     - uses: browser-actions/setup-chrome@v2.2.0
     - uses: prefix-dev/setup-pixi@v0.11.0
       with:
         cache: true
+        environments: ${{ matrix.environment }}
     - name: Tests
-      run: pixi run bash scripts/run_tests.sh
+      run: pixi run --environment ${{ matrix.environment }} bash scripts/run_tests.sh
     - name: Coveralls
+      if: matrix.environment == 'default'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
