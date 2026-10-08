@@ -1,3 +1,7 @@
+[devenv]
+channels = ["conda-forge"]
+platforms = ["win-64", "linux-64"]
+
 [devenv.dependencies]
 python = ">=3.10"
 attrs = ">=17"
@@ -10,9 +14,26 @@ pip = "*"
 pre-commit = "*"
 pyqt = ">=5.12,<6.0"
 pyqtwebengine = "*"
-mxgraph = ">=3.7.5"
 
 [devenv.env-vars]
 PYTHONPATH = ["${{ devenv_project_dir }}/src"]
 MYPYPATH = ["${{ devenv_project_dir }}/src"]
 
+[devenv.feature.test.dependencies]
+python = "3.12.*"
+cherrypy = ">=18.0.0"
+coveralls = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-mock = "*"
+pytest-qt = "*"
+pytest-rerunfailures = "*"
+pytest-timeout = "*"
+selenium = ">=4.10.0"
+
+[devenv.feature.test.target.unix.dependencies]
+pytest-xvfb = "*"
+
+[devenv.feature.test.env-vars]
+# Feature env-vars replace the main ones instead of extending them.
+PYTHONPATH = ["${{ devenv_project_dir }}/src", "${{ devenv_project_dir }}/tests"]

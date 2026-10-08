@@ -1,0 +1,49 @@
+[workspace]
+name = "qmxgraph" # Managed by devenv
+channels = ["conda-forge"] # Managed by devenv
+platforms = ["win-64", "linux-64"] # Managed by devenv
+
+[environments]
+default = ["test"]
+
+[dependencies] # Managed by devenv
+python = ">=3.10" # From: qmxgraph
+attrs = ">=17" # From: qmxgraph
+colorama = "*" # From: qmxgraph
+flake8 = "*" # From: qmxgraph
+invoke = ">=1.0.0" # From: qmxgraph
+jinja2 = ">=2.10" # From: qmxgraph
+oop-ext = "*" # From: qmxgraph
+pip = "*" # From: qmxgraph
+pre-commit = "*" # From: qmxgraph
+pyqt = ">=5.12,<6.0" # From: qmxgraph
+pyqtwebengine = "*" # From: qmxgraph
+
+[target.unix.activation.env] # Managed by devenv
+MYPYPATH = "${PIXI_PROJECT_ROOT}/src:${MYPYPATH}"
+PYTHONPATH = "${PIXI_PROJECT_ROOT}/src:${PYTHONPATH}"
+
+[target.win.activation.env] # Managed by devenv
+MYPYPATH = "%PIXI_PROJECT_ROOT%/src;%MYPYPATH%"
+PYTHONPATH = "%PIXI_PROJECT_ROOT%/src;%PYTHONPATH%"
+
+[feature.test.dependencies] # Managed by devenv
+python = "3.12.*" # From: qmxgraph
+cherrypy = ">=18.0.0" # From: qmxgraph
+coveralls = "*" # From: qmxgraph
+pytest = "*" # From: qmxgraph
+pytest-cov = "*" # From: qmxgraph
+pytest-mock = "*" # From: qmxgraph
+pytest-qt = "*" # From: qmxgraph
+pytest-rerunfailures = "*" # From: qmxgraph
+pytest-timeout = "*" # From: qmxgraph
+selenium = ">=4.10.0" # From: qmxgraph
+
+[feature.test.target.unix.dependencies] # Managed by devenv
+pytest-xvfb = "*" # From: qmxgraph
+
+[feature.test.target.unix.activation.env] # Managed by devenv
+PYTHONPATH = "${PIXI_PROJECT_ROOT}/src:${PIXI_PROJECT_ROOT}/tests:${PYTHONPATH}"
+
+[feature.test.target.win.activation.env] # Managed by devenv
+PYTHONPATH = "%PIXI_PROJECT_ROOT%/src;%PIXI_PROJECT_ROOT%/tests;%PYTHONPATH%"
