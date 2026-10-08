@@ -37,7 +37,6 @@ pytest = "*" # From: qmxgraph
 pytest-cov = "*" # From: qmxgraph
 pytest-mock = "*" # From: qmxgraph
 pytest-qt = "*" # From: qmxgraph
-pytest-rerunfailures = "*" # From: qmxgraph
 pytest-timeout = "*" # From: qmxgraph
 selenium = ">=4.10.0" # From: qmxgraph
 

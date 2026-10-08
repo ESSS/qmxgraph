@@ -29,7 +29,6 @@ pytest = "*"
 pytest-cov = "*"
 pytest-mock = "*"
 pytest-qt = "*"
-pytest-rerunfailures = "*"
 pytest-timeout = "*"
 selenium = ">=4.10.0"
 
