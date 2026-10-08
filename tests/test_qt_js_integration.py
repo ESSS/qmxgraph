@@ -29,6 +29,10 @@ from qmxgraph.waiting import wait_signals_called
 from qmxgraph.widget import QmxGraph
 
 
+# TODO(ASIM-6921): Remove once JS errors are no longer muted.
+@pytest.mark.xfail(
+    reason="QtWebEngine 5.15.15 reports JS errors as a bare 'Script error.'", strict=True
+)
 def test_error_redirection(loaded_graph) -> None:
     """
     It is possible to redirect errors in JS code to Python/Qt side.
