@@ -1294,10 +1294,6 @@ def test_zoom(graph_cases, action, expected_scale) -> None:
     assert obtained_scale == 1.0
 
 
-@pytest.mark.xfail(
-    'sys.platform != "win32"',
-    reason="need investigate differences between linux and windows",
-)
 def test_set_scale_and_translation(graph_cases) -> None:
     """
     :type graph_cases: qmxgraph.tests.conftest.GraphCaseFactory
@@ -1308,43 +1304,31 @@ def test_set_scale_and_translation(graph_cases) -> None:
     assert (ini_scale, ini_x, ini_y) == (1, 0, 0)
 
     from selenium.webdriver.common.actions.mouse_button import MouseButton
-    from selenium.webdriver.remote.command import Command
 
     class MyActionChains(ActionChains):
         def click_and_hold_right(self, on_element=None):
-            if self._driver.w3c:
-                if on_element:
-                    self.w3c_actions.pointer_action.move_to(on_element)
-                self.w3c_actions.pointer_action.pointer_down(MouseButton.RIGHT)
+            if on_element:
+                self.w3c_actions.pointer_action.move_to(on_element)
+            self.w3c_actions.pointer_action.pointer_down(MouseButton.RIGHT)
+            self.w3c_actions.key_action.pause()
+            if on_element:
                 self.w3c_actions.key_action.pause()
-                if on_element:
-                    self.w3c_actions.key_action.pause()
-            else:
-                if on_element:
-                    self.move_to_element(on_element)
-                self._actions.append(
-                    lambda: self._driver.execute(Command.MOUSE_DOWN, {"button": 2})
-                )
             return self
 
         def release_right(self, on_element=None):
             if on_element:
                 self.move_to_element(on_element)
-            if self._driver.w3c:
-                self.w3c_actions.pointer_action.pointer_up(MouseButton.RIGHT)
-                self.w3c_actions.key_action.pause()
-            else:
-                self._actions.append(lambda: self._driver.execute(Command.MOUSE_UP, {"button": 2}))
+            self.w3c_actions.pointer_action.pointer_up(MouseButton.RIGHT)
+            self.w3c_actions.key_action.pause()
             return self
-
-    vertex = graph.get_vertex()
-    w, h = graph.get_vertex_size(vertex)
 
     def ScaleAndTranslateGraph():
         graph.eval_js_function("api.zoomIn")
 
         actions = MyActionChains(graph.selenium)
-        actions.move_to_element_with_offset(vertex, w * 2, h * 2)
+        # Zooming pushes the vertex off-screen, and Selenium 4 refuses to move the pointer
+        # there, so pan from the container's center instead.
+        actions.move_to_element(graph.get_container())
         actions.click_and_hold_right()
         actions.move_by_offset(30, 100)
         actions.release_right()  # mxgraph does some extra work on release.
@@ -1354,14 +1338,14 @@ def test_set_scale_and_translation(graph_cases) -> None:
 
     ScaleAndTranslateGraph()
     saved_scale, saved_x, saved_y = graph.eval_js_function("api.getScaleAndTranslation")
-    assert saved_scale == pytest.approx(1.44, abs=2)
-    assert saved_x == pytest.approx(-36.11, abs=2)
+    assert saved_scale == pytest.approx(1.44)
+    assert saved_x == pytest.approx(-97.22, abs=2)
     assert saved_y == pytest.approx(60.42, abs=2)
 
     ScaleAndTranslateGraph()
     new_scale, new_x, new_y = graph.eval_js_function("api.getScaleAndTranslation")
-    assert new_scale == pytest.approx(2.08, abs=2)
-    assert new_x == pytest.approx(-61.50, abs=2)
+    assert new_scale == pytest.approx(2.08)
+    assert new_x == pytest.approx(-165.35, abs=2)
     assert new_y == pytest.approx(97.28, abs=2)
 
     graph.eval_js_function("api.setScaleAndTranslation", saved_scale, saved_x, saved_y)

@@ -1,4 +1,7 @@
+from collections.abc import Iterator
+
 import pytest
+from selenium.webdriver import Chrome
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.common.by import By
 
@@ -23,22 +26,42 @@ def pytest_configure(config):
 # Fixtures --------------------------------------------------------------------
 
 
-@pytest.fixture
-def chrome_options(chrome_options: ChromeOptions) -> ChromeOptions:
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-gpu")
+@pytest.fixture(scope="session")
+def _chrome_session() -> Iterator[Chrome]:
+    """
+    A single headless Chrome shared by the whole session.
+
+    Launching a browser per test made the CI runs hang once Chrome eventually stopped answering
+    chromedriver; every test loads its own page anyway, so sharing the browser is safe.
+    """
+    options = ChromeOptions()
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
     # Comment `--headless` and uncomment `--auto-open-devtools-for-tabs` to be
     # able to debug the javascript from tests using selenium.
-    chrome_options.add_argument("--headless")
-    # chrome_options.add_argument("--auto-open-devtools-for-tabs")
-    return chrome_options
+    options.add_argument("--headless")
+    # options.add_argument("--auto-open-devtools-for-tabs")
+    driver = Chrome(options=options)
+    driver.set_page_load_timeout(15)
+    # Headless window sizes give different viewports per platform, which shifts expected
+    # coordinates, so fix the viewport itself.
+    driver.execute_cdp_cmd(
+        "Emulation.setDeviceMetricsOverride",
+        {"width": 800, "height": 600, "deviceScaleFactor": 1, "mobile": False},
+    )
+    yield driver
+    driver.quit()
 
 
 @pytest.fixture
-def driver_kwargs(driver_kwargs, port):
-    driver_kwargs["service"].port = port.get()
-    return driver_kwargs
+def selenium(_chrome_session: Chrome) -> Iterator[Chrome]:
+    """
+    The shared Chrome, left on a blank page after the test so no timers or handlers from one
+    test's graph keep running into the next.
+    """
+    yield _chrome_session
+    _chrome_session.get("about:blank")
 
 
 @pytest.fixture(autouse=True)
@@ -244,23 +267,6 @@ def graph_cases_factory(selenium):
         host.
     """
     return lambda host: GraphCaseFactory(selenium=selenium, host=host)
-
-
-def pytest_collection_modifyitems(items):
-    """
-    Marks all tests which use the graph_cases fixture as "flaky".
-
-    Unfortunately we've been unable to properly fix some flaky failures with tests using this fixture (#4)*.
-
-    See pytest-rerunfailures plugin for more information.
-    """
-    import os
-
-    if os.environ.get("CI", "false") != "true":
-        return
-    for item in items:
-        if "graph_cases" in getattr(item, "fixturenames", []):
-            item.add_marker(pytest.mark.flaky(reruns=3))
 
 
 class GraphCaseFactory(object):
@@ -934,23 +940,7 @@ def _wait_graph_page_ready(host, selenium):
 
     timeout = 15
     timeout_exceptions = (TimeoutException, TimeoutError, socket.timeout)
-    selenium.set_page_load_timeout(1)
-    refresh = True
-    try:
-        selenium.get(host.address)
-        refresh = False
-    except timeout_exceptions:
-        pass
-
-    if refresh:
-        for n in range(timeout):
-            try:
-                selenium.refresh()
-                break
-            except timeout_exceptions:
-                pass
-        else:
-            raise TimeoutException("All page load tries resulted in timeout")
+    selenium.get(host.address)
 
     from selenium.webdriver.support.wait import WebDriverWait
     from selenium.webdriver.common.by import By

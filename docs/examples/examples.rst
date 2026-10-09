@@ -11,23 +11,20 @@ The examples here can be found in the examples folder in the project's repositor
 How to run the examples
 -----------------------
 
-To run test you will need `Conda`_ and `conda-devenv`_ to setup the environment.
+To run the examples you will need `pixi`_ to setup the environment.
 
 .. code-block:: shell
 
     git clone https://github.com/ESSS/qmxgraph.git
     cd qmxgraph
     git clone --depth=1 --branch v3.7.5 https://github.com/jgraph/mxgraph.git
-    conda devenv
-    conda activate qmxgraph
-    inv qrc
+    pixi run inv qrc
     # Hello world example.
-    python examples/hello_world/main.py
+    pixi run python examples/hello_world/main.py
     # Drag and drop example.
-    python examples/drag_and_drop/main.py
+    pixi run python examples/drag_and_drop/main.py
 
-.. _Conda: https://docs.conda.io/projects/conda/en/latest/index.html
-.. _conda-devenv: https://conda-devenv.readthedocs.io/en/latest/
+.. _pixi: https://pixi.sh
 
 Hello world
 ------------

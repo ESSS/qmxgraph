@@ -1,5 +1,9 @@
+[devenv]
+channels = ["conda-forge"]
+platforms = ["win-64", "linux-64"]
+
 [devenv.dependencies]
-python = ">=3.10"
+python = ">=3.12"
 attrs = ">=17"
 colorama = "*"
 flake8 = "*"
@@ -10,9 +14,42 @@ pip = "*"
 pre-commit = "*"
 pyqt = ">=5.12,<6.0"
 pyqtwebengine = "*"
-mxgraph = ">=3.7.5"
+# Needed by oop-ext, whose conda-forge package doesn't declare it.
+typing_extensions = "*"
 
 [devenv.env-vars]
 PYTHONPATH = ["${{ devenv_project_dir }}/src"]
 MYPYPATH = ["${{ devenv_project_dir }}/src"]
 
+[devenv.feature.test.dependencies]
+cherrypy = ">=18.0.0"
+coveralls = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-mock = "*"
+pytest-qt = "*"
+pytest-timeout = "*"
+selenium = ">=4.10.0"
+
+[devenv.feature.test.target.unix.dependencies]
+pytest-xvfb = "*"
+
+[devenv.feature.test.env-vars]
+# Feature env-vars replace the main ones instead of extending them.
+PYTHONPATH = ["${{ devenv_project_dir }}/src", "${{ devenv_project_dir }}/tests"]
+# Where `inv qrc` and the test server find mxgraph, cloned as the docs explain.
+MXGRAPHPATH = "${{ devenv_project_dir }}/mxgraph"
+
+# Keep in sync with docs/requirements.txt, used by Read the Docs.
+[devenv.feature.docs.dependencies]
+sphinx = "*"
+sphinx_rtd_theme = "*"
+
+[devenv.feature.python312.dependencies]
+python = "3.12.*"
+
+[devenv.feature.python313.dependencies]
+python = "3.13.*"
+
+[devenv.feature.python314.dependencies]
+python = "3.14.*"
