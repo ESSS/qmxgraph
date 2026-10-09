@@ -1,6 +1,9 @@
-import os
+import queue
 import sys
 from contextlib import contextmanager
+from multiprocessing import Process
+from multiprocessing import Queue
+from typing import Any
 
 
 class CherryPyServer(object):
@@ -17,24 +20,20 @@ class CherryPyServer(object):
     and this process can be killed by a `stop` call.
     """
 
-    def __init__(self):
-        self.server_pid = None
+    def __init__(self) -> None:
+        self._process: Process | None = None
 
-    def start(self, page, config):
+    def start(self, page: object, config: dict[str, dict[str, Any]]) -> None:
         """
         Start a cherrypy server in individual process.
 
-        :param object page: An object containing entry points exposed to
-            cherrypy.
-        :param dict config: A configuration compatible with cherrypy.
+        :param page: An object containing entry points exposed to cherrypy.
+        :param config: A configuration compatible with cherrypy.
         """
         if self.is_running():
             return
 
-        from multiprocessing import Queue, Process
-        import queue
-
-        q = Queue()
+        q: Queue = Queue()
         cherrypy_server = Process(target=_do_start_server, args=(q, page, config))
         cherrypy_server.start()
 
@@ -57,32 +56,23 @@ class CherryPyServer(object):
         else:
             assert error_msg is None, error_msg
 
-        self.server_pid = cherrypy_server.pid
+        self._process = cherrypy_server
 
-    def is_running(self):
+    def is_running(self) -> bool:
         """
-        :rtype: bool
         :return: If server is running.
         """
-        return self.server_pid is not None
+        return self._process is not None
 
-    def stop(self):
+    def stop(self) -> None:
         """
         Kill process running cherrypy server.
         """
-        if self.server_pid is not None:
-            import signal
+        if self._process is not None:
+            self._process.terminate()
+            self._process.join()
 
-            try:
-                os.kill(self.server_pid, signal.SIGTERM)
-            except WindowsError as e:  # pragma: no cover
-                # If already dead for any reason, just let it go
-                if e.winerror != 5:
-                    raise
-            if not sys.platform.startswith("win"):
-                os.waitpid(self.server_pid, 0)
-
-        self.server_pid = None
+        self._process = None
 
     @contextmanager
     def single_shot(self, page, config):
