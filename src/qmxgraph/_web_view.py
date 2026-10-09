@@ -1,4 +1,5 @@
 # Dynamic dependency that may mess freezing tools if not included
+import json
 from enum import auto
 from enum import Enum
 from typing import Any
@@ -132,7 +133,8 @@ class QWebViewWithDragDrop(QWebEngineView):
         """
         self._check_valid_eval_state()
         with wait_callback_called(timeout_ms=timeout_ms) as callback:
-            self.page().runJavaScript(script, callback)
+            self.page().runJavaScript(_in_page_context(script), callback)
+        # Leaving the block guarantees the callback was called, as it raises on timeout.
         assert callback.args is not None
         return callback.args[0]
 
@@ -150,7 +152,7 @@ class QWebViewWithDragDrop(QWebEngineView):
         :param script: A JavaScript statement.
         """
         self._check_valid_eval_state()
-        self.page().runJavaScript(script)
+        self.page().runJavaScript(_in_page_context(script))
 
     def _check_valid_eval_state(self) -> None:
         """Check the view is in a valid state to evaluate JS commands."""
@@ -167,3 +169,11 @@ class QWebViewWithDragDrop(QWebEngineView):
 
     def dropEvent(self, event):
         self.on_drop_event.emit(event)
+
+
+def _in_page_context(script: str) -> str:
+    """
+    Wrap a script so the page evaluates it as its own code (see `qmxgraphEval`), otherwise
+    its uncaught errors reach the error bridge without any details.
+    """
+    return f"qmxgraphEval({json.dumps(script)})"
