@@ -95,61 +95,17 @@ def qrc(
     )
 
 
-@invoke.task(
-    help={
-        "python-version": (
-            "Can be used to define the python version used when creating the work environment"
-        ),
-    }
-)
-def docs(ctx, python_version=None):
+@invoke.task
+def docs(ctx):
     """
-    Create the documentation html locally.
+    Create the documentation html locally, in the `docs` pixi environment.
     """
-    import json
     import subprocess
-    import tempfile
-    from pathlib import Path
 
-    conda_info_json = subprocess.check_output(["conda", "info", "--json"])
-    conda_info = json.loads(conda_info_json)
-    current_env_name = conda_info["active_prefix_name"]
-    if current_env_name in (None, "base"):
-        raise invoke.Exit("Activate the project's conda environment first")
-    else:
-        docs_env_name = f"{current_env_name}-docs"
-
-    new_environ = os.environ.copy()
-    new_environ["TEST_QMXGRAPH"] = "0"
-    if python_version is not None:
-        new_environ["PYTHON_VERSION"] = python_version
-
-    script = [
-        "",  # To have a new line at the start (see windows new line).
-        f"conda devenv --name {docs_env_name} --file docs_environment.devenv.yml",
-        f"conda activate {docs_env_name}",
-        "cd docs",
-        "sphinx-build . _build -W",
-    ]
-    if sys.platform == "win32":
-        suffix = ".bat"
-        new_line = "\n@echo on\ncall "
-        command = ["cmd", "/C"]
-    else:
-        suffix = ".bash"
-        new_line = "\n"
-        command = ["bash", "-x"]
-
-    script_file = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
-    try:
-        script_file.close()
-        script_file = Path(script_file.name)
-        script_file.write_text(new_line.join(script))
-
-        command.append(str(script_file))
-        subprocess.check_call(command, env=new_environ)
-    finally:
-        script_file.unlink()
+    subprocess.check_call(
+        ["pixi", "run", "--environment", "docs", "sphinx-build", ".", "_build", "-W"],
+        cwd="docs",
+    )
 
 
 @invoke.task

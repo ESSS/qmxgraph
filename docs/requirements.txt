@@ -1,2 +1,3 @@
+# Used by Read the Docs; keep in sync with the `docs` feature in pixi.devenv.toml.
 sphinx
 sphinx-rtd-theme

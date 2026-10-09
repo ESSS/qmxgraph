@@ -691,24 +691,26 @@ class QmxGraphApi(object):
             qmxgraph.js.Variable(handler),
         )
 
-    def register_view_update_handler(self, handler):
+    def register_view_update_handler(self, handler: str) -> None:
         """
         Add function to handle updates in the graph view.
+
         :param handler: Name of signal bound to JavaScript by a bridge object
             that is going to be used as callback to event. Receives,
             respectively, graph dump and graph scale and translation.
         """
-        return self.call_api("registerViewUpdateHandler", qmxgraph.js.Variable(handler))
+        self.call_api("registerViewUpdateHandler", qmxgraph.js.Variable(handler))
 
-    def register_cells_bounds_changed_handler(self, handler):
+    def register_cells_bounds_changed_handler(self, handler: str) -> None:
         """
         Add function to handle updates in the graph view.
+
         :param handler: Name of signal bound to JavaScript by a bridge
             object that is going to be used as callback to event. Receives
             a map of cell id to a map describing the cell bounds.
 
         """
-        return self.call_api("registerBoundsChangedHandler", qmxgraph.js.Variable(handler))
+        self.call_api("registerBoundsChangedHandler", qmxgraph.js.Variable(handler))
 
     def resize_container(self, width, height):
         """

@@ -14,6 +14,8 @@ pip = "*"
 pre-commit = "*"
 pyqt = ">=5.12,<6.0"
 pyqtwebengine = "*"
+# Needed by oop-ext, whose conda-forge package doesn't declare it.
+typing_extensions = "*"
 
 [devenv.env-vars]
 PYTHONPATH = ["${{ devenv_project_dir }}/src"]
@@ -37,3 +39,8 @@ pytest-xvfb = "*"
 [devenv.feature.test.env-vars]
 # Feature env-vars replace the main ones instead of extending them.
 PYTHONPATH = ["${{ devenv_project_dir }}/src", "${{ devenv_project_dir }}/tests"]
+
+# Keep in sync with docs/requirements.txt, used by Read the Docs.
+[devenv.feature.docs.dependencies]
+sphinx = "*"
+sphinx_rtd_theme = "*"

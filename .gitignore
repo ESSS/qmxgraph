@@ -69,9 +69,5 @@ target/
 resource_*.qrc
 resource_*.py
 
-environment.yml
-docs_environment.yml
-esss_environment.yml
-
 # pixi environments
 .pixi/

@@ -5,6 +5,7 @@ platforms = ["win-64", "linux-64"] # Managed by devenv
 
 [environments]
 default = ["test"]
+docs = ["docs"]
 
 [dependencies] # Managed by devenv
 python = ">=3.10" # From: qmxgraph
@@ -18,6 +19,7 @@ pip = "*" # From: qmxgraph
 pre-commit = "*" # From: qmxgraph
 pyqt = ">=5.12,<6.0" # From: qmxgraph
 pyqtwebengine = "*" # From: qmxgraph
+typing_extensions = "*" # From: qmxgraph
 
 [target.unix.activation.env] # Managed by devenv
 MYPYPATH = "${PIXI_PROJECT_ROOT}/src:${MYPYPATH}"
@@ -47,3 +49,7 @@ PYTHONPATH = "${PIXI_PROJECT_ROOT}/src:${PIXI_PROJECT_ROOT}/tests:${PYTHONPATH}"
 
 [feature.test.target.win.activation.env] # Managed by devenv
 PYTHONPATH = "%PIXI_PROJECT_ROOT%/src;%PIXI_PROJECT_ROOT%/tests;%PYTHONPATH%"
+
+[feature.docs.dependencies] # Managed by devenv
+sphinx = "*" # From: qmxgraph
+sphinx_rtd_theme = "*" # From: qmxgraph
